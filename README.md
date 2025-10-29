@@ -1,6 +1,38 @@
 # Charged Higgs Transformer code
 Code for training, interpreting & applying transformer-like neural networks to low-level reconstructed objects in particle physics events, for event reconstruction/classification.
 
+For the given analysis, these models lead to signal efficiency increases by factors of ten (low mass points) to two (high mass) at realistic SM background acceptance rates.
+
+## Performance
+<!-- lvbb             |  qqbb -->
+<!-- :-------------------------:|:-------------------------: -->
+<!-- ![Roc Auc Score](examples/Plots/20250703NNPlotsLvbb/jNNpNNlowLevelTransformerReco/ROC_AUC_vs_Mass.png)  |  ![](examples/Plots/20250703NNPlotsQqbb/jNNpNNlowLevelTransformerReco/ROC_AUC_vs_Mass.png) -->
+The below figures show the percentage<sup id="fnref1">[1](#fn1)</sup> of signal remaining when a cut is made to accept 200 (MC weighted) background events (a reasonable expected requirement for Signal Regions in this analysis). 
+All networks were trained using code from this repository.
+
+<!-- lvbb             |  qqbb -->
+<!-- :-------------------------:|:-------------------------: -->
+<!-- ![Percentage of signal remaining in](examples/Plots/20250703NNPlotsLvbb/jNNpNNlowLevelTransformerReco/ExpectedSignalAt200BkgAccepted_vs_Mass.png)  |  ![](examples/Plots/20250703NNPlotsQqbb/jNNpNNlowLevelTransformerReco/ExpectedSignalAt200BkgAccepted_vs_Mass.png) -->
+
+<div align="center">
+  <img src="examples/Plots/20250703NNPlotsLvbb/jNNpNNlowLevelTransformerReco/ExpectedSignalAt200BkgAccepted_vs_Mass.png" alt="lvbb" width="48%">
+  <img src="examples/Plots/20250703NNPlotsQqbb/jNNpNNlowLevelTransformerReco/ExpectedSignalAt200BkgAccepted_vs_Mass.png" alt="qqbb" width="48%">
+</div>
+
+| Line style | legend entry | Description of model |
+|---------------|------------|-------------|
+| Lime Green/solid (upper) | Low-level NN (transformer-reco-inputs) | Transformer classifier trained on low-level variables, for input events which were reconstructed using a transformer-reconstruction model |
+|Orange/Dashed| Low-level pre-split NN | Transformer classifier trained on low-level variables, for input events which were reconstructed manually (lvbb / qqbb trained separately)|
+|Pink/Dotted| Low-level combined NN| Transformer classifier trained on low-level variables, for input events which were reconstructed manually (lvbb / qqbb trained together)|
+|Dark Green/solid (lower)|Joint NN| MLP classifier trained on high-level variables, for input events which were reconstructed manually - as in the published analysis, linked [here](https://arxiv.org/abs/2411.03969)|
+|Purple/Dot-dash|Parametrised NN| MLP classifier trained on high-level variables, for input events which were reconstructed manually - as proposed in [Parmeterized neural networks for high-energy physics](https://link.springer.com/article/10.1140/epjc/s10052-016-4099-4)|
+
+
+<!-- ![Alt text](examples/Plots/20250703NNPlotsQqbb/jNNpNNlowLevelTransformerReco/ROC_AUC_vs_Mass.png) -->
+
+<!-- HTML fallback for GitHub (if footnotes aren’t rendered) -->
+<b id="fn1">[1]</b> Percentages are taken relative to the total weighted events present in the manual reconstruction, so 100 is the maximum achievable by all methods except the “Low-level NN (transformer-reco inputs)”, which use the newly proposed transformer-based reconstruction instead and therefore have a larger set of correctly reconstructed input events, allowing them to retain more than 100% of the original events.
+
 ## Main run files
 Note all of these are split into jupyter cell tags (esp. useful for mech interp script)
 - To train a reconstruction network (on signal only) on low-level object information, `python TrainLowLevelReconstruction.py`
