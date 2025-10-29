@@ -14,7 +14,7 @@ from jaxtyping import Float
 import einops
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-mpl.use('Agg') # If you want to run in batch mode, and not see the plots made
+mpl.use('Agg') # If you want to run in batch mode, and not see the plots made
 # from utils import decode_y_eval_to_info
 from dataloaders.highleveldataloader import ProportionalMemoryMappedDatasetHighLevel
 from transformer_lens import HookedTransformer, HookedTransformerConfig
@@ -34,6 +34,7 @@ import shutil
 from metrics.highlevelmetrics import HEPMetrics, HEPLoss, init_wandb
 from typing import List
 from utils.utils import DSID_MASS_MAPPING
+from utils.metrics_storage import MetricsStorage
 sorted_masses = sorted(list(DSID_MASS_MAPPING.values()))
 
 # %%
@@ -152,6 +153,19 @@ val_dataloader = ProportionalMemoryMappedDatasetHighLevel(
 )
 # batch = next(train_dataloader)
 
+
+# %%
+# # Get the number of signal events in the training set
+# num_signal_events = 0
+# num_bkg_events = 0
+# train_dataloader._reset_indices()
+# for dsid in train_dataloader.current_indices:
+#     if (dsid < 500000) or (dsid > 600000):
+#         num_bkg_events += len(train_dataloader.current_indices[dsid])
+#     else:
+#         num_signal_events += len(train_dataloader.current_indices[dsid])
+# print(num_signal_events, num_bkg_events)
+
 # %%
 print(train_dataloader.get_total_samples())
 batch = next(train_dataloader)
@@ -174,7 +188,7 @@ models[model_n] = {
         N_targets=N_TARGETS, 
         # hidden_layers=[400,800,800,400,400],
         # hidden_layers=[128, 128, 128],
-        hidden_layers=[256, 256, ],
+        hidden_layers=[512, 512, 512],
         dropout_prob=0.0,
         use_batchnorm=False
         ).to(device)
@@ -198,7 +212,9 @@ log_interval = 50
 longer_log_interval = 1000000000
 SAVE_MODEL_EVERY = int(num_epochs/3)
 config = {
-        "learning_rate_high": 5e-5,
+        # "learning_rate_high": 5e-6,
+        # "learning_rate_low": 2e-8,
+        "learning_rate_high": 5e-4,
         "learning_rate_low": 2e-7,
         # "learning_rates": [1e-4, 1e-5, 1e-6],
         "cosine_lr_n_epochs": num_epochs,   # Number of epochs to complete one cycle of learning rate
@@ -213,6 +229,11 @@ config = {
         "weight_decay":1e-10,
     }
 optimizer = torch.optim.Adam(models[model_n]['model'].parameters(), lr=1e-4, weight_decay=config["weight_decay"])
+
+# Initialize local metrics storage
+metrics_storage = MetricsStorage(saveDir, experiment_name="HighLevelClassifier")
+metrics_storage.save_config(config)
+
 if config['wandb']:
     init_wandb(config)
     # wandb.watch(model, log_freq=100)
@@ -376,6 +397,35 @@ for epoch in range(num_epochs):
             val_metrics.compute_and_log(epoch, prefix="val", step=global_step, log_level=log_level, save=config['wandb'], commit=False)
             val_metrics_MCWts.compute_and_log(epoch, prefix="val_MC", step=global_step, log_level=log_level, save=config['wandb'], commit=True)
 
+    # Store metrics locally at the end of each epoch
+    if (epoch % 1) == 0:  # Store every epoch
+        # Compute final epoch metrics (without saving to wandb)
+        train_metrics.reset_starts()
+        final_train_metrics = train_metrics.compute_and_log(epoch, prefix="train", step=global_step, log_level=3, save=False, commit=False)
+        train_metrics_MCWts.reset_starts()
+        final_train_mc_metrics = train_metrics_MCWts.compute_and_log(epoch, prefix="train_MC", step=global_step, log_level=3, save=False, commit=False)
+        
+        val_metrics.reset_starts()
+        final_val_metrics = val_metrics.compute_and_log(epoch, prefix="val", step=global_step, log_level=3, save=False, commit=False)
+        val_metrics_MCWts.reset_starts()
+        final_val_mc_metrics = val_metrics_MCWts.compute_and_log(epoch, prefix="val_MC", step=global_step, log_level=3, save=False, commit=False)
+        
+        # Prepare loss metrics
+        loss_metrics = {
+            "train_loss_total": train_loss_epoch/sum_weights_epoch,
+            "val_loss_total": loss.item(),
+            "val_loss_ce": loss.item()/wt_sum.item(),
+        }
+        
+        # Store locally
+        metrics_storage.store_epoch_metrics(
+            epoch=epoch,
+            train_metrics=final_train_metrics,
+            val_metrics=final_val_metrics,
+            train_mc_metrics=final_train_mc_metrics,
+            val_mc_metrics=final_val_mc_metrics,
+            loss_metrics=loss_metrics
+        )
     
     # Log model gradients and parameters
     if 0:

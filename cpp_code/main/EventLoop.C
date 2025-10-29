@@ -1076,6 +1076,172 @@ int EventLoop::LowLevel_ClassifyDecayType(){
 }
 
 
+
+
+int EventLoop::LowLevel_ClassifyDecayTypeNew(){
+    if (debugMode) std::cout << "\t" << "Entering LowLevel_ClassifyDecayTypeNew" << std::endl;
+    const double W_MASS = 80.379e3; // GeV to MeV
+    const double W_MASS_WINDOW = 100000.0e3; // GeV to MeV
+    // Check if truth information exists
+    if (truth_pt->empty() || truth_eta->empty() || truth_phi->empty() || 
+        truth_m->empty() || truth_pdgid->empty()) {
+        return -3;
+    }
+
+    // Create vectors to store particle information
+    std::vector<TLorentzVector> particleP4;
+    std::vector<int> pdgIds;
+    // Fill vectors with truth information
+    for (size_t i = 0; i < truth_pt->size(); i++) {
+        TLorentzVector p4;
+        p4.SetPtEtaPhiM(truth_pt->at(i), truth_eta->at(i), 
+                        truth_phi->at(i), truth_m->at(i));
+        particleP4.push_back(p4);
+        pdgIds.push_back(truth_pdgid->at(i));
+    }
+
+    if (false){ // Testing 15/01/25
+        for (size_t i = 0; i < pdgIds.size(); i++) {
+            if (pdgIds[i] == 24) {
+                std::cout << "TRUTH W+ : (" << particleP4[i].Pt() << ", " << particleP4[i].Eta() << ", " << particleP4[i].Phi() << ", " << particleP4[i].M() << std::endl;
+            }
+            if (pdgIds[i] == -24) {
+                std::cout << "TRUTH W- : (" << particleP4[i].Pt() << ", " << particleP4[i].Eta() << ", " << particleP4[i].Phi() << ", " << particleP4[i].M() << std::endl;
+            }
+        }
+    }
+
+    // Find charged Higgs (pdgId = ±37)
+    int chHiggsIdx = -1;
+    TLorentzVector chHiggsP4;
+    for (size_t i = 0; i < pdgIds.size(); i++) {
+        if (abs(pdgIds[i]) == 37) {
+            chHiggsIdx = i;
+            chHiggsP4 = particleP4[i];
+            break;
+        }
+    }
+    if (chHiggsIdx == -1) return -4;
+    // Find SM Higgs (pdgId = 25)
+    int smHiggsIdx = -1;
+    TLorentzVector smHiggsP4;
+    for (size_t i = 0; i < pdgIds.size(); i++) {
+        if (pdgIds[i] == 25) {
+            smHiggsIdx = i;
+            smHiggsP4 = particleP4[i];
+            break;
+        }
+    }
+    if (smHiggsIdx == -1) return -5;
+    ll_truth_Higgs.SetPtEtaPhiM(smHiggsP4.Pt(), smHiggsP4.Eta(), smHiggsP4.Phi(), smHiggsP4.M());
+    // Check for b-quark pair from Higgs decay
+    bool foundBPair = false;
+    int bCount = 0;
+    for (int pdgId : pdgIds) {
+        if (abs(pdgId) == 5) bCount++;
+    }
+    if (bCount >= 2) foundBPair = true;
+    if (!foundBPair) return -6;
+    // truth_Higgs_reco = ???;
+    // Find W boson that best reconstructs charged Higgs when combined with SM Higgs
+    double bestDeltaM = 1e12;
+    int bestWIdx = -1;
+    TLorentzVector bestWP4;
+    for (size_t i = 0; i < pdgIds.size(); i++) {
+        // if (abs(pdgIds[i]) == 24) {
+        if (pdgIds[i] == 24) {
+            double deltaM = abs((particleP4[i] + smHiggsP4).M() - chHiggsP4.M());
+            if (deltaM < bestDeltaM) {
+                bestDeltaM = deltaM;
+                bestWIdx = i;
+                bestWP4 = particleP4[i];
+            }
+        }
+    }
+    if (bestWIdx == -1) return -7;
+    ll_truth_W.SetPtEtaPhiM(bestWP4.Pt(), bestWP4.Eta(), bestWP4.Phi(), bestWP4.M());
+    int decay_type = 0;
+    int lepton_idx = -1;
+    if (false){ // Old version, doesn't account for 2 lepton case
+        // First find the lepton
+        for(size_t i = 0; i < truth_pdgid->size(); i++) {
+            int pdgid = (*truth_pdgid)[i];
+            // Check for electron (11) or muon (13)
+            if(abs(pdgid) == 11 || abs(pdgid) == 13) {
+                lepton_idx = i;
+                // Set decay type based on charge (negative pdgid = positive particle)
+                decay_type = (pdgid > 0) ? 2 : 1;
+                break;
+            }
+        }
+    } else if (false) { // Newer but still old version, checks for which truth lepton most closely matches the event-level lepton
+        // First find the lepton
+        float min_delta_R = -1;
+        for(size_t i = 0; i < truth_pdgid->size(); i++) {
+            int pdgid = (*truth_pdgid)[i];
+            // Check for electron (11) or muon (13)
+            if(abs(pdgid) == 11 || abs(pdgid) == 13) {
+                if ((min_delta_R==-1) || (particles.at(0).p4.DeltaR(particleP4.at(i))) < min_delta_R){
+                    lepton_idx = i;
+                    min_delta_R = (particles.at(0).p4.DeltaR(particleP4.at(i)));
+                    // Set decay type based on charge (negative pdgid = positive particle)
+                    decay_type = (pdgid > 0) ? 2 : 1;
+                }
+            }
+        }
+    } else { // New version, checks the W boson decay by trying to create W from neutrino+lep OR quarks
+        float min_delta_R = -1;
+        // First try with lepton + neutrino pairs
+        if (debugMode) std::cout << "\t" << "Looping over leptons" << std::endl;
+        for(size_t i = 0; i < truth_pdgid->size(); i++) {
+            int pdgid = (*truth_pdgid)[i];
+            // Check for electron (11) or muon (13)
+            if(pdgid == -11 || pdgid == -13) {
+                if (debugMode) std::cout << "\t" << "Found lepton with pdgid=" << pdgid << std::endl;
+                for(size_t j = 0; j < truth_pdgid->size(); j++) {
+                    int pdgid2 = (*truth_pdgid)[j];
+                    if(((pdgid==-11)&&(pdgid2==12)) || ((pdgid==-13)&&(pdgid2==14))) {
+                        if (debugMode) std::cout << "\t" << "Found neutrino with pdgid=" << pdgid << std::endl;
+                        if ((ll_truth_W.DeltaR(particleP4.at(i) + particleP4.at(j)) < min_delta_R) || (min_delta_R==-1)){
+                            lepton_idx = i;
+                            min_delta_R = ll_truth_W.DeltaR(particleP4.at(i) + particleP4.at(j));
+                            decay_type = 1;
+                        }
+                    }
+                }
+            }
+        }
+        // Now try with light quarks
+        int best_j1_idx = -1;
+        int best_j2_idx = -1;
+        for(size_t i = 0; i < truth_pdgid->size(); i++) {
+            // Skip if not a quark (assuming quarks have pdgid < 6)
+            if(abs((*truth_pdgid)[i]) >= 5) continue;
+            for(size_t j = i + 1; j < truth_pdgid->size(); j++) {
+                if(abs((*truth_pdgid)[j]) >= 5) continue;
+                double mass_diff = abs((particleP4.at(i) + particleP4.at(j)).M() - W_MASS);
+                if(mass_diff < W_MASS_WINDOW) {
+                    double deltaR = ll_truth_W.DeltaR(particleP4.at(i) + particleP4.at(j));
+                    if((deltaR < min_delta_R) || (min_delta_R==-1)) {
+                        min_delta_R = deltaR;
+                        best_j1_idx = i;
+                        best_j2_idx = j;
+                        decay_type = 2;
+                    }
+                }
+            }
+        }
+    }
+
+    for(size_t i = 0; i < truth_pdgid->size(); i++) {
+        if (((*truth_pdgid)[i] == -15) and (decay_type == 1)) return -9; // Tau+ in the event truth-particles so this case is tricky, discount it
+        if (((*truth_pdgid)[i] == -15) and (decay_type == 2)) return -10; // Tau+ in the event truth-particles so this case is tricky, discount it
+    }
+    if (debugMode) std::cout << "\t" << "Leaving LowLevel_ClassifyDecayTypeNew" << std::endl;
+    return decay_type;
+}
+
+
 bool EventLoop::LowLevel_Loop(){
     if (debugMode) std::cout << "\t" << "Entering LowLevel_Loop" << std::endl;
     // Clear vectors for new event
@@ -1177,8 +1343,9 @@ bool EventLoop::LowLevel_Loop(){
     // Get truth info TODO maybe use the same truth calculation as original method here?
     if (false) std::cout << "------------------------------------------" << std::endl; // Testing 15/01/25
     lepton_count = LowLevel_CountLeptons();
-    truth_decay_mode = LowLevel_ClassifyDecayType();
+    truth_decay_mode_med = LowLevel_ClassifyDecayType();
     truth_decay_mode_old = LowLevel_ClassifyDecayType_OLD();
+    truth_decay_mode = LowLevel_ClassifyDecayTypeNew();
     if (false) std::cout << "Truth decay mode: " << truth_decay_mode << std::endl; // Testing 15/01/25
     if ((truth_decay_mode == 1) || (truth_decay_mode == 2)) successfulTruthMatch = LowLevel_MatchTruthParticles();
     std::tie(best_mH, best_mWH_qqbb, best_mWH_lvbb) = LowLevel_GetBestWhMasses();
@@ -2501,8 +2668,7 @@ void EventLoop::ApplySmallRjetRemoval(std::vector<TLorentzVector> *smallRJets, s
 
 
 
-void EventLoop::FindTop()
-{
+void EventLoop::FindTop(){
     if (debugMode) std::cout << "\t\t" << "Entering FindTop" << std::endl;
     const double_t topMass = 172760;
 

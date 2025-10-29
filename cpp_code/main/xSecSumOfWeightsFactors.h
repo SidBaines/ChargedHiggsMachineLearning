@@ -188,3 +188,6 @@ xSecSumOfWeightsFactors["MC16a"][413008]=6132957.01172;
 xSecSumOfWeightsFactors["MC16d"][413023]=3962434.07715;
 xSecSumOfWeightsFactors["MC16e"][413023]=5292694.63477;
 xSecSumOfWeightsFactors["MC16a"][413023]=3151676.05469;
+xSecSumOfWeightsFactors["MC16d"][411076]=3993421688.0;
+xSecSumOfWeightsFactors["MC16e"][411076]=5209750392.5;
+xSecSumOfWeightsFactors["MC16a"][411076]=3060120544.0;

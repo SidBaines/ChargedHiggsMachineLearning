@@ -12,9 +12,8 @@ from datetime import datetime
 from dataloaders.lowleveldataloader import ProportionalMemoryMappedDataset
 import wandb
 import shutil
-from metrics.lowlevelmetrics import HEPMetrics, HEPLoss, HEPLossWithEntropy, init_wandb
+from metrics.lowlevelrecometrics import HEPMetrics, HEPLoss, HEPLossWithEntropy, init_wandb
 from models.models import TestNetwork
-from interp.mechinterputils import run_with_cache_and_bottleneck, ActivationCache, hook_attention_heads
 from utils.utils import basic_lr_scheduler
 
 
@@ -47,7 +46,7 @@ else:
 IS_CATEGORICAL = True
 PHI_ROTATED = False
 REMOVE_WHERE_TRUTH_WOULD_BE_CUT = True
-TAG_INFO_INPUT=False
+TAG_INFO_INPUT=True
 if True:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 else: # For testing new model architecture classes, probably run on cpu, since CUDA will just give difficult errors if there is some problem with the arch
@@ -94,7 +93,7 @@ else:
 KEEP_DSID= None # a dsid if we only want to keep that DSID in training, or None
 MIN_DSID = None # a dsid if we only want to keep this DSID or above (inclusive) or None
 MAX_DSID = None # a dsid if we only want to keep this DSID or below (inclusive) or None
-batch_size = 256
+batch_size = 256*16
 n_splits=2
 validation_split_idx=0
 
@@ -102,15 +101,15 @@ validation_split_idx=0
 ############   MODEL TRAINING CONFIG  ################
 # Assumes that the data has already been binarised
 MODEL_ARCH="DEEPSETS_RESIDUAL_VARIABLE_TRUESKIP_WITH_BOTTLENECK"
-USE_ENTROPY_TO_ENCOURAGE_SIMPLEATTENTION = True # Bool. If true, we'll apply a loss penalty which encourages the attention weights to follow a distribution close to a specific entropy (can make this 0 for close to delta function ie 'pay attention to exactly one particle', log(2) for close to 'pay attention to exactly two particles', ...); aim of this is to make the model more interpretable
-ATTENTION_OUTPUT_BOTTLENECK_SIZE = 1 # None or integer. If not None, then we will apply a linear reduction then expansion to the attention output (per head) to this integer, to reduce the dimensionality of data that can be passed around; aim of this is to make the model more interpretable
-num_blocks_variable=6
+USE_ENTROPY_TO_ENCOURAGE_SIMPLEATTENTION = False # Bool. If true, we'll apply a loss penalty which encourages the attention weights to follow a distribution close to a specific entropy (can make this 0 for close to delta function ie 'pay attention to exactly one particle', log(2) for close to 'pay attention to exactly two particles', ...); aim of this is to make the model more interpretable
+ATTENTION_OUTPUT_BOTTLENECK_SIZE = None # None or integer. If not None, then we will apply a linear reduction then expansion to the attention output (per head) to this integer, to reduce the dimensionality of data that can be passed around; aim of this is to make the model more interpretable
+num_blocks_variable=5
 num_clasifierlayers_variable=8
-model_cfg = {'include_mlp':True, 'd_model': 152, 'd_attn':None, 'd_mlp': 400, 'num_blocks':num_blocks_variable, 'dropout_p': 0.0, "embedding_size":N_CTX, "num_heads":4}
+model_cfg = {'include_mlp':False, 'd_model': 100, 'd_attn':None, 'd_mlp': 1, 'num_blocks':num_blocks_variable, 'dropout_p': 0.0, "embedding_size":N_CTX, "num_heads":4}
 num_epochs = 30
 log_interval = int(50e3/batch_size)
 longer_log_interval = 100000000000
-SAVE_MODEL_EVERY = 5
+SAVE_MODEL_EVERY = 10
 name_mapping = {"DEEPSETS":"DS", "HYBRID_SELFATTENTION_GATED":"DSSAGA", "DEEPSETS_SELFATTENTION":"DSSA", "DEEPSETS_SELFATTENTION_RESIDUAL":"DSSAR", 
                 "DEEPSETS_SELFATTENTION_RESIDUAL_X2":"DSSAR2", "DEEPSETS_SELFATTENTION_RESIDUAL_X3":"DSSAR3", "DEEPSETS_RESIDUAL_VARIABLE_TRUESKIP":f"DSSARVTS{num_blocks_variable}",
                 "DEEPSETS_RESIDUAL_VARIABLE_TRUESKIP_WITH_BOTTLENECK":f"DSSARVTSBN{num_blocks_variable}",
@@ -249,6 +248,69 @@ print(train_dataloader.get_total_samples())
 print(val_dataloader.get_total_samples())
 
 
+# %%
+if 0:
+    # Get the number of signal events in the training set
+    num_signal_events = 0
+    num_bkg_events = 0
+    total_signal_events = 0
+    train_dataloader._reset_indices()
+    for dsid in train_dataloader.current_indices:
+        if (dsid < 500000) or (dsid > 600000):
+            num_bkg_events += len(train_dataloader.current_indices[dsid])
+        else:
+            num_signal_events = len(train_dataloader.current_indices[dsid])
+            total_signal_events += num_signal_events
+        # print(f"DSID: {dsid}, Signal events: {num_signal_events}, Bkg events: {num_bkg_events}")
+        print(num_signal_events)
+    print(total_signal_events)
+    print(num_bkg_events)
+# %% 
+if 0:
+    from utils.utils import check_category
+    # And now the weighted number of signal events, split by category
+    num_events = {dsid: {} for dsid in train_dataloader.current_indices}
+    for dsid in train_dataloader.current_indices:
+        for cat in range(6):
+            num_events[dsid][cat] = 0
+    train_dataloader._reset_indices()
+    orig_len_train_dataloader=len(train_dataloader)
+    for batch_idx in range(orig_len_train_dataloader):
+        if (batch_idx%10)==0:
+            print(f"{batch_idx}/{orig_len_train_dataloader}")
+        batch = next(train_dataloader)
+        x, y, w, types, dsids, mqq, mlv, MCWts, mHs = batch.values()
+        cats = check_category(types, #[batch object]
+                   x[...,-1], # [batch object]
+                   N_CTX-1, # int
+                   use_torch=True, # bool
+                   )
+        for dsid in train_dataloader.current_indices:
+            dsid_sel = dsids == dsid
+            for cat in range(6):
+                cat_sel = cats == cat
+                num_events[dsid][cat] += w[dsid_sel & cat_sel.to(device)].sum().item()
+    # And now loop over val set
+    val_dataloader._reset_indices()
+    orig_len_val_dataloader=len(val_dataloader)
+    for batch_idx in range(orig_len_val_dataloader):
+        if (batch_idx%10)==0:
+            print(f"{batch_idx}/{orig_len_val_dataloader}")
+        batch = next(val_dataloader)
+        x, y, w, types, dsids, mqq, mlv, MCWts, mHs = batch.values()
+        cats = check_category(types, #[batch object]
+                   x[...,-1], # [batch object]
+                   N_CTX-1, # int
+                   use_torch=True, # bool
+                   )
+        for dsid in val_dataloader.current_indices:
+            dsid_sel = dsids == dsid
+            for cat in range(6):
+                cat_sel = cats == cat
+                num_events[dsid][cat] += w[dsid_sel & cat_sel.to(device)].sum().item()
+
+    # print(num_events)
+    # wefwefwef
 
 ##############################################
 ########       CREATE MODEL      #############
@@ -265,6 +327,7 @@ model = TestNetwork(hidden_dim_attn=model_cfg['d_attn'], use_lorentz_invariant_f
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=config['weight_decay'])
 
 if 0: # This is optional, since we run with the cache now anyway to allow more interesting loss functions if we want them
+    from interp.mechinterputils import ActivationCache, hook_attention_heads
     if ATTENTION_OUTPUT_BOTTLENECK_SIZE is not None:
         # We need to apply the hook function to actually use the bottleneck layers
         fwd_hooks = []
@@ -352,6 +415,7 @@ for epoch in range(num_epochs):
         if (ATTENTION_OUTPUT_BOTTLENECK_SIZE is None) and (not USE_ENTROPY_TO_ENCOURAGE_SIMPLEATTENTION):
             outputs = model(x[...,:4+int(TAG_INFO_INPUT)], types)
         else:
+            from interp.mechinterputils import run_with_cache_and_bottleneck
             outputs, cache = run_with_cache_and_bottleneck(model, x[...,:4+int(TAG_INFO_INPUT)], types, detach=False)
         outputs = outputs.squeeze()
         if USE_ENTROPY_TO_ENCOURAGE_SIMPLEATTENTION:

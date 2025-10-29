@@ -29,6 +29,7 @@ class ActivationPatcher:
 
     def _create_patching_hook(self, patch_value_fn: Callable, 
                               source_cache: Optional[Dict], 
+                              original_inputs_cache: Optional[Dict],
                               target_output_component_idx: Optional[int] = None) -> Callable:
         """
         Creates a forward hook that replaces the output of a module.
@@ -37,7 +38,7 @@ class ActivationPatcher:
             # patch_value_fn returns:
             # 1. A single tensor if target_output_component_idx is not None (this tensor replaces one part of output_val).
             # 2. The entire new output (tensor or tuple) if target_output_component_idx is None.
-            new_val_from_patch_fn = patch_value_fn(source_cache, output_val)
+            new_val_from_patch_fn = patch_value_fn(source_cache, original_inputs_cache, output_val)
 
             if target_output_component_idx is not None and isinstance(output_val, tuple):
                 # We are replacing a specific component of the original tuple output_val.
@@ -78,8 +79,9 @@ class ActivationPatcher:
             original_inputs_tuple: Tuple of input tensors (e.g., features, types) for the main run.
             patch_operations: A list of dictionaries, each defining a patching operation:
                 - 'target_module_path': Dot-separated string path to the nn.Module whose output is patched.
-                - 'patch_value_fn': Callable(source_cache, original_module_output) -> tensor_to_patch_with.
+                - 'patch_value_fn': Callable(source_cache, original_inputs_cache, original_module_output) -> tensor_to_patch_with.
                                     `source_cache` is the activation cache from `source_inputs_tuple` (or None).
+                                    `original_inputs_cache` is the activation cache from `original_inputs_tuple`.
                                     `original_module_output` is what the target module would have outputted.
                 - 'target_output_component_idx': (Optional) If the target module returns a tuple,
                                                  which component to replace (e.g., 0 for MHA's attn_output).
@@ -95,6 +97,7 @@ class ActivationPatcher:
         if source_inputs_tuple is not None:
             # Ensure source_inputs_tuple is correctly unpacked if it's (features, types)
             source_cache = self.model_activation_extractor.extract_activations(source_inputs_tuple)
+        original_inputs_cache = self.model_activation_extractor.extract_activations(original_inputs_tuple)
 
         fwd_hooks = []
         for op_spec in patch_operations:
@@ -102,6 +105,7 @@ class ActivationPatcher:
             patch_hook = self._create_patching_hook(
                 patch_value_fn=op_spec['patch_value_fn'],
                 source_cache=source_cache,
+                original_inputs_cache=original_inputs_cache,
                 target_output_component_idx=op_spec.get('target_output_component_idx')
             )
             fwd_hooks.append((target_module, patch_hook))

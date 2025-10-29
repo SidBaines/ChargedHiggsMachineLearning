@@ -22,10 +22,13 @@ HEADERS = utilis/configparser.h
 
 # Output binary
 BINS = bin/roo
-BINS2 = bin/extra
+BINS2 = bin/getNumEntriesExecute
+BINS3 = bin/countObjs
+BINS4 = bin/plotHistograms
 
 # Default target
-all: $(BINS) $(BINS2)
+# all: $(BINS) $(BINS2) $(BINS3) $(BINS4)
+all: $(BINS3) $(BINS4)
 
 # Build rule for the binary
 $(BINS): %: $(SOURCES) $(HEADERS)
@@ -35,12 +38,22 @@ $(BINS): %: $(SOURCES) $(HEADERS)
 
 $(BINS2): % : GetNumEntriesMain.C
 	@echo -n "Building $@ ... "
-	$(CXX) $(CCFLAGS) -g $< -I$(IDIR) $(INCLUDE) $(LIBS) -o getNumEntriesExecute
+	$(CXX) $(CCFLAGS) -g $< -I$(IDIR) $(INCLUDE) $(LIBS) -o $@
+	@echo "Done"
+
+$(BINS3): % : CountObjs.cpp
+	@echo -n "Building $@ ... "
+	$(CXX) $(CCFLAGS) -g $< -I$(IDIR) $(INCLUDE) $(LIBS) -o $@
+	@echo "Done"
+
+$(BINS4): % : PlotHistograms.cpp
+	@echo -n "Building $@ ... "
+	$(CXX) $(CCFLAGS) -g $< -I$(IDIR) $(INCLUDE) $(LIBS) -o $@
 	@echo "Done"
 
 # Clean rule (optional)
 clean:
 #	rm -f bin/roo bin/getNumEntriesExecute
-	rm bin/roo bin/getNumEntriesExecute
+	rm bin/roo bin/getNumEntriesExecute bin/countObjs bin/plotHistograms
 
 .PHONY: all clean

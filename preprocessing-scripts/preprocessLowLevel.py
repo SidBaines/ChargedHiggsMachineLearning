@@ -1,6 +1,7 @@
 # %% Add path to local files in case we're running in a different directory
 import sys
-sys.path.insert(0,'/users/baines/Code/ChargedHiggs_ProcessingForIntNote/')
+# sys.path.insert(0,'/users/baines/Code/ChargedHiggs_ProcessingForIntNote/')
+sys.path.insert(0,'/users/baines/Code/ChargedHiggs_ExperimentalML/')
 # %% [markdown]
 # # Load required modules
 import time
@@ -21,16 +22,16 @@ from utils.utils import Get_PtEtaPhiM_fromXYZT, GetXYZT_FromPtEtaPhiM, GetXYZT_F
 
 # %% Some basic setup
 # Some choices about the  process
-KEEP_ONLY_LJET_BOSONS = True # Only want this if we are TRAINING the RECONSTRUCTION net!
-REMOVE_WHERE_TRUTH_WOULD_BE_CUT = True # Only want this if we are TRAINING the RECONSTRUCTION net! For predicting reco, or for training/predicting classification, we want these events to be present!
-INCLUDE_ALL_SELECTIONS = True # Probably want this true nowadays, unless comparing to old method
-INCLUDE_NEGATIVE_SELECTIONS = True # Probably want this true nowadays, unless comparing to old method
+KEEP_ONLY_LJET_BOSONS = False # Only want this if we are TRAINING the RECONSTRUCTION net!
+REMOVE_WHERE_TRUTH_WOULD_BE_CUT = False # Only want this if we are TRAINING the RECONSTRUCTION net! For predicting reco, or for training/predicting classification, we want these events to be present!
+INCLUDE_ALL_SELECTIONS = False # Probably want this true nowadays, unless comparing to old method
+INCLUDE_NEGATIVE_SELECTIONS = False # Probably want this true nowadays, unless comparing to old method
 PHI_ROTATED = False # This might help, it might not 
 INCLUDE_TAG_INFO = True # This is very helpful variable (esp for Xbb large-R jet)
 TOSS_UNCERTAIN_TRUTH = True
 if not TOSS_UNCERTAIN_TRUTH:
     raise NotImplementedError # Need to work out what to do (eg. put in a flag so they're not used as training?)
-USE_OLD_TRUTH_SETTING = False
+USE_OLD_TRUTH_SETTING = True
 USE_MEDIUM_OLD_TRUTH_SETTING  = False
 # if USE_OLD_TRUTH_SETTING:
 #     raise NotImplementedError # Need to check if we should require truth_agreement variable here or not
@@ -50,8 +51,8 @@ if IS_XBB_TAGGED:
 else:
     N_CTX = 6 # the five types of object, plus one for 'no object;. We need to hardcode this unfortunately; it will depend on the preprocessed root files we're reading in.
 BIN_WRITE_TYPE=np.float32
-max_n_objs = 15 # BE CAREFUL because this might change and if it does you ahve to rebinarise
-OUTPUT_DIR = '/data/atlas/baines/20250429v1_WithEventNumbers_WithSmallRJetCloseToLJetRemovalDeltaRLT0.5' + '_NotPhiRotated'*(not PHI_ROTATED) + '_XbbTagged'*IS_XBB_TAGGED + '_WithRecoMasses_' + 'semi_shuffled_'*SHUFFLE_OBJECTS + f'{max_n_objs}' + '_PtPhiEtaM'*CONVERT_TO_PT_PHI_ETA_M + '_MetCut'*MET_CUT_ON + '_XbbRequired'*REQUIRE_XBB + '_mHSel'*MH_SEL + '_OldTruth'*USE_OLD_TRUTH_SETTING + '_RemovedUncertainTruth'*TOSS_UNCERTAIN_TRUTH +  '_WithTagInfo'*INCLUDE_TAG_INFO + '_KeepAllOldSel'*INCLUDE_ALL_SELECTIONS  + 'IncludingNegative'*INCLUDE_NEGATIVE_SELECTIONS + '_RemovedEventsWhereTruthIsCutByMaxObjs'*REMOVE_WHERE_TRUTH_WOULD_BE_CUT + '_OnlyLjetBosonTruth'*KEEP_ONLY_LJET_BOSONS+'/'
+max_n_objs = 30 # BE CAREFUL because this might change and if it does you ahve to rebinarise
+OUTPUT_DIR = '/data/atlas/baines/20250619v2_WithEventNumbers_WithSmallRJetCloseToLJetRemovalDeltaRLT0.5' + '_NotPhiRotated'*(not PHI_ROTATED) + '_XbbTagged'*IS_XBB_TAGGED + '_WithRecoMasses_' + 'semi_shuffled_'*SHUFFLE_OBJECTS + f'{max_n_objs}' + '_PtPhiEtaM'*CONVERT_TO_PT_PHI_ETA_M + '_MetCut'*MET_CUT_ON + '_XbbRequired'*REQUIRE_XBB + '_mHSel'*MH_SEL + '_OldTruth'*USE_OLD_TRUTH_SETTING + '_RemovedUncertainTruth'*TOSS_UNCERTAIN_TRUTH +  '_WithTagInfo'*INCLUDE_TAG_INFO + '_KeepAllOldSel'*INCLUDE_ALL_SELECTIONS  + 'IncludingNegative'*INCLUDE_NEGATIVE_SELECTIONS + '_RemovedEventsWhereTruthIsCutByMaxObjs'*REMOVE_WHERE_TRUTH_WOULD_BE_CUT + '_OnlyLjetBosonTruth'*KEEP_ONLY_LJET_BOSONS+'/'
 # OUTPUT_DIR = './tmp/'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 if INCLUDE_TAG_INFO:
@@ -62,14 +63,24 @@ INCLUDE_INCLUSION_TAGS = True # This is only for newer files which contain thes
 if INCLUDE_INCLUSION_TAGS:
     N_Real_Vars += 2 # Also tags for recoInclusion (whether this is included in the 'naive' reconstruction), and tags for trueInclusion (whether this is included in the truth-matched reconstruction; to be used as labels for the reconstruction network and to recreate the masses). 0 is not included, 1 is included in SM Higgs from H+, 2 is included from W_hadronic from H+, 3 is included from W_leptonic from H+
 # Create a mapping from the dsid/decay-type pair to integers, for the purposes of binarising data.
-dsid_set = np.array([363355,363356,363357,363358,363359,363360,363489,407342,407343,407344,
-            407348,407349,410470,410646,410647,410654,410655,411073,411074,411075,
-            411077,411078,412043,413008,413023,510115,510116,510117,510118,510119,
-            510120,510121,510122,510123,510124,700320,700321,700322,700323,700324,
-            700325,700326,700327,700328,700329,700330,700331,700332,700333,700334,
-            700338,700339,700340,700341,700342,700343,700344,700345,700346,700347,
-            700348,700349,
-            ]) # Try not to change this often - have to re-binarise if we do!
+if 0:
+    dsid_set = np.array([363355,363356,363357,363358,363359,363360,363489,407342,407343,407344,
+                407348,407349,410470,410646,410647,410654,410655,411073,411074,411075,
+                411077,411078,412043,413008,413023,510115,510116,510117,510118,510119,
+                510120,510121,510122,510123,510124,700320,700321,700322,700323,700324,
+                700325,700326,700327,700328,700329,700330,700331,700332,700333,700334,
+                700338,700339,700340,700341,700342,700343,700344,700345,700346,700347,
+                700348,700349,
+                ]) # Try not to change this often - have to re-binarise if we do!
+else:
+    dsid_set = np.array([363355,363356,363357,363358,363359,363360,363489,
+                        407348,407349,410470,410646,410647,410654,410655,412043,413008,413023,
+                510115,510116,510117,510118,510119,
+                510120,510121,510122,510123,510124,700320,700321,700322,700323,700324,
+                700325,700326,700327,700328,700329,700330,700331,700332,700333,700334,
+                700338,700339,700340,700341,700342,700343,700344,700345,700346,700347,
+                700348,700349,
+                ]) # Try not to change this often - have to re-binarise if we do!
 DSID_MASS_MAPPING = {510115:0.8, 510116:0.9, 510117:1.0, 510118:1.2, 510119:1.4, 510120:1.6, 510121:1.8, 510122:2.0, 510123:2.5, 510124:3.0}
 MASS_DSID_MAPPING = {v: k for k, v in DSID_MASS_MAPPING.items()} # Create inverse dictionary
 # dsid_set = np.array([410470, 510117, 510123])
@@ -349,7 +360,7 @@ def combine_arrays_for_writing(x_chunk, y_chunk, dsid_chunk, weights_chunk, mWh_
     extra_info_chunk = np.zeros_like(y_chunk)
     extra_info_chunk[:, 0, 0] = weights_chunk.squeeze()
     extra_info_chunk[:, 0, 1] = dsid_chunk.squeeze()
-    extra_info_chunk[:, 0, 2] = eventNumber_chunk.squeeze()
+    extra_info_chunk[:, 0, 2] = (eventNumber_chunk%1000).squeeze()
     array_to_write=np.float32(np.concatenate(
         [
             y_chunk,
@@ -380,9 +391,9 @@ for dsid in dsid_set:
     #     continue
     # if '510' in str(dsid):
     #     continue
-    if (dsid < 500000) or (dsid > 600000): # Is background
+    # if (dsid < 500000) or (dsid > 600000): # Is background
     # if (dsid > 500000) and (dsid < 600000): # Is signal
-        continue
+    #     continue
 # for dsid in [510120]:
     # if ((500000<dsid) and (600000>dsid)) or (dsid==410470):
     # if (dsid==410470):

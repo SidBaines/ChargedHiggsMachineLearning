@@ -23,7 +23,7 @@ from models.models import TestNetwork
 #############       SETUP      ###############
 ##############################################
 # %%
-DRY_RUN=False # No saving plots, no wandb, no model saving, literally just to check a change hasn't broken the code
+DRY_RUN=True # No saving plots, no wandb, no model saving, literally just to check a change hasn't broken the code
 timeStr = datetime.now().strftime("%Y%m%d-%H%M%S")
 saveDir = "output/" + timeStr  + "_TrainingOutput/"
 os.makedirs(saveDir)
@@ -44,14 +44,15 @@ else:
 ############   DATA PREP CONFIG  ################
 # These are all variables which I need to specifcy exactly what the data prep was, 
 #    so the model knows what form it's getting it in
+USE_EVENT_NUMBERS = False
 ONLY_CORRECT_TRUTH_FOR_TRAINING = True
 ONLY_CORRECT_RECO_FOR_TRAINING = True
 REMOVE_WHERE_TRUTH_WOULD_BE_CUT=False # Should be false for classification train/test, and false for reco test
 INCLUDE_INCLUSION_TAGS = True # This is only for newer files which contain these tags
 # Want to re-do the prepdata and calculate the mH on the fly (using the truth reco) so we can put the correlation loss back in/trust the mH calculations
-INCLUDE_ALL_SELECTIONS = False
-INCLUDE_NEGATIVE_SELECTIONS = False
-USE_OLD_TRUTH_SETTING = True
+INCLUDE_ALL_SELECTIONS = True
+INCLUDE_NEGATIVE_SELECTIONS = True
+USE_OLD_TRUTH_SETTING = False
 PHI_ROTATED = False
 USE_LORENTZ_INVARIANT_FEATURES = True
 TAG_INFO_INPUT = True
@@ -107,6 +108,8 @@ n_splits=2
 KEEP_DSID= None # a dsid if we only want to keep that DSID in training, or None
 MIN_DSID = None # a dsid if we only want to keep this DSID or above (inclusive) or None
 MAX_DSID = None # a dsid if we only want to keep this DSID or below (inclusive) or None
+EXCL_DSID = None # a dsid if we only want to exclude that DSID in training, or None
+assert(sum([i is not None for i in [KEEP_DSID, MIN_DSID, MAX_DSID, EXCL_DSID]])<=1)
 
 
 ############   MODEL TRAINING CONFIG  ################
@@ -118,7 +121,7 @@ if USE_ENTROPY_TO_ENCOURAGE_SIMPLEATTENTION or (ATTENTION_OUTPUT_BOTTLENECK_SIZE
 else:
     run_with_cache_and_bottleneck = None
 num_blocks_variable=3
-model_cfg = {'d_attn':None, 'include_mlp':True, 'd_model': 152, 'd_mlp': 400, 'num_blocks':num_blocks_variable, 'dropout_p': 0.0, "embedding_size":N_CTX, "num_heads":4}
+model_cfg = {'d_attn':None, 'include_mlp':True, 'd_model': 200, 'd_mlp': 400, 'num_blocks':num_blocks_variable, 'dropout_p': 0.0, "embedding_size":N_CTX, "num_heads":2}
 
 num_epochs = 30
 log_interval = int(50e3/batch_size)
@@ -143,7 +146,7 @@ config = {
         "epochs": num_epochs,
         "batch_size": batch_size,
         "wandb":True,
-        "name":"_"+timeStr+"_LowLevel_"+name_mapping[MODEL_ARCH]+"_"+target_channel,
+        "name":"_"+timeStr+"_LowLevel_"+name_mapping[MODEL_ARCH]+"_"+target_channel+f"_Only{str(KEEP_DSID)}"*(KEEP_DSID is not None)+f"_Min{str(MIN_DSID)}"*(MIN_DSID is not None)+f"_Max{str(MAX_DSID)}"*(MAX_DSID is not None)+f"_Excl{str(EXCL_DSID)}"*(EXCL_DSID is not None)+"_NoEventNumbers"*(not USE_EVENT_NUMBERS),
         "weight_decay":1e-10,
     }
 
@@ -156,8 +159,8 @@ config = {
 ##############################################
 #########       DATA LOADING     #############
 ##############################################
-# DATA_PATH = '/data/atlas/baines/20250321v2_AppliedRecoNNSplit_WithEventNumbers_WithSmallRJetCloseToLJetRemovalDeltaRLT0.5' + '_RemovedWrongTruthForTraining'* ONLY_CORRECT_TRUTH_FOR_TRAINING + '_RemovedWrongRecoForTraining'*ONLY_CORRECT_RECO_FOR_TRAINING + '_NotPhiRotated'*(not PHI_ROTATED) + '_XbbTagged'*IS_XBB_TAGGED + '_WithRecoMasses_' + f'{max_n_objs_in_file}' + '_PtPhiEtaM'*CONVERT_TO_PT_PHI_ETA_M + '_MetCut'*MET_CUT_ON + '_XbbRequired'*REQUIRE_XBB + '_mHSel'*MH_SEL + '_OldTruth'*USE_OLD_TRUTH_SETTING + '_RemovedUncertainTruth'*TOSS_UNCERTAIN_TRUTH +  '_WithTagInfo'*INCLUDE_TAG_INFO + '_KeepAllOldSel'*INCLUDE_ALL_SELECTIONS  + 'IncludingNegative'*INCLUDE_NEGATIVE_SELECTIONS + '_RemovedEventsWhereTruthIsCutByMaxObjs'*REMOVE_WHERE_TRUTH_WOULD_BE_CUT +'/'
-DATA_PATH = '/data/atlas/baines/20250618v2_Split_WithEventNumbers_WithSmallRJetCloseToLJetRemovalDeltaRLT0.5' + '_RemovedWrongTruthForTraining'* ONLY_CORRECT_TRUTH_FOR_TRAINING + '_NotPhiRotated'*(not PHI_ROTATED) + '_XbbTagged'*IS_XBB_TAGGED + '_WithRecoMasses_' + f'{max_n_objs_in_file}' + '_PtPhiEtaM'*CONVERT_TO_PT_PHI_ETA_M + '_MetCut'*MET_CUT_ON + '_XbbRequired'*REQUIRE_XBB + '_mHSel'*MH_SEL + '_OldTruth'*USE_OLD_TRUTH_SETTING + '_RemovedUncertainTruth'*TOSS_UNCERTAIN_TRUTH +  '_WithTagInfo'*INCLUDE_TAG_INFO + '_KeepAllOldSel'*INCLUDE_ALL_SELECTIONS  + 'IncludingNegative'*INCLUDE_NEGATIVE_SELECTIONS + '_RemovedEventsWhereTruthIsCutByMaxObjs'*REMOVE_WHERE_TRUTH_WOULD_BE_CUT +'/'
+DATA_PATH = '/data/atlas/baines/20250321v2_AppliedRecoNNSplit_WithEventNumbers_WithSmallRJetCloseToLJetRemovalDeltaRLT0.5' + '_RemovedWrongTruthForTraining'* ONLY_CORRECT_TRUTH_FOR_TRAINING + '_RemovedWrongRecoForTraining'*ONLY_CORRECT_RECO_FOR_TRAINING + '_NotPhiRotated'*(not PHI_ROTATED) + '_XbbTagged'*IS_XBB_TAGGED + '_WithRecoMasses_' + f'{max_n_objs_in_file}' + '_PtPhiEtaM'*CONVERT_TO_PT_PHI_ETA_M + '_MetCut'*MET_CUT_ON + '_XbbRequired'*REQUIRE_XBB + '_mHSel'*MH_SEL + '_OldTruth'*USE_OLD_TRUTH_SETTING + '_RemovedUncertainTruth'*TOSS_UNCERTAIN_TRUTH +  '_WithTagInfo'*INCLUDE_TAG_INFO + '_KeepAllOldSel'*INCLUDE_ALL_SELECTIONS  + 'IncludingNegative'*INCLUDE_NEGATIVE_SELECTIONS + '_RemovedEventsWhereTruthIsCutByMaxObjs'*REMOVE_WHERE_TRUTH_WOULD_BE_CUT +'/'
+# DATA_PATH = '/data/atlas/baines/20250619v1_Split_WithEventNumbers_WithSmallRJetCloseToLJetRemovalDeltaRLT0.5' + '_RemovedWrongTruthForTraining'* ONLY_CORRECT_TRUTH_FOR_TRAINING + '_NotPhiRotated'*(not PHI_ROTATED) + '_XbbTagged'*IS_XBB_TAGGED + '_WithRecoMasses_' + f'{max_n_objs_in_file}' + '_PtPhiEtaM'*CONVERT_TO_PT_PHI_ETA_M + '_MetCut'*MET_CUT_ON + '_XbbRequired'*REQUIRE_XBB + '_mHSel'*MH_SEL + '_OldTruth'*USE_OLD_TRUTH_SETTING + '_RemovedUncertainTruth'*TOSS_UNCERTAIN_TRUTH +  '_WithTagInfo'*INCLUDE_TAG_INFO + '_KeepAllOldSel'*INCLUDE_ALL_SELECTIONS  + 'IncludingNegative'*INCLUDE_NEGATIVE_SELECTIONS + '_RemovedEventsWhereTruthIsCutByMaxObjs'*REMOVE_WHERE_TRUTH_WOULD_BE_CUT +'/'
 # assert(validation_split_idx<n_splits)
 target_channel_num = {'lvbb':1, 'qqbb':2}[target_channel]
 if 'AppliedRecoNN' in DATA_PATH: # This will have an extra variable, for the reco networks selection
@@ -193,6 +196,9 @@ for file_name in os.listdir(DATA_PATH):
         elif MAX_DSID is not None: # Train with only certain DSID or below
             if (int(dsid)<=MAX_DSID) or (int(dsid) < 500000) or (int(dsid) > 600000):
                 memmap_paths_train[int(dsid)] = DATA_PATH+file_name
+        elif EXCL_DSID is not None:
+            if (int(dsid)!=EXCL_DSID) or (int(dsid) < 500000) or (int(dsid) > 600000):
+                memmap_paths_train[int(dsid)] = DATA_PATH+file_name
         else: # train with all
             memmap_paths_train[int(dsid)] = DATA_PATH+file_name
     else: # Keep all the background
@@ -217,7 +223,7 @@ train_dataloader = ProportionalMemoryMappedDataset(
                  means=means,
                  stds=stds,
                  objs_to_output=max_n_objs_to_read,
-                 has_eventNumbers=True,
+                 has_eventNumbers=USE_EVENT_NUMBERS,
                 #  signal_reweights=np.array([10,9,8,7,6,5,4,3,2,1]),
                 #  signal_reweights=np.array([1e1, 1e1, 1e1, 1e0,1e0,1e0,1e-1,1e-1,1e-1,1e-2]),
 )
@@ -239,13 +245,25 @@ val_dataloader = ProportionalMemoryMappedDataset(
                  means=means,
                  stds=stds,
                  objs_to_output=max_n_objs_to_read,
-                 has_eventNumbers=True,
+                 has_eventNumbers=USE_EVENT_NUMBERS,
                 #  signal_reweights=np.array([10,9,8,7,6,5,4,3,2,1]),
                 #  signal_reweights=np.array([1e1, 1e1, 1e1, 1e0,1e0,1e0,1e-1,1e-1,1e-1,1e-2]),
 )
 print(train_dataloader.get_total_samples())
 print(val_dataloader.get_total_samples())
 # assert(False) # Need to check if the weighting is correct - it seemed likely that the sum of training weights for signal was not the same as for background?
+
+# %%
+# Get the number of signal events in the training set
+num_signal_events = 0
+num_bkg_events = 0
+train_dataloader._reset_indices()
+for dsid in train_dataloader.current_indices:
+    if (dsid < 500000) or (dsid > 600000):
+        num_bkg_events += len(train_dataloader.current_indices[dsid])
+    else:
+        num_signal_events += len(train_dataloader.current_indices[dsid])
+print(num_signal_events, num_bkg_events)
 
 
 # %%

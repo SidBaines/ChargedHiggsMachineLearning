@@ -113,7 +113,7 @@ class HEPMetrics:
             self.processed_weight_sums_per_dsid[int(d.item())] += weights[dsid == d].sum().item()
         self.current_update_point += n_batch
 
-    def compute_and_log(self, epoch, prefix="val", step=None, log_level=0, save=True, commit=None):
+    def compute_and_log(self, epoch, prefix="val", step=None, log_level=0, save=True, commit=None, verbose=False):
         # print("Accuracy calculated: ", self.accuracy.compute())
         if log_level > -1:
             accuracies = self.compute_accuracy()
@@ -139,7 +139,7 @@ class HEPMetrics:
             self.starts['sig_sel'] = self.current_update_point
         if save:
             wandb.log({**metrics, "epoch": epoch, "step":step}, commit=commit)
-        else:
+        elif verbose:
             print(metrics)
         return metrics
     
@@ -185,13 +185,14 @@ class HEPMetrics:
     
     def compute_auc(self):
         auc_scores = {}
+        weight_mult_factors = np.array([self.total_weights_per_dsid[dsid.item()]/self.processed_weight_sums_per_dsid[dsid.item()] if self.processed_weight_sums_per_dsid[dsid.item()]!=0 else 0 for dsid in self.all_dsids[self.starts['auc']:self.current_update_point]])
         for (mH_lower, mH_upper) in self.mH_Limits:
-            mH_mask = ((self.all_mHs >= mH_lower) & (self.all_mHs <= mH_upper))[self.starts['sig_sel']:self.current_update_point]
+            mH_mask = ((self.all_mHs >= mH_lower) & (self.all_mHs <= mH_upper))[self.starts['auc']:self.current_update_point]
             if not self.parametrised_nn:
                 # Create binary targets for this class
-                binary_targets = (self.all_targets[self.starts['auc']:self.current_update_point] == 1)
+                binary_targets = (self.all_targets[self.starts['auc']:self.current_update_point] == 1)[mH_mask]
                 # Get probabilities for this class
-                class_probs = self.all_probs[self.starts['auc']:self.current_update_point, 1]
+                class_probs = self.all_probs[self.starts['auc']:self.current_update_point, 1][mH_mask]
                 # Compute weighted AUC
                 if len(np.unique(binary_targets)) < 2:
                     return auc_scores
@@ -200,7 +201,7 @@ class HEPMetrics:
                 sort_idx = sort_idx[::-1]
                 # sorted_probs = class_probs[sort_idx]
                 sorted_targets = binary_targets[sort_idx]
-                sorted_weights = self.all_weights[self.starts['auc']:self.current_update_point][sort_idx]
+                sorted_weights = self.all_weights[self.starts['auc']:self.current_update_point][mH_mask][sort_idx] * weight_mult_factors[sort_idx]
                 # Compute weighted TPR and FPR
                 total_pos_weight = (sorted_targets * sorted_weights).sum()
                 total_neg_weight = ((1 - sorted_targets) * sorted_weights).sum()
@@ -215,7 +216,7 @@ class HEPMetrics:
         # And now per-signal mass auc scores
         for index, signal_dsid in enumerate(sorted(self.DSID_MASS_MAPPING.keys())):
             for (mH_lower, mH_upper) in self.mH_Limits:
-                mH_mask = ((self.all_mHs >= mH_lower) & (self.all_mHs <= mH_upper))[self.starts['sig_sel']:self.current_update_point]
+                mH_mask = ((self.all_mHs >= mH_lower) & (self.all_mHs <= mH_upper))[self.starts['auc']:self.current_update_point]
                 bkg_dsids = (self.all_dsids[self.starts['auc']:self.current_update_point] < 500000) | (self.all_dsids[self.starts['auc']:self.current_update_point] > 600000)
                 dsid_sel = (self.all_dsids[self.starts['auc']:self.current_update_point] == signal_dsid) | bkg_dsids
                 binary_targets = (self.all_targets[self.starts['auc']:self.current_update_point] == 1)[dsid_sel&mH_mask]
@@ -228,7 +229,7 @@ class HEPMetrics:
                 sort_idx = np.argsort(class_probs)
                 sort_idx = sort_idx[::-1]
                 sorted_targets = binary_targets[sort_idx]
-                sorted_weights = self.all_weights[self.starts['auc']:self.current_update_point][dsid_sel&mH_mask][sort_idx]
+                sorted_weights = self.all_weights[self.starts['auc']:self.current_update_point][dsid_sel&mH_mask][sort_idx] * weight_mult_factors[dsid_sel&mH_mask][sort_idx]
                 total_pos_weight = (sorted_targets * sorted_weights).sum()
                 total_neg_weight = ((1 - sorted_targets) * sorted_weights).sum()
                 tpr = np.cumsum(sorted_targets * sorted_weights, axis=0) / total_pos_weight

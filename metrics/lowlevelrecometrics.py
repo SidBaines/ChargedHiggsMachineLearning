@@ -293,6 +293,9 @@ class HEPMetrics:
                         mask = idx_mask & (self.all_dsids==dsid) & category_mask
                         if self.is_categorical:
                             results['PerfectRecoPct'][f"{self.DSID_MASS_MAPPING[dsid]}_cat{reco_category}"] = (((self.all_preds.argmax(dim=-1)[mask]==((self.all_targets[mask]==1)+(self.all_targets[mask]>1)*2))|(self.all_types[mask]==self.padding_token)).all(dim=-1) * self.all_weights[mask]).sum() / self.all_weights[mask].sum()
+                            if 0:
+                                print("HACK TO GET TOTAL EXPECTED YIELD RATHER THAN PERCENTAGE!")
+                                results['PerfectRecoPct'][f"{self.DSID_MASS_MAPPING[dsid]}_cat{reco_category}"] = (((self.all_preds.argmax(dim=-1)[mask]==((self.all_targets[mask]==1)+(self.all_targets[mask]>1)*2))|(self.all_types[mask]==self.padding_token)).all(dim=-1) * self.all_weights[mask]).sum()*2 #/ self.all_weights[mask].sum()
                         else:
                             results['PerfectRecoPct'][f"{self.DSID_MASS_MAPPING[dsid]}_cat{reco_category}"] = ((((self.all_preds[mask]>0)==self.all_targets[mask].to(bool))|(self.all_types[mask]==self.padding_token)).all(dim=-1) * self.all_weights[mask]).sum() / self.all_weights[mask].sum()
                     except:

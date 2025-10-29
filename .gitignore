@@ -1,3 +1,8 @@
 */__pycache__
 tmp*
 interp/__init__.py
+output/
+wandb/
+*.png
+*.pdf
+

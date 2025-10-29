@@ -21,9 +21,9 @@ do
     echo $sample_dir
     # # if [[ $sample_dir != *"410470"* ]]; then
     # if [[ $sample_dir != *"510122"* ]]; then
-    if [[ $sample_dir == *"5101"* ]]; then
-        continue
-    fi
+    # if [[ $sample_dir == *"5101"* ]]; then
+    #     continue
+    # fi
     # if [[ $sample_dir != *"410470"*"r9364"* ]]; then
     #     continue
     # fi
@@ -40,9 +40,15 @@ do
         continue
     fi
     if [[ $sample_dir == *"ttbar"* ]]; then # Can skip these ones if we only plan to use nominal ttbar samples
-        if [[ $sample_dir != *"410470"* ]]; then
+        if [[ $sample_dir == *"410470"* ]]; then
             continue
         fi
+    fi
+    # if [[ $sample_dir != *"ttbar"* ]]; then # Can skip these ones if we only plan to use nominal ttbar samples
+    #     continue
+    # fi
+    if [[ $sample_dir != *"mc16_13TeV.510120"* ]]; then # Can skip these ones if we only plan to use nominal ttbar samples
+        continue
     fi
     # if [[ $sample_dir != *"ttbar"* ]]; then
     #     continue
@@ -105,6 +111,7 @@ do
     #     continue
     # fi
     echo "Running on $sample_dir"
-    bin/roo MCbase.cpp $sample_dir /data/atlas/HplusWh/20250313_WithTrueInclusion_FixedOverlapWHsjet_SmallJetCloseToLargeJetRemovalDeltaR0.5/
+    # bin/roo MCbase.cpp $sample_dir /data/atlas/HplusWh/20250313_WithTrueInclusion_FixedOverlapWHsjet_SmallJetCloseToLargeJetRemovalDeltaR0.5/
+    bin/roo MCbase.cpp $sample_dir /data/atlas/HplusWh/20250610.tmp2/
     # echo "     "
 done

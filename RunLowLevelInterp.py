@@ -21,7 +21,7 @@ import einops
 from models.models import TestNetwork
 
 # Import utility functions
-from utils.utils import check_valid, check_category, DSID_MASS_MAPPING, deltaR, Get_PtEtaPhiM_fromXYZT, print_vars, print_inclusion
+from utils.utils import check_valid, check_category, DSID_MASS_MAPPING, deltaR, Get_PtEtaPhiM_fromXYZT, print_vars, print_inclusion, GetXYZT_FromPtEtaPhiM
 
 # Import interp modules
 from interp.activations import ModelActivationExtractor, ActivationCache, get_residual_stream, hook_attention_heads
@@ -316,7 +316,8 @@ elif 0: # Trained WITH entropy penalty to encourage attention to a SINGLE parti
         num_object_net_layers=1,
         is_layer_norm=False
     ).to(device)
-elif 1: # Trained WITH entropy penalty to encourage attention to a SINGLE particle, bottleneck of size 1
+elif 0: # Trained WITH entropy penalty to encourage attention to a SINGLE particle, bottleneck of size 1
+    # THIS IS THE ONE I USED FOR MAKING THE PLOTS IN MY THESIS (20250709)
     modelfile="/users/baines/Code/ChargedHiggs_ExperimentalML/output/20250512-093728_TrainingOutput/models/Nplits2_ValIdx0/chkpt29_164490.pth"
     EXCLUDE_TAG = False
     HAS_MLP=True
@@ -328,6 +329,27 @@ elif 1: # Trained WITH entropy penalty to encourage attention to a SINGLE parti
         include_mlp=HAS_MLP, 
         num_attention_blocks=3,
         hidden_dim_mlp=400, 
+        num_heads=4,
+        embedding_size=N_CTX, 
+        num_classes=3, 
+        use_lorentz_invariant_features=True, 
+        dropout_p=0.0, 
+        num_particle_types=N_CTX,
+        num_object_net_layers=1,
+        is_layer_norm=False
+    ).to(device)
+elif 1: # Trained WITH entropy penalty to encourage attention to a SINGLE particle, bottleneck of size 1
+    modelfile="/users/baines/Code/ChargedHiggs_ExperimentalML/output/20250709-095246_TrainingOutput/models/Nplits2_ValIdx0/chkpt9_54830.pth"
+    EXCLUDE_TAG = False
+    HAS_MLP=True
+    model = TestNetwork(
+        hidden_dim_attn=None, 
+        hidden_dim=20, 
+        feature_set=['phi', 'eta', 'pt', 'm'] + ['tag']*(not EXCLUDE_TAG), 
+        bottleneck_attention=None, 
+        include_mlp=HAS_MLP, 
+        num_attention_blocks=2,
+        hidden_dim_mlp=200, 
         num_heads=4,
         embedding_size=N_CTX, 
         num_classes=3, 
@@ -368,10 +390,10 @@ criterion = HEPLossWithEntropy(entropy_loss=True, entropy_weight=1e-2, target_en
 
 if 1:
     model.eval()
-    num_samps_to_eval = 30000
+    num_samps_to_eval = 300000
     num_batches_to_process = int(num_samps_to_eval * (1/batch_size))
-    # num_batches_to_process = len(val_dataloader)
-    num_batches_to_process = 1
+    num_batches_to_process = min(len(val_dataloader)-1, num_batches_to_process)
+    num_batches_to_process = min(1000, num_batches_to_process)
     for batch_idx in range(num_batches_to_process):
         if ((batch_idx%10)==9):
             print(f"Processing batch {batch_idx}/{num_batches_to_process}")
@@ -384,10 +406,11 @@ if 1:
         outputs = outputs.squeeze()
         val_metrics_MCWts.update(outputs, x[...,-1], MCWts, dsids, types)
     
-    # Only get the loss on one final batch (limit of our current loss calculation code)
-    model_activation_extractor = ModelActivationExtractor(model)
-    cache = model_activation_extractor.extract_activations((x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types))
-    loss, loss_dict = criterion(cache, outputs, x[...,-1], types, N_CTX-1, max_n_objs_to_read, w, False, x[...,:4])
+    if 0:
+        # Only get the loss on one final batch (limit of our current loss calculation code)
+        model_activation_extractor = ModelActivationExtractor(model)
+        cache = model_activation_extractor.extract_activations((x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types))
+        loss, loss_dict = criterion(cache, outputs, x[...,-1], types, N_CTX-1, max_n_objs_to_read, w, False, x[...,:4])
     
     rv = val_metrics_MCWts.compute_and_log(1, 'val', 0, 3, False, None, calc_all=True)
 
@@ -512,6 +535,380 @@ if 0:
             print(f"{k:20s}: {rv[k]:.4f}")
 
 
+# %%
+# Evaluate the model ONLY for events in true category 4 (large-R jet Higgs, lep-neutrino W) 
+#    in two cases: 1) normal case, 2) with some change applied to the lepton or neutrino
+#    In each case, monitor both the performance and  whether the neutrino is put into the same class 
+#    as the lepton (regardless of which class)
+#   ALSO include doing this with different attention heads ablated
+if 1:
+    DO_METRICS=True
+    # intervention_type = 'rotate_etas'
+    # intervention_type = 'PtReduced'
+    intervention_type = 'rotate_phis'
+    # intervention_type = 'FuckMyShitUp'
+    for layer in [-1] + list(range(len(model.attention_blocks))):
+        heads = range(model.attention_blocks[layer].self_attention.num_heads) if layer >= 0 else [0]
+        for head in heads:
+            if DO_METRICS:
+                val_metrics_MCWts = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+                val_metrics_MCWts2 = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+                val_metrics_MCWts3 = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+            val_dataloader._reset_indices()
+            if DO_METRICS:
+                val_metrics_MCWts.reset()
+                val_metrics_MCWts2.reset()
+                val_metrics_MCWts3.reset()
+            model.eval()
+            num_batches_to_process = int(30000 * (1/batch_size))
+            # num_batches_to_process = len(val_dataloader) - 1
+            lep_orig_class = []
+            neut_orig_class = []
+            lep_LepPtReduced_class = []
+            neut_LepPtReduced_class = []
+            lep_NeutPtReduced_class = []
+            neut_NeutPtReduced_class = []
+            MC_weights = []
+            for batch_idx in range(num_batches_to_process):
+                # if ((batch_idx%10)==9):
+                #     print(F"Processing batch {batch_idx}/{num_batches_to_process}")
+                batch = next(val_dataloader)
+                x, y, w, types, dsids, mqq, mlv, MCWts, mHs = batch.values()
+                # Select only events in true category 4
+                event_categories = check_category(types, x[...,-1], padding_token, use_torch=True)
+                x = x[event_categories==4]
+                types = types[event_categories==4]
+                dsids = dsids[event_categories==4]
+                MCWts = MCWts[event_categories==4]
+                mHs = mHs[event_categories==4]
+                mqq = mqq[event_categories==4]
+                mlv = mlv[event_categories==4]
+                w = w[event_categories==4]
+                y = y[event_categories==4]
+
+                # Make new inputs with the lepton pt divided by 1000
+                is_lepton = ((types==0) | (types==1)).to(int)
+                lepton_index = torch.argmax(is_lepton, dim=1) # Exactly one per event so just argmax
+
+                is_neutrino = (types==2).to(int) # Exactly one per event so just argmax
+                neutrino_index = torch.argmax(is_neutrino, dim=1)
+
+                # Make the new inputs with the lepton Pt and Neutrino Pt divided by 1000
+                x_new = x.clone()
+                lep_pt, lep_eta, lep_phi, lep_m = Get_PtEtaPhiM_fromXYZT(x_new[torch.arange(x_new.shape[0]),lepton_index,0], x_new[torch.arange(x_new.shape[0]),lepton_index,1], x_new[torch.arange(x_new.shape[0]),lepton_index,2], x_new[torch.arange(x_new.shape[0]),lepton_index,3], use_torch=True)
+                if intervention_type == 'PtReduced':
+                    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt / 1e6, lep_eta, lep_phi, lep_m, use_torch=True)
+                elif intervention_type == 'rotate_etas':
+                    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt, -lep_eta, lep_phi, lep_m, use_torch=True)
+                elif intervention_type == 'rotate_phis':
+                    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt, lep_eta, lep_phi + np.pi/2, lep_m, use_torch=True)
+                elif intervention_type == 'FuckMyShitUp':
+                    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt/ 1e10, -lep_eta, lep_phi + np.pi, lep_m, use_torch=True)
+                else:
+                    raise ValueError(f"Invalid intervention type: {intervention_type}")
+                x_new[torch.arange(x_new.shape[0]),lepton_index,0] = lep_new_x
+                x_new[torch.arange(x_new.shape[0]),lepton_index,1] = lep_new_y
+                x_new[torch.arange(x_new.shape[0]),lepton_index,2] = lep_new_z
+                x_new[torch.arange(x_new.shape[0]),lepton_index,3] = lep_new_t
+                
+                x_new2 = x.clone()
+                neut_pt, neut_eta, neut_phi, neut_m = Get_PtEtaPhiM_fromXYZT(x_new2[torch.arange(x_new2.shape[0]),neutrino_index,0], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,1], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,2], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,3], use_torch=True)
+                if intervention_type == 'PtReduced':
+                    neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt / 1e6, neut_eta, neut_phi, neut_m, use_torch=True)
+                elif intervention_type == 'rotate_etas':
+                    neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt, -neut_eta, neut_phi, neut_m, use_torch=True)
+                elif intervention_type == 'rotate_phis':
+                    neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt, neut_eta, neut_phi + np.pi, neut_m, use_torch=True)
+                elif intervention_type == 'FuckMyShitUp':
+                    if 0:
+                        neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt, lep_eta, lep_phi, neut_m, use_torch=True)
+                        lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt/ 1e10, lep_eta, lep_phi, lep_m, use_torch=True)
+                    else:
+                        neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt/ 1e10, -lep_eta, lep_phi + np.pi, neut_m, use_torch=True)
+                        lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt/ 1e10, lep_eta, lep_phi, lep_m, use_torch=True)
+                    x_new2[torch.arange(x_new2.shape[0]),lepton_index,0] = lep_new_x
+                    x_new2[torch.arange(x_new2.shape[0]),lepton_index,1] = lep_new_y
+                    x_new2[torch.arange(x_new2.shape[0]),lepton_index,2] = lep_new_z
+                    x_new2[torch.arange(x_new2.shape[0]),lepton_index,3] = lep_new_t
+                else:
+                    raise ValueError(f"Invalid intervention type: {intervention_type}")
+                x_new2[torch.arange(x_new2.shape[0]),neutrino_index,0] = neut_new_x
+                x_new2[torch.arange(x_new2.shape[0]),neutrino_index,1] = neut_new_y
+                x_new2[torch.arange(x_new2.shape[0]),neutrino_index,2] = neut_new_z
+                x_new2[torch.arange(x_new2.shape[0]),neutrino_index,3] = neut_new_t
+                
+                model_activation_extractor = ModelActivationExtractor(model)
+                interventions = [
+                            (f'attention_blocks.{layer}.self_attention', lambda x: ablate_attention_head(x, head_idx=head, num_heads=model.attention_blocks[0].self_attention.num_heads))
+                        ]
+                if layer == -1:
+                    interventions = []
+                cache_original = model_activation_extractor.extract_activations((x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types), interventions=interventions)
+                outputs_original = cache_original['classifier']['output']
+
+                cache_messedup = model_activation_extractor.extract_activations((x_new[...,:N_Real_Vars-int(EXCLUDE_TAG)], types), interventions=interventions)
+                outputs_messedup = cache_messedup['classifier']['output']
+
+                cache_messedup2 = model_activation_extractor.extract_activations((x_new2[...,:N_Real_Vars-int(EXCLUDE_TAG)], types), interventions=interventions)
+                outputs_messedup2 = cache_messedup2['classifier']['output']
+
+                # outputs_original = model(x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+                # outputs_messedup = model(x_new[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+                # outputs_messedup2 = model(x_new2[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+                if DO_METRICS:
+                    val_metrics_MCWts.update(outputs_original, x[...,-1], MCWts, dsids, types)
+                    val_metrics_MCWts2.update(outputs_messedup, x_new[...,-1], MCWts, dsids, types)
+                    val_metrics_MCWts3.update(outputs_messedup2, x_new2[...,-1], MCWts, dsids, types)
+
+                # Get and store stats on whether the neutrino is put into the same class as the lepton
+                lep_orig = outputs_original[torch.arange(x_new.shape[0]),lepton_index]
+                neut_orig = outputs_original[torch.arange(x_new.shape[0]),neutrino_index]
+                lep_messedup = outputs_messedup[torch.arange(x_new.shape[0]),lepton_index]
+                neut_messedup = outputs_messedup[torch.arange(x_new.shape[0]),neutrino_index]
+                lep_messedup2 = outputs_messedup2[torch.arange(x_new2.shape[0]),lepton_index]
+                neut_messedup2 = outputs_messedup2[torch.arange(x_new2.shape[0]),neutrino_index]
+                lep_orig_class.append(lep_orig.argmax(dim=-1))
+                neut_orig_class.append(neut_orig.argmax(dim=-1))
+                lep_LepPtReduced_class.append(lep_messedup.argmax(dim=-1))
+                neut_LepPtReduced_class.append(neut_messedup.argmax(dim=-1))
+                lep_NeutPtReduced_class.append(lep_messedup2.argmax(dim=-1))
+                neut_NeutPtReduced_class.append(neut_messedup2.argmax(dim=-1))
+                MC_weights.append(MCWts)
+
+            # Concatenate and print summary stats for the matching weighted by MC
+            lep_orig_class = torch.cat(lep_orig_class, dim=0)
+            neut_orig_class = torch.cat(neut_orig_class, dim=0)
+            lep_LepPtReduced_class = torch.cat(lep_LepPtReduced_class, dim=0)
+            neut_LepPtReduced_class = torch.cat(neut_LepPtReduced_class, dim=0)
+            lep_NeutPtReduced_class = torch.cat(lep_NeutPtReduced_class, dim=0)
+            neut_NeutPtReduced_class = torch.cat(neut_NeutPtReduced_class, dim=0)
+            MC_weights = torch.cat(MC_weights, dim=0)
+
+            if layer == -1:
+                print('No intervention')
+            else:
+                print(f'Ablation of Layer: {layer} Head: {head}')
+            if 0:
+                print(f"Match orig weighted by MC: {MC_weights[lep_orig_class == neut_orig_class].sum() / MC_weights.sum():.4f}    (Raw: {sum(lep_orig_class == neut_orig_class)/len(lep_orig_class)})")
+                print(f"Match messedup weighted by MC: {MC_weights[lep_LepPtReduced_class == neut_LepPtReduced_class].sum() / MC_weights.sum():.4f}    (Raw: {sum(lep_LepPtReduced_class == neut_LepPtReduced_class)/len(lep_LepPtReduced_class)})")
+                print(f"Match messedup2 weighted by MC: {MC_weights[lep_NeutPtReduced_class == neut_NeutPtReduced_class].sum() / MC_weights.sum():.4f}    (Raw: {sum(lep_NeutPtReduced_class == neut_NeutPtReduced_class)/len(lep_NeutPtReduced_class)})")
+            else:
+                if DO_METRICS:
+                    rv_original=val_metrics_MCWts.compute_and_log(1,'val', 0, 3, False, None, verbose=False)
+                    rv_messedup=val_metrics_MCWts2.compute_and_log(1,'val', 0, 3, False, None, verbose=False)
+                    rv_messedup2=val_metrics_MCWts3.compute_and_log(1,'val', 0, 3, False, None, verbose=False)
+                    print(f"Match original                                weighted by MC: {MC_weights[lep_orig_class == neut_orig_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_orig_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_orig_class == 2].sum() / MC_weights.sum():.4f}   cat4Pfct: {rv_original['val/PerfectRecoPct_all_cat4']:.4f})")
+                    print(f"Match Lepton   {intervention_type:30s} weighted by MC: {MC_weights[lep_LepPtReduced_class == neut_LepPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f}   cat4Pfct: {rv_messedup['val/PerfectRecoPct_all_cat4']:.4f})")
+                    print(f"Match Neutrino {intervention_type:30s} weighted by MC: {MC_weights[lep_NeutPtReduced_class == neut_NeutPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f}   cat4Pfct: {rv_messedup2['val/PerfectRecoPct_all_cat4']:.4f})")
+                else:
+                    print(f"Match original                                weighted by MC: {MC_weights[lep_orig_class == neut_orig_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_orig_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_orig_class == 2].sum() / MC_weights.sum():.4f})")
+                    print(f"Match Lepton   {intervention_type:30s} weighted by MC: {MC_weights[lep_LepPtReduced_class == neut_LepPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f})")
+                    print(f"Match Neutrino {intervention_type:30s} weighted by MC: {MC_weights[lep_NeutPtReduced_class == neut_NeutPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f})")
+            
+            if DO_METRICS and False: # Print scores
+                # rv_original=val_metrics_MCWts.compute_and_log(1,'val', 0, 3, False, None)
+                # rv_messedup=val_metrics_MCWts2.compute_and_log(1,'val', 0, 3, False, None)
+                # rv_messedup3=val_metrics_MCWts3.compute_and_log(1,'val', 0, 3, False, None)
+                print("Original scores:")
+                for k in rv.keys():
+                    if 'tRecoPct_all_cat' in k:
+                        print(f"{k:20s}: {rv[k]:.4f}")
+                print("--------------------------------")
+                print("New scores: with Lep Pt smaller")
+                for k in rv_messedup2.keys():
+                    if 'tRecoPct_all_cat' in k:
+                        print(f"{k:20s}: {rv_messedup2[k]:.4f}")
+                print("--------------------------------")
+                print("New scores: with Neut Pt smaller")
+                for k in rv_messedup3.keys():
+                    if 'tRecoPct_all_cat' in k:
+                        print(f"{k:20s}: {rv_messedup3[k]:.4f}")
+            print('')
+
+
+
+# %%
+# Evaluate the model ONLY for events in true category 4 (large-R jet Higgs, lep-neutrino W) 
+#    in two cases: 1) normal case, 2) with the lepton Pt divided by 1000
+#    In each case, monitor both the performance and  whether the neutrino is put into the same class 
+#    as the lepton (regardless of which class)
+#   ALSO include doing this with different PAIRS OF attention heads ablated
+if 1:
+    # intervention_type = 'rotate_etas'
+    # intervention_type = 'PtReduced'
+    intervention_type = 'rotate_phis'
+    DO_METRICS=True
+    for layer in [-1] + list(range(len(model.attention_blocks))):
+        heads = range(model.attention_blocks[layer].self_attention.num_heads) if layer >= 0 else [0]
+        for head in heads:
+            for layer2 in list(range(len(model.attention_blocks))):
+                for head2 in heads:
+                    if (layer == -1) and ((layer2 != 0) or (head2 != 0)):
+                        continue
+                    if (layer2 == layer) and (head2 <= head):
+                        continue
+                    if (layer2 < layer):
+                        continue
+                    # print(f'Ablation of L{layer} H{head} AND L{layer2} H{head2}')
+                    if DO_METRICS:
+                        val_metrics_MCWts = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+                        val_metrics_MCWts2 = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+                        val_metrics_MCWts3 = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+                    val_dataloader._reset_indices()
+                    if DO_METRICS:
+                        val_metrics_MCWts.reset()
+                        val_metrics_MCWts2.reset()
+                        val_metrics_MCWts3.reset()
+                    model.eval()
+                    num_batches_to_process = int(30000 * (1/batch_size))
+                    # num_batches_to_process = len(val_dataloader) - 1
+                    lep_orig_class = []
+                    neut_orig_class = []
+                    lep_LepPtReduced_class = []
+                    neut_LepPtReduced_class = []
+                    lep_NeutPtReduced_class = []
+                    neut_NeutPtReduced_class = []
+                    MC_weights = []
+                    for batch_idx in range(num_batches_to_process):
+                        # if ((batch_idx%10)==9):
+                        #     print(F"Processing batch {batch_idx}/{num_batches_to_process}")
+                        batch = next(val_dataloader)
+                        x, y, w, types, dsids, mqq, mlv, MCWts, mHs = batch.values()
+                        # Select only events in true category 4
+                        event_categories = check_category(types, x[...,-1], padding_token, use_torch=True)
+                        x = x[event_categories==4]
+                        types = types[event_categories==4]
+                        dsids = dsids[event_categories==4]
+                        MCWts = MCWts[event_categories==4]
+                        mHs = mHs[event_categories==4]
+                        mqq = mqq[event_categories==4]
+                        mlv = mlv[event_categories==4]
+                        w = w[event_categories==4]
+                        y = y[event_categories==4]
+
+                        # Make new inputs with the lepton pt divided by 1000
+                        is_lepton = ((types==0) | (types==1)).to(int)
+                        lepton_index = torch.argmax(is_lepton, dim=1) # Exactly one per event so just argmax
+
+                        is_neutrino = (types==2).to(int) # Exactly one per event so just argmax
+                        neutrino_index = torch.argmax(is_neutrino, dim=1)
+
+                        # Make the new inputs with the lepton Pt and Neutrino Pt divided by 1000
+                        x_new = x.clone()
+                        lep_pt, lep_eta, lep_phi, lep_m = Get_PtEtaPhiM_fromXYZT(x_new[torch.arange(x_new.shape[0]),lepton_index,0], x_new[torch.arange(x_new.shape[0]),lepton_index,1], x_new[torch.arange(x_new.shape[0]),lepton_index,2], x_new[torch.arange(x_new.shape[0]),lepton_index,3], use_torch=True)
+                        if intervention_type == 'PtReduced':
+                            lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt / 1000, lep_eta, lep_phi, lep_m, use_torch=True)
+                        elif intervention_type == 'rotate_etas':
+                            lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt, -lep_eta, lep_phi, lep_m, use_torch=True)
+                        elif intervention_type == 'rotate_phis':
+                            lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt, lep_eta, lep_phi + np.pi, lep_m, use_torch=True)
+                        else:
+                            raise ValueError(f"Invalid intervention type: {intervention_type}")
+                        x_new[torch.arange(x_new.shape[0]),lepton_index,0] = lep_new_x
+                        x_new[torch.arange(x_new.shape[0]),lepton_index,1] = lep_new_y
+                        x_new[torch.arange(x_new.shape[0]),lepton_index,2] = lep_new_z
+                        x_new[torch.arange(x_new.shape[0]),lepton_index,3] = lep_new_t
+                        
+                        x_new2 = x.clone()
+                        neut_pt, neut_eta, neut_phi, neut_m = Get_PtEtaPhiM_fromXYZT(x_new2[torch.arange(x_new2.shape[0]),neutrino_index,0], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,1], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,2], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,3], use_torch=True)
+                        if intervention_type == 'PtReduced':
+                            neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt / 1000, neut_eta, neut_phi, neut_m, use_torch=True)
+                        elif intervention_type == 'rotate_etas':
+                            neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt, -neut_eta, neut_phi, neut_m, use_torch=True)
+                        elif intervention_type == 'rotate_phis':
+                            neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt, neut_eta, neut_phi + np.pi, neut_m, use_torch=True)
+                        else:
+                            raise ValueError(f"Invalid intervention type: {intervention_type}")
+                        x_new2[torch.arange(x_new2.shape[0]),neutrino_index,0] = neut_new_x
+                        x_new2[torch.arange(x_new2.shape[0]),neutrino_index,1] = neut_new_y
+                        x_new2[torch.arange(x_new2.shape[0]),neutrino_index,2] = neut_new_z
+                        x_new2[torch.arange(x_new2.shape[0]),neutrino_index,3] = neut_new_t
+                        
+                        model_activation_extractor = ModelActivationExtractor(model)
+                        interventions = [
+                                    (f'attention_blocks.{layer}.self_attention', lambda x: ablate_attention_head(x, head_idx=head, num_heads=model.attention_blocks[0].self_attention.num_heads)),
+                                    (f'attention_blocks.{layer2}.self_attention', lambda x: ablate_attention_head(x, head_idx=head2, num_heads=model.attention_blocks[0].self_attention.num_heads))
+                                ]
+                        if layer == -1:
+                            interventions = []
+                        cache_original = model_activation_extractor.extract_activations((x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types), interventions=interventions)
+                        outputs_original = cache_original['classifier']['output']
+
+                        cache_messedup = model_activation_extractor.extract_activations((x_new[...,:N_Real_Vars-int(EXCLUDE_TAG)], types), interventions=interventions)
+                        outputs_messedup = cache_messedup['classifier']['output']
+
+                        cache_messedup2 = model_activation_extractor.extract_activations((x_new2[...,:N_Real_Vars-int(EXCLUDE_TAG)], types), interventions=interventions)
+                        outputs_messedup2 = cache_messedup2['classifier']['output']
+
+                        # outputs_original = model(x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+                        # outputs_messedup = model(x_new[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+                        # outputs_messedup2 = model(x_new2[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+                        if DO_METRICS:
+                            val_metrics_MCWts.update(outputs_original, x[...,-1], MCWts, dsids, types)
+                            val_metrics_MCWts2.update(outputs_messedup, x_new[...,-1], MCWts, dsids, types)
+                            val_metrics_MCWts3.update(outputs_messedup, x_new[...,-1], MCWts, dsids, types)
+
+                        # Get and store stats on whether the neutrino is put into the same class as the lepton
+                        lep_orig = outputs_original[torch.arange(x_new.shape[0]),lepton_index]
+                        neut_orig = outputs_original[torch.arange(x_new.shape[0]),neutrino_index]
+                        lep_messedup = outputs_messedup[torch.arange(x_new.shape[0]),lepton_index]
+                        neut_messedup = outputs_messedup[torch.arange(x_new.shape[0]),neutrino_index]
+                        lep_messedup2 = outputs_messedup2[torch.arange(x_new2.shape[0]),lepton_index]
+                        neut_messedup2 = outputs_messedup2[torch.arange(x_new2.shape[0]),neutrino_index]
+                        lep_orig_class.append(lep_orig.argmax(dim=-1))
+                        neut_orig_class.append(neut_orig.argmax(dim=-1))
+                        lep_LepPtReduced_class.append(lep_messedup.argmax(dim=-1))
+                        neut_LepPtReduced_class.append(neut_messedup.argmax(dim=-1))
+                        lep_NeutPtReduced_class.append(lep_messedup2.argmax(dim=-1))
+                        neut_NeutPtReduced_class.append(neut_messedup2.argmax(dim=-1))
+                        MC_weights.append(MCWts)
+
+                    # Concatenate and print summary stats for the matching weighted by MC
+                    lep_orig_class = torch.cat(lep_orig_class, dim=0)
+                    neut_orig_class = torch.cat(neut_orig_class, dim=0)
+                    lep_LepPtReduced_class = torch.cat(lep_LepPtReduced_class, dim=0)
+                    neut_LepPtReduced_class = torch.cat(neut_LepPtReduced_class, dim=0)
+                    lep_NeutPtReduced_class = torch.cat(lep_NeutPtReduced_class, dim=0)
+                    neut_NeutPtReduced_class = torch.cat(neut_NeutPtReduced_class, dim=0)
+                    MC_weights = torch.cat(MC_weights, dim=0)
+
+                    if layer == -1:
+                        print('No intervention')
+                    else:
+                        print(f'Ablation of L{layer} H{head} AND L{layer2} H{head2}')
+                    if 0:
+                        print(f"Match orig weighted by MC: {MC_weights[lep_orig_class == neut_orig_class].sum() / MC_weights.sum():.4f}    (Raw: {sum(lep_orig_class == neut_orig_class)/len(lep_orig_class)})")
+                        print(f"Match messedup weighted by MC: {MC_weights[lep_LepPtReduced_class == neut_LepPtReduced_class].sum() / MC_weights.sum():.4f}    (Raw: {sum(lep_LepPtReduced_class == neut_LepPtReduced_class)/len(lep_LepPtReduced_class)})")
+                        print(f"Match messedup2 weighted by MC: {MC_weights[lep_NeutPtReduced_class == neut_NeutPtReduced_class].sum() / MC_weights.sum():.4f}    (Raw: {sum(lep_NeutPtReduced_class == neut_NeutPtReduced_class)/len(lep_NeutPtReduced_class)})")
+                    else:
+                        if DO_METRICS:
+                            rv_original=val_metrics_MCWts.compute_and_log(1,'val', 0, 3, False, None, verbose=False)
+                            rv_messedup=val_metrics_MCWts2.compute_and_log(1,'val', 0, 3, False, None, verbose=False)
+                            rv_messedup2=val_metrics_MCWts3.compute_and_log(1,'val', 0, 3, False, None, verbose=False)
+                            print(f"Match original                                weighted by MC: {MC_weights[lep_orig_class == neut_orig_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_orig_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_orig_class == 2].sum() / MC_weights.sum():.4f}   cat4Pfct: {rv_original['val/PerfectRecoPct_all_cat4']:.4f})")
+                            print(f"Match Lepton   {intervention_type:30s} weighted by MC: {MC_weights[lep_LepPtReduced_class == neut_LepPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f}   cat4Pfct: {rv_messedup['val/PerfectRecoPct_all_cat4']:.4f})")
+                            print(f"Match Neutrino {intervention_type:30s} weighted by MC: {MC_weights[lep_NeutPtReduced_class == neut_NeutPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f}   cat4Pfct: {rv_messedup2['val/PerfectRecoPct_all_cat4']:.4f})")
+                        else:
+                            print(f"Match original                                weighted by MC: {MC_weights[lep_orig_class == neut_orig_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_orig_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_orig_class == 2].sum() / MC_weights.sum():.4f})")
+                            print(f"Match Lepton   {intervention_type:30s} weighted by MC: {MC_weights[lep_LepPtReduced_class == neut_LepPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_LepPtReduced_class == 2].sum() / MC_weights.sum():.4f})")
+                            print(f"Match Neutrino {intervention_type:30s} weighted by MC: {MC_weights[lep_NeutPtReduced_class == neut_NeutPtReduced_class].sum() / MC_weights.sum():.4f}    (Correct lep: {MC_weights[lep_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f}, neut: {MC_weights[neut_NeutPtReduced_class == 2].sum() / MC_weights.sum():.4f})")
+                    
+                    if DO_METRICS and False: # Print scores
+                        print("Original scores:")
+                        for k in rv.keys():
+                            if 'tRecoPct_all_cat' in k:
+                                print(f"{k:20s}: {rv[k]:.4f}")
+                        print("--------------------------------")
+                        print("New scores: with Lep Pt smaller")
+                        for k in rv_messedup2.keys():
+                            if 'tRecoPct_all_cat' in k:
+                                print(f"{k:20s}: {rv_messedup2[k]:.4f}")
+                        print("--------------------------------")
+                        print("New scores: with Neut Pt smaller")
+                        for k in rv_messedup3.keys():
+                            if 'tRecoPct_all_cat' in k:
+                                print(f"{k:20s}: {rv_messedup3[k]:.4f}")
+                    print('')
 
 # %%
 if 0:
@@ -528,19 +925,29 @@ if 0:
 
 
 # %% Do some attention analysis
-if 1:
+
+if 0:
     model_activation_extractor = ModelActivationExtractor(model)
     COMBINE_LEPTONS_FOR_PLOTS=False
+    if 1:
+        val_dataloader._reset_indices()
+        model.eval()
+        batch = next(val_dataloader)
+        x, y, w, types, dsids, mqq, mlv, MCWts, mHs = batch.values()
+        outputs = model(x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types)
+        model_activation_extractor = ModelActivationExtractor(model)
+        cache = model_activation_extractor.extract_activations((x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types))
+        loss, loss_dict = criterion(cache, outputs, x[...,-1], types, N_CTX-1, max_n_objs_to_read, w, False, x[...,:4])
     cache = model_activation_extractor.extract_activations((batch['x'][...,:N_Real_Vars-int(EXCLUDE_TAG)], batch['types']))
 
     attention_analyzer = AttentionAnalyzer(model, cache)
     ota = attention_analyzer.analyze_type_attention(types, padding_token, combine_elec_and_muon=COMBINE_LEPTONS_FOR_PLOTS)
     ota_selfex = attention_analyzer.analyze_type_attention(types, padding_token, combine_elec_and_muon=COMBINE_LEPTONS_FOR_PLOTS, exclude_self=True)
     # and now plot using the visualization methods
-    fig = attention_analyzer.visualize_type_attention(ota, {0: 'e', 1: 'm', 2: 'n', 3: 'l', 4: 's'}, layer_range=range(len(model.attention_blocks)), head_range=range(model.attention_blocks[0].self_attention.num_heads))
+    fig = attention_analyzer.visualize_type_attention(ota, {0: 'e', 1: 'm', 2: 'n', 3: 'l', 4: 's'}, layer_range=range(len(model.attention_blocks)), head_range=range(model.attention_blocks[0].self_attention.num_heads), figsize=(3.5*4, 3.5*2))
     fig.savefig('tmpAverageAttn.png')
     fig.show()
-    fig = attention_analyzer.visualize_type_attention(ota_selfex, {0: 'e', 1: 'm', 2: 'n', 3: 'l', 4: 's'}, layer_range=range(len(model.attention_blocks)), head_range=range(model.attention_blocks[0].self_attention.num_heads))
+    fig = attention_analyzer.visualize_type_attention(ota_selfex, {0: 'e', 1: 'm', 2: 'n', 3: 'l', 4: 's'}, layer_range=range(len(model.attention_blocks)), head_range=range(model.attention_blocks[0].self_attention.num_heads), figsize=(3.5*4, 3.5*2))
     fig.savefig('tmpAverageAttnSelfEx.png')
     fig.show()
     # TODO: Do the same thing but selecting per event_category (and for correctly reconstructed/all events)
@@ -551,7 +958,7 @@ if 1:
 # and by successful/failed reconstruction
 # Loop over the dataloader and collect activations until we get enough events for each category
 # Then do the same analysis as above
-if 1:
+if 0:
     COMBINE_LEPTONS_FOR_PLOTS=False
     for category in [5,4,3,2,1,0]:
         for success in [True, False]:
@@ -606,7 +1013,6 @@ if 1:
 
 # %% Now we do the same as above but we will also select the query and key objects
 # First, we need to define the query and key selection functions
-
 if 1:
     for success in [True, False]:
         # query='TrueHiggs'
@@ -792,7 +1198,7 @@ if 0: # basic example
     patch_op_zero_mha0 = {
         'target_module_path': f'attention_blocks.{block_num}.self_attention',
         # 'patch_value_fn': lambda src_cache, orig_out_tuple: (torch.zeros_like(orig_out_tuple[0]), orig_out_tuple[1]),
-        'patch_value_fn': lambda src_cache, orig_out_tuple: torch.zeros_like(orig_out_tuple[0]),
+        'patch_value_fn': lambda src_cache, orig_inputs_cache, orig_out_tuple: torch.zeros_like(orig_out_tuple[0]),
         'target_output_component_idx': 0,
         'head_idx': head_num
     }
@@ -813,7 +1219,9 @@ if 0: # basic example
     # You would then compare patched_output_mha0_zeroed with the clean output.
 
 
-
+# %%
+model_activation_extractor = ModelActivationExtractor(model)
+activation_patcher = ActivationPatcher(model, model_activation_extractor)
 # For actual causal tracing, source_inputs_tuple would be different from original_inputs_tuple,
 # and patch_value_fn would typically extract an activation from source_cache.
 # Example:
@@ -829,6 +1237,7 @@ event_predicted_labels = outputs.argmax(dim=-1)
 inputs_for_analysis = (event_features, event_types)
 
 clean_inputs = inputs_for_analysis
+
 corrupted_types = event_types.clone()
 corrupted_types[0, batch['types'][0]==4] = 3 # Tell the event that the small-R jets are large-R jets
 corrupted_inputs = (event_features, corrupted_types)
@@ -839,15 +1248,15 @@ corrupted_inputs = (event_features, corrupted_types)
 #         #   .expand_as(orig_out_tuple[0]) # This reconstruction is too simple, proper one needed
 #    'target_output_component_idx': 0
 # }
-block_num = 0
-head_num = 0
+block_num = 1
+head_num = 3
 patch_op_trace_head0 = {
    'target_module_path': f'attention_blocks.{block_num}.self_attention',
-   'patch_value_fn': lambda src_cache, orig_out_tuple: 
+   'patch_value_fn': lambda src_cache, orig_inputs_cache, orig_out_tuple: 
        # Sum the original heads EXCEPT head 0 with the patched head 0 output
-       orig_out_tuple[0][:, [i for i in range(orig_out_tuple[0].shape[1]) if i != head_num], :, :].sum(dim=1) + \
-       src_cache['block_0_attention']['attn_output_per_head'][:, head_num, :, :] + \
-       model.attention_blocks[block_num].out_proj.bias,
+       orig_inputs_cache[f'block_{block_num}_attention']['attn_output_per_head'][:, [i for i in range(orig_inputs_cache[f'block_{block_num}_attention']['attn_output_per_head'].shape[1]) if i != head_num], :, :].sum(dim=1) + \
+       src_cache[f'block_{block_num}_attention']['attn_output_per_head'][:, head_num, :, :] + \
+       model.attention_blocks[block_num]['self_attention'].out_proj.bias,
    'target_output_component_idx': 0 # For attention, the output is a tuple of (attn_output, attn_weights)
    # and we want to change the attn_output but don't care about the attn_weights
 }
@@ -861,6 +1270,200 @@ print("Types:")
 print(batch['types'][0:1].to(int))
 print(f"Change in logit for target class {target_class_idx}:")
 print((patched_output_traced - outputs[0:1])[batch['types'][0:1]!=padding_token])
+
+
+
+
+
+# %%
+# Now going to do an experiment with activation patching.
+# Similar to much higher in this script, we will run on a batch with the normal inputs, and with the Lepton/neutrino Pt reduced.
+# We will then patch the Lepton/neutrino Pt in the corrupted event, and see how this affects certain things (the amount of events
+# where the neutrino and lepton match, the success rate for lep/neutrino, and the overall success rate for the whole event).
+
+# Set up patching stuff
+model_activation_extractor = ModelActivationExtractor(model)
+activation_patcher = ActivationPatcher(model, model_activation_extractor)
+
+
+if 0:
+    # Get the batch
+    val_dataloader._reset_indices() # Ensure you get a fresh batch
+    batch = next(val_dataloader)
+    outputs = model(batch['x'][...,:N_Real_Vars-int(EXCLUDE_TAG)], batch['types']).squeeze()
+    # Select a single event from the batch for focused analysis, or adapt for batch processing
+    event_features = batch['x'][..., :N_Real_Vars-int(EXCLUDE_TAG)] # Batch size 1
+    event_types = batch['types']
+    event_truth_labels = (batch['x'][..., -1] > 1) * 2 + (batch['x'][..., -1] == 1)
+    event_predicted_labels = outputs.argmax(dim=-1)
+    inputs_for_analysis = (event_features, event_types)
+
+    clean_inputs = inputs_for_analysis
+
+# Select only categoryh 4 events, create the corrupted inputs
+intervention_type='FuckMyShitUp'
+
+val_dataloader._reset_indices()
+val_metrics_MCWts = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+val_metrics_MCWts_lep = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+val_metrics_MCWts_neut = HEPMetrics(N_CTX-1, max_n_objs_to_read, is_categorical=IS_CATEGORICAL, num_categories=3, max_bkg_levels=[100, 200], max_buffer_len=int(val_dataloader.get_total_samples()), total_weights_per_dsid=val_dataloader.weight_sums, signal_acceptance_levels=[100, 500, 1000, 5000])
+val_metrics_MCWts.reset()
+val_metrics_MCWts_lep.reset()
+val_metrics_MCWts_neut.reset()
+x, y, w, types, dsids, mqq, mlv, MCWts, mHs = batch.values()
+# Select only events in true category 4
+event_categories = check_category(types, x[...,-1], padding_token, use_torch=True)
+x = x[event_categories==4]
+types = types[event_categories==4]
+dsids = dsids[event_categories==4]
+MCWts = MCWts[event_categories==4]
+mHs = mHs[event_categories==4]
+mqq = mqq[event_categories==4]
+mlv = mlv[event_categories==4]
+w = w[event_categories==4]
+y = y[event_categories==4]
+
+# Make new inputs with the lepton pt divided by 1000
+is_lepton = ((types==0) | (types==1)).to(int)
+lepton_index = torch.argmax(is_lepton, dim=1) # Exactly one per event so just argmax
+
+is_neutrino = (types==2).to(int) # Exactly one per event so just argmax
+neutrino_index = torch.argmax(is_neutrino, dim=1)
+
+# Make the new inputs with the lepton Pt and Neutrino Pt divided by 1000
+x_new = x.clone()
+lep_pt, lep_eta, lep_phi, lep_m = Get_PtEtaPhiM_fromXYZT(x_new[torch.arange(x_new.shape[0]),lepton_index,0], x_new[torch.arange(x_new.shape[0]),lepton_index,1], x_new[torch.arange(x_new.shape[0]),lepton_index,2], x_new[torch.arange(x_new.shape[0]),lepton_index,3], use_torch=True)
+x_new2 = x.clone()
+neut_pt, neut_eta, neut_phi, neut_m = Get_PtEtaPhiM_fromXYZT(x_new2[torch.arange(x_new2.shape[0]),neutrino_index,0], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,1], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,2], x_new2[torch.arange(x_new2.shape[0]),neutrino_index,3], use_torch=True)
+
+if intervention_type == 'PtReduced':
+    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt / 1e6, lep_eta, lep_phi, lep_m, use_torch=True)
+elif intervention_type == 'rotate_etas':
+    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt, -lep_eta, lep_phi, lep_m, use_torch=True)
+elif intervention_type == 'rotate_phis':
+    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt, lep_eta, lep_phi + np.pi, lep_m, use_torch=True)
+elif intervention_type == 'FuckMyShitUp':
+    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt/ 1e10, -lep_eta, neut_phi + np.pi, lep_m, use_torch=True)
+else:
+    raise ValueError(f"Invalid intervention type: {intervention_type}")
+x_new[torch.arange(x_new.shape[0]),lepton_index,0] = lep_new_x
+x_new[torch.arange(x_new.shape[0]),lepton_index,1] = lep_new_y
+x_new[torch.arange(x_new.shape[0]),lepton_index,2] = lep_new_z
+x_new[torch.arange(x_new.shape[0]),lepton_index,3] = lep_new_t
+
+if intervention_type == 'PtReduced':
+    neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt / 1e6, neut_eta, neut_phi, neut_m, use_torch=True)
+elif intervention_type == 'rotate_etas':
+    neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt, -neut_eta, neut_phi, neut_m, use_torch=True)
+elif intervention_type == 'rotate_phis':
+    neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt, neut_eta, neut_phi + np.pi, neut_m, use_torch=True)
+elif intervention_type == 'FuckMyShitUp':
+    neut_new_x, neut_new_y, neut_new_z, neut_new_t = GetXYZT_FromPtEtaPhiM(neut_pt/ 1e10, -lep_eta, lep_phi + np.pi, neut_m, use_torch=True)
+    lep_new_x, lep_new_y, lep_new_z, lep_new_t = GetXYZT_FromPtEtaPhiM(lep_pt/ 1e10, lep_eta, lep_phi, lep_m, use_torch=True)
+    x_new2[torch.arange(x_new2.shape[0]),lepton_index,0] = lep_new_x
+    x_new2[torch.arange(x_new2.shape[0]),lepton_index,1] = lep_new_y
+    x_new2[torch.arange(x_new2.shape[0]),lepton_index,2] = lep_new_z
+    x_new2[torch.arange(x_new2.shape[0]),lepton_index,3] = lep_new_t
+else:
+    raise ValueError(f"Invalid intervention type: {intervention_type}")
+x_new2[torch.arange(x_new2.shape[0]),neutrino_index,0] = neut_new_x
+x_new2[torch.arange(x_new2.shape[0]),neutrino_index,1] = neut_new_y
+x_new2[torch.arange(x_new2.shape[0]),neutrino_index,2] = neut_new_z
+x_new2[torch.arange(x_new2.shape[0]),neutrino_index,3] = neut_new_t
+
+clean_inputs = (x[..., :N_Real_Vars-int(EXCLUDE_TAG)], types)
+corrupted_inputs = (x_new[..., :N_Real_Vars-int(EXCLUDE_TAG)], types)
+corrupted_inputs2 = (x_new2[..., :N_Real_Vars-int(EXCLUDE_TAG)], types)
+
+orig_outputs = model(x[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+corrupted_outputs_lep = model(x_new[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+corrupted_outputs_neut = model(x_new2[...,:N_Real_Vars-int(EXCLUDE_TAG)], types).squeeze()
+
+val_metrics_MCWts.update(orig_outputs, x[...,-1], MCWts, dsids, types)
+val_metrics_MCWts_lep.update(corrupted_outputs_lep, x_new[...,-1], MCWts, dsids, types)
+val_metrics_MCWts_neut.update(corrupted_outputs_neut, x_new2[...,-1], MCWts, dsids, types)
+
+def tmp_assess_output(outputs, lepton_index, neutrino_index, MCWts, DO_METRICS=False, val_metrics_MCWts=None):
+    # Temporary functioin to give us stats on: neutrino-lepton match, lep/neutrino success rate, and overall success rate
+    lep_orig = outputs[torch.arange(outputs.shape[0]),lepton_index]
+    neut_orig = outputs[torch.arange(outputs.shape[0]),neutrino_index]
+    lep_class = lep_orig.argmax(dim=-1)
+    neut_class = neut_orig.argmax(dim=-1)
+    lep_neut_match = (lep_class == neut_class)
+    lep_neut_match_weighted = (lep_neut_match * MCWts).sum() / MCWts.sum()
+    correct_lep = MCWts[lep_class == 2].sum() / MCWts.sum()
+    correct_neut = MCWts[neut_class == 2].sum() / MCWts.sum()
+
+    if DO_METRICS:
+        val_metrics_MCWts.reset_starts()
+        rv=val_metrics_MCWts.compute_and_log(1,'val', 0, 3, False, None, verbose=False)
+        cat4Pfct = rv['val/PerfectRecoPct_all_cat4']
+    else:
+        cat4Pfct = None
+    return lep_neut_match_weighted.item(), correct_lep.item(), correct_neut.item(), cat4Pfct.item()
+
+tao = tmp_assess_output(orig_outputs, lepton_index, neutrino_index, MCWts, DO_METRICS=True, val_metrics_MCWts=val_metrics_MCWts)
+tao_lep = tmp_assess_output(corrupted_outputs_lep, lepton_index, neutrino_index, MCWts, DO_METRICS=True, val_metrics_MCWts=val_metrics_MCWts_lep)
+tao_neut = tmp_assess_output(corrupted_outputs_neut, lepton_index, neutrino_index, MCWts, DO_METRICS=True, val_metrics_MCWts=val_metrics_MCWts_neut)
+print(f"Tao     : Matched {tao[0]:.4f}, \tCorrect Lep {tao[1]:.4f}, \tCorrect Neut {tao[2]:.4f}, \tCat4 Pfct {tao[3]:.4f}")
+print(f"Tao lep : Matched {tao_lep[0]:.4f}, \tCorrect Lep {tao_lep[1]:.4f}, \tCorrect Neut {tao_lep[2]:.4f}, \tCat4 Pfct {tao_lep[3]:.4f}")
+print(f"Tao neut: Matched {tao_neut[0]:.4f}, \tCorrect Lep {tao_neut[1]:.4f}, \tCorrect Neut {tao_neut[2]:.4f}, \tCat4 Pfct {tao_neut[3]:.4f}")
+
+
+# %%
+# Now run with the patched event. Try all combos
+# Patch the Lepton/neutrino Pt in the corrupted event
+LEP_ONLY = True
+import torch.nn.functional as F
+for block_num in range(len(model.attention_blocks)):
+    for head_num in range(model.attention_blocks[block_num]['self_attention'].num_heads):
+        print(f"Block {block_num}, Head {head_num}")
+        if LEP_ONLY:
+            lep_idx = 1 # NOTE HERE WE ASSUME THAT THE LEPTON IS ALWAYS THE SECOND OBJECT IN THE EVENT (IE NON-SHUFFLED OBJECTS)
+            # If we want neutrino only, set lep_idx = 0
+            patch_op_trace_head0 = {
+            'target_module_path': f'attention_blocks.{block_num}.self_attention',
+            'patch_value_fn': lambda src_cache, orig_inputs_cache, orig_out_tuple: 
+                # Sum the original heads EXCEPT head 0 with the patched head 0 output
+                orig_inputs_cache[f'block_{block_num}_attention']['attn_output_per_head'][:, :, :, :].sum(dim=1) + \
+                # Need to add a tensor which has shape [batch, 1, obj, d_head] and along the obj dimension is zeros except for the obj at index 1
+                # Use the torch.nn.functional.pad which takes the argument 'pad' as a tuple indicating, 
+                # going backwards through the tensor dimensions, how many sets of zeros to add before the final 
+                # dimension, after the final dimension, before the second to last dimension, after the second 
+                # to last dimension, etc.
+                F.pad(input=src_cache[f'block_{block_num}_attention']['attn_output_per_head'][:, head_num, lep_idx, :].unsqueeze(1), pad=(0,0,lep_idx,src_cache[f'block_{block_num}_attention']['attn_output_per_head'].shape[-2]-1-lep_idx), mode='constant', value=0) + \
+                - F.pad(input=orig_inputs_cache[f'block_{block_num}_attention']['attn_output_per_head'][:, head_num, lep_idx, :].unsqueeze(1), pad=(0,0,lep_idx,orig_inputs_cache[f'block_{block_num}_attention']['attn_output_per_head'].shape[-2]-1-lep_idx), mode='constant', value=0) + \
+                model.attention_blocks[block_num]['self_attention'].out_proj.bias,
+            'target_output_component_idx': 0 # For attention, the output is a tuple of (attn_output, attn_weights)
+            # and we want to change the attn_output but don't care about the attn_weights
+            }
+        else:
+            patch_op_trace_head0 = {
+            'target_module_path': f'attention_blocks.{block_num}.self_attention',
+            'patch_value_fn': lambda src_cache, orig_inputs_cache, orig_out_tuple: 
+                # Sum the original heads EXCEPT head 0 with the patched head 0 output
+                orig_inputs_cache[f'block_{block_num}_attention']['attn_output_per_head'][:, [i for i in range(orig_inputs_cache[f'block_{block_num}_attention']['attn_output_per_head'].shape[1]) if i != head_num], :, :].sum(dim=1) + \
+                src_cache[f'block_{block_num}_attention']['attn_output_per_head'][:, head_num, :, :] + \
+                model.attention_blocks[block_num]['self_attention'].out_proj.bias,
+            'target_output_component_idx': 0 # For attention, the output is a tuple of (attn_output, attn_weights)
+            # and we want to change the attn_output but don't care about the attn_weights
+            }
+
+        # for source_inputs_tuple, source_name in zip([clean_inputs, corrupted_inputs, corrupted_inputs2], ['clean', 'lep_red_pt', 'neut_red_pt']):
+        for source_inputs_tuple, source_name in zip([clean_inputs], ['clean']):
+            for target_inputs_tuple, target_name in zip([clean_inputs, corrupted_inputs, corrupted_inputs2], ['clean', 'lep_red_pt', 'neut_red_pt']):
+                patched_output_traced = activation_patcher.patch_and_run(
+                original_inputs_tuple=target_inputs_tuple, # eg. event with lepton/neutrino Pt reduced
+                patch_operations=[patch_op_trace_head0],
+                source_inputs_tuple=source_inputs_tuple # eg. original event
+                )
+                val_metrics_MCWts.reset()
+                val_metrics_MCWts.update(patched_output_traced, x[...,-1], MCWts, dsids, types)
+                print(f"Source: {source_name:12s}, Target: {target_name:12s}", end='\t')
+                tao = tmp_assess_output(patched_output_traced, lepton_index, neutrino_index, MCWts, DO_METRICS=True, val_metrics_MCWts=val_metrics_MCWts)
+                print(f"Tao: Matched {tao[0]:.4f}, \tCorrect Lep {tao[1]:.4f}, \tCorrect Neut {tao[2]:.4f}, \tCat4 Pfct {tao[3]:.4f}")
+        print()
+        print()
 
 
 
@@ -944,7 +1547,51 @@ for block_idx in residuals.keys():
     # plt.close('all')
 
 
-
+# %%
+# Now a very simple task. We will restrict to category 4 and category 5 events, and look at the residual stream for each of neutrino/lepton, and predict at each point
+# whether the *other* object is part of the W-boson or not.
+if 1:
+    val_dataloader._reset_indices() # Ensure you get a fresh batch
+    # First, get enough events in category 4 or 5
+    n_cat4_cat5 = 0
+    input_events = []
+    input_types = []
+    targets = []
+    for batch_idx in range(100): # Try up to 100 batches
+        batch = next(val_dataloader)
+        event_category = check_category(batch['types'], batch['x'][..., -1], padding_token, use_torch=True)
+        mask = (event_category == 4) | (event_category == 5)
+        if mask.sum() == 0:
+            continue
+        input_events.append(batch['x'][mask, ..., :N_Real_Vars-int(EXCLUDE_TAG)])
+        input_types.append(batch['types'][mask])
+        targets.append(batch['x'][mask, ..., -1])
+        n_cat4_cat5 += mask.sum()
+        if n_cat4_cat5 >= 5000:
+            break
+    print(f"Found {n_cat4_cat5} events in category 4 or 5")
+    input_events = torch.cat(input_events, dim=0)
+    input_types = torch.cat(input_types, dim=0)
+    targets = torch.cat(targets, dim=0)
+    # Now actually run the model on these events, collect the activations and residuals
+    extractor = ModelActivationExtractor(model, model_type='reconstruction')
+    cache = extractor.extract_activations((input_events, input_types))
+    residuals = get_residual_stream(cache, verbose=True)  # Dict: {0: ..., 1: ..., ...}
+    # Now we can loop over the blocks and heads and look at the residual stream for each of neutrino/lepton, and predict at each point
+    # whether the *other* object is part of the W-boson or not.
+    for block_idx in residuals.keys():
+        resid = residuals[block_idx] # shape: [batch, n_obj, d_model]
+        # Now we can loop over the heads and look at the residual stream for each of neutrino/lepton, and predict at each point
+        # whether the *other* object is part of the W-boson or not.
+        # Now we can fit a linear probe to predict the target from the residual stream
+        X = flatten_selected_objects(resid, mask)
+        y = targets.cpu().numpy()
+        # Split into train/val sets
+        n_samples = len(X)
+        train_size = min(int(0.8 * n_samples), 2000)
+        indices = np.random.permutation(n_samples)
+        train_idx, val_idx = indices[:train_size], indices[train_size:]
+        wefwefwef
 
 
 # %%
@@ -1201,10 +1848,10 @@ if 1:
     if 0: # Can predict the combined mass pretty well, but not the delta-R (0.45 ish top score)
         object1 = 'TrueHiggs'
         object2 = 'TrueW'
-    elif 1:
+    elif 0:
         object1 = 'TrueW'
         object2 = 'TrueHiggs'
-    elif 0: # Can predict the delta-R pretty well! (0.8 ish top score)
+    elif 1: # Can predict the delta-R pretty well! (0.8 ish top score)
         object1 = 'TrueHiggs'
         object2 = 'RecoWlep'
     elif 0:
@@ -1464,7 +2111,7 @@ if 1:
                         print(f" / {results_single_ablation[k][f'val/Pct_UnderPredict_all_cat{category}']*100:4.1f}", end="")
                         print(f" / {results_single_ablation[k][f'val/Pct_MisPredict_all_cat{category}']*100:4.1f}", end="\t")
                     print()
-            else: # Print in separate lines
+            elif 0: # Print in separate lines
                 print(f'catego Corr / Over / Undr / Miss', end="\t")
                 for k in results_single_ablation.keys():
                     print(f"{str(k):12s}: ")
@@ -1473,6 +2120,25 @@ if 1:
                         print(f" / {results_single_ablation[k][f'val/Pct_OverPredict_all_cat{category}']*100:4.1f}", end="")
                         print(f" / {results_single_ablation[k][f'val/Pct_UnderPredict_all_cat{category}']*100:4.1f}", end="")
                         print(f" / {results_single_ablation[k][f'val/Pct_MisPredict_all_cat{category}']*100:4.1f}")
+                    print()
+            else:
+                for k in results_single_ablation.keys():
+                    # print(f"{str(k):12s}: ")
+                    print("\\multicolumn{5}{*}{", end="")
+                    try:
+                        print(f"Layer {k[0]:d}, head {k[1]:d}", end="")
+                    except:
+                        print(f"None", end="")
+                    print("}", end="")
+                    print("\\\\")
+                    print(f'Cat. & Corr & Over & Undr & Miss', end="")
+                    print("\\\\")
+                    for category in range(6):
+                        print(f"cat{category} & {round(results_single_ablation[k][f'val/PerfectRecoPct_all_cat{category}'].item()*100):2d}", end="")
+                        print(f" & {round(results_single_ablation[k][f'val/Pct_OverPredict_all_cat{category}'].item()*100):2d}", end="")
+                        print(f" & {round(results_single_ablation[k][f'val/Pct_UnderPredict_all_cat{category}'].item()*100):2d}", end="")
+                        print(f" & {round(results_single_ablation[k][f'val/Pct_MisPredict_all_cat{category}'].item()*100):2d}", end="")
+                        print("\\\\")
                     print()
 
 

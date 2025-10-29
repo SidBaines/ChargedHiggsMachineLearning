@@ -4,7 +4,9 @@ from collections import defaultdict
 from typing import Dict, List, Callable, Any, Optional, Union, Tuple
 from utils.utils import Get_PtEtaPhiM_fromXYZT, GetXYZT_FromPtEtaPhiM
 import einops
-from pysr import PySRRegressor
+NOJULIA = False
+if not NOJULIA:
+    from pysr import PySRRegressor
 from sklearn.preprocessing import StandardScaler
 import matplotlib as mpl
 import math

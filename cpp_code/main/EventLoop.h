@@ -303,8 +303,7 @@ public :
    // BETWEEN THESE LINES ARE THE LOW LEVEL VARIABLES FOR SID'S NEW METHOD
    std::vector<float> ll_particle_px, ll_particle_py, ll_particle_pz, ll_particle_e, ll_particle_tagInfo;
    std::vector<int> ll_particle_type, ll_particle_recoInclusion, ll_particle_trueInclusion;
-   int truth_decay_mode, lepton_count, nLjets_ll;
-   int truth_decay_mode_old;
+   int truth_decay_mode, lepton_count, nLjets_ll, truth_decay_mode_old, truth_decay_mode_med;
    bool successfulTruthMatch;
    float best_mWH_lvbb, best_mWH_qqbb, best_mH, best_mWqq, best_mWlv;
    // BETWEEN THESE LINES ARE THE LOW LEVEL VARIABLES FOR SID'S NEW METHOD
@@ -805,6 +804,7 @@ public :
    virtual bool     LowLevel_Loop();
    virtual int      LowLevel_CountLeptons();
    virtual int      LowLevel_ClassifyDecayType();
+   virtual int      LowLevel_ClassifyDecayTypeNew();
    virtual int      LowLevel_ClassifyDecayType_OLD();
    virtual bool LowLevel_MatchTruthParticles();
    virtual std::tuple<float, float, float> LowLevel_GetBestWhMasses();
@@ -1599,6 +1599,7 @@ EventLoop::EventLoop(TTree *tree, TString ExpUncertaintyName, TString outFileNam
    output_tree->Branch("ll_particle_trueInclusion", &ll_particle_trueInclusion);
    output_tree->Branch("ll_truth_decay_mode", &truth_decay_mode);
    output_tree->Branch("ll_truth_decay_mode_old", &truth_decay_mode_old);
+   output_tree->Branch("ll_truth_decay_mode_med", &truth_decay_mode_med);
    output_tree->Branch("ll_successful_truth_match", &successfulTruthMatch);
    output_tree->Branch("ll_best_mH", &best_mH);
    output_tree->Branch("ll_best_mWqq", &best_mWqq);
