@@ -1,0 +1,199 @@
+<instructions>
+Hi, if I have the following transformer like architecture (consecutive blocks with self attention, MLP & residual skip connections, however no positional embeddings). The model takes as input a tensor of shape [batch object feature] and a tensor of shape [batch object], where the number of objects is between 5 and 15, and the number of features is 5 in my use case, but may be as low as 2 or as high as 10.
+My model learns to complete its task well, but now I want to try and create a more explainable model, and one idea I have for this is to try and make my model learn fewer features, which I can then try and interpret as closed form functions of my inputs (eg. Using symbolic regression). 
+However, I think I need to keep relatively high dimensional model in order for it to be able to express the functions, so I am wondering if there is another way that I can encourage my model to calculate/use fewer features in the intermediate layers. 
+I am willing to accept a reasonable loss in performance in order to have an explainable/interpretable model if it's possible. Do you have any thoughts?  Give me your 2-3 best suggestions.
+Do not provide code yet, just think through and provide ideas.
+</instructions>
+
+<code>
+class LorentzInvariantFeatures(nn.Module):
+    def __init__(self, feature_set=['pt', 'eta', 'phi', 'm']):
+        super().__init__()
+        self.feature_set = feature_set
+    
+    def forward(self, four_momenta):
+        # four_momenta shape: [..., 4] where last dim is (px, py, pz, E)
+        # Calculate Lorentz invariant quantities
+        mass_squared = four_momenta[..., 3]**2 - (four_momenta[..., 0]**2 + 
+                                                 four_momenta[..., 1]**2 + 
+                                                 four_momenta[..., 2]**2)
+        pt = torch.sqrt(four_momenta[..., 0]**2 + four_momenta[..., 1]**2)
+        eta = torch.asinh(four_momenta[..., 2] / pt)
+        eta = torch.nan_to_num(eta, nan=0.0)
+        phi = torch.atan2(four_momenta[..., 1], four_momenta[..., 0])
+        
+        features = []
+        if 'm' in self.feature_set:
+            features.append(mass_squared)
+        if 'pt' in self.feature_set:
+            features.append(pt)
+        if 'eta' in self.feature_set:
+            features.append(eta)
+        if 'phi' in self.feature_set:
+            features.append(phi)
+        return torch.stack(features, dim=-1)
+
+
+
+
+class DeepSetsWithResidualSelfAttentionVariableTrueSkip(nn.Module):
+    def __init__(self, feature_set=['pt', 'eta', 'phi', 'm', 'tag'], num_classes=3, hidden_dim=256, num_heads=4, dropout_p=0.0, embedding_size=32, num_attention_blocks=3, include_mlp=True, hidden_dim_mlp=None):
+        super().__init__()
+        self.num_attention_blocks = num_attention_blocks
+        self.include_mlp = include_mlp
+        if hidden_dim_mlp is None:
+            hidden_dim_mlp = hidden_dim
+
+        if USE_LORENTZ_INVARIANT_FEATURES:
+            self.invariant_features = LorentzInvariantFeatures(feature_set=feature_set)
+        
+        # Object type embedding
+        self.type_embedding = nn.Embedding(N_CTX, embedding_size)  # 5 object types
+        
+        # Initial per-object processing
+        self.object_net = nn.Sequential(
+            nn.Linear(len(feature_set) + embedding_size, hidden_dim),  # All features except type + type embedding
+            nn.LayerNorm(hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+        )
+        
+        # Create multiple attention blocks
+        self.attention_blocks = nn.ModuleList([
+            nn.ModuleDict({
+                'self_attention': nn.MultiheadAttention(
+                    embed_dim=hidden_dim,
+                    num_heads=num_heads,
+                    dropout=0.0,
+                    batch_first=True,
+                ),
+                **({'post_attention': nn.Sequential(
+                    nn.Linear(hidden_dim, hidden_dim_mlp),
+                    nn.GELU(),
+                    nn.Dropout(dropout_p),
+                    nn.Linear(hidden_dim_mlp, hidden_dim),
+                )} if self.include_mlp else {})
+            }) for _ in range(num_attention_blocks)
+        ])
+        # Final classification layers
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim, num_classes)
+        )
+
+    def forward(self, object_features, object_types):
+        # Get type embeddings and combine with features
+        type_emb = self.type_embedding(object_types)
+        if USE_LORENTZ_INVARIANT_FEATURES:
+            # invariant_features = self.invariant_features(object_features[...,:4])
+            invariant_features = self.invariant_features(object_features[...,:4])
+        else:
+            invariant_features = object_features[...,:4]
+        combined = torch.cat([invariant_features, object_features[...,4:], type_emb], dim=-1)
+        # Process each object
+        object_features = self.object_net(combined)
+        # Apply attention blocks
+        for block in self.attention_blocks:
+            # Store original features for residual connection
+            identity = object_features
+            # Apply self-attention
+            attention_output, _ = block['self_attention'](
+                object_features, object_features, object_features,
+                key_padding_mask=(object_types==(N_CTX-1))
+            )
+            # Add residual connection and normalize
+            if self.include_mlp:
+                residual = identity + attention_output
+                identity = residual
+                # Post-attention processing
+                mlp_output = block['post_attention'](residual)
+                object_features = identity + mlp_output
+            else:
+                object_features = identity + attention_output
+        return self.classifier(object_features)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class HEPLoss(torch.nn.Module):
+    def __init__(self, is_categorical=False, weight_by_mH=False, alpha=1.0, apply_correlation_penalty=False):
+        super().__init__()
+        self.is_categorical = is_categorical
+        self.ce = torch.nn.CrossEntropyLoss(reduction='none')
+        self.bce = torch.nn.BCEWithLogitsLoss(reduction='none')
+        self.weight_by_mH = weight_by_mH
+        self.alpha = alpha
+        self.apply_correlation_penalty = apply_correlation_penalty
+        self.apply_valid_penalty = apply_valid_penalty
+        self.valid_penalty_weight = valid_penalty_weight
+        
+    def forward(self, inputs, targets, types, padding_token, n_objs, weights):
+        simplified_true_inclusion = ((targets==1)*1 + (targets>1)*2) # 1 is Higgs, 2/3 is W for qqbb/lvbb cases
+        one_hot_true_inclusion = torch.nn.functional.one_hot(simplified_true_inclusion.to(torch.long))
+        flattened_ce = self.ce(einops.rearrange(inputs, 'batch object cls -> (batch object) cls'),
+                                einops.rearrange(one_hot_true_inclusion.float(), 'batch object cls -> (batch object) cls'),
+                                )
+        num_nonempty_objs = (types!=padding_token).sum(dim=-1)
+        ce_loss = flattened_ce * (einops.repeat((weights/num_nonempty_objs), 'batch -> batch max_n_objects',max_n_objects=n_objs)*(types!=padding_token)).flatten()
+        
+        total_loss = (ce_loss.sum())/(weights.sum())
+
+        return total_loss
+
+
+
+
+
+
+
+
+
+criterion = HEPLoss(is_categorical=IS_CATEGORICAL, apply_correlation_penalty=False, alpha=1.0, apply_valid_penalty=False, valid_penalty_weight=1.0)
+train_loader._reset_indices()
+for epoch in range(num_epochs):
+    # Update learning rate based on the cosine scheduler
+    train_loader._reset_indices()
+    val_loader._reset_indices()
+    train_metrics.reset()
+    train_metrics_MCWts.reset()
+    val_metrics.reset()
+    val_metrics_MCWts.reset()
+    model.train()
+    n_step = 0
+    orig_len_train_dataloader=len(train_loader)
+    train_loss_epoch = 0
+    sum_weights_epoch = 0
+    for batch_idx in range(orig_len_train_dataloader):
+        # Training phase
+        n_step+=1
+        global_step += 1
+        batch = next(train_loader)
+        x, y, w, types, dsids, mqq, mlv, MCWts, mHs = batch.values()
+        
+        optimizer.zero_grad()
+        outputs, cache = extract_all_activations(model, x[...,:4+int(TAG_INFO_INPUT)], types, detach=False)
+        outputs = outputs.squeeze()
+        loss = criterion(outputs, x[...,-1], types, N_CTX-1, max_n_objs_to_read, w, config['wandb'], cache, x[...,:4])
+        train_loss_epoch += loss.item() * w.sum().item()
+        sum_weights_epoch += w.sum().item()
+        
+        loss.backward()
+        optimizer.step()
+</code>

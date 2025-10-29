@@ -1,0 +1,37 @@
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+            Claude
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+<PrimaryTaskDescription>
+Write python code for three different neural networks, and their loss functions, for selecting which objects to include in a particle reconstruction, given input tensors with dimensions [batch object variable], and multi-hot encoded truth labels of shape[batch objects] where a 1 indicates that an object should be included when reconstructing the target-particle, and a 0 indicates it should not. Try to make your suggestions materially different from each other, and explain, for each of them, which properties make it particularly suited to the classification task given in the Context section below.
+</PrimaryTaskDescription>
+
+<Context>
+You are a particle physics researcher at a particle collider, and have been given a dataset consisting of LHC collision events which contain a particular target-particle you are to look for. The task here is to reconstruct this target-particle using the objects you have available, by choosing objects whose 4-momenta should be summed to get the 4-momenta of the target-particle - that is to say, you are looking for the decay products of the target-particle.
+The target-particle has unknown mass, so the events you have simulate it at a range of masses.
+The events have truth labels indicating which objects were actually decay products of the target-particle (indicated by a 1) and those which are not (eg. part of other particles involved the process, initial-state-radiation or pile-up).
+Each event contains a different number of reconstructed objects (up to a maximum of max_n_objs), for which the following information is provided:
+- px: momentum in the x-direction
+- py: momentum in the y-direction
+- pz: momentum in the z-direction
+- e: energy of the object
+- tagInfo: any relevant tagging information for the particle. This indicates a likelihood that a jet is a b-jet (for small jets), or X->bb jet (for large jets). For neutrinos, muons and electrons, this will be equal to zero.
+- type: an integer indicating what type of physics-object the object corresponds to. This is determined by the following mapping: {0: electron, 1: muon, 2: neutrino, 3: large jet, 4: small jet}.
+Every event will contain exactly one neutrino, exactly one lepton (electron OR muon) and at least one large jet. Within an event, the objects may come in any order along the object dimension of the input tensor, except for the fact that the neutrino will always come first.
+</Context>-
+
+<Guidelines>
+- You do not need to write the code which actually does the dataloading/optimization, as this will be provided for you. It will also include any relevant metric logging. However, you should include code for calculation of a suitable loss function and any other relevant metrics which you think should be logged to measure performance. Data will be provided as batches of x with shape=(batch_size, max_n_objs, 6) and y with shape (batch_size, 3).
+- You should use pytorch as the base for writing the models, and can optionally choose to use other state-of-the-art python libraries if you want/need.
+- You should think about the specific problem, mentioned in the Context section in terms of choosing architectures that make sense, but do not try to do any feature engineering - your input data must be in the form given.
+- Make use of up-to-date architectures, and feel free to search the web for cutting-edge techniques used in the field.
+- Focus primarily on performance (but note that your dataset size is ~ 3 million events, and you don't want to overfit).
+- The events will be weighted individually for loss calculation to account for any class imbalance (so you do not need to be concerned with this). In terms of number of objects within an event, there is not a high variability, and most events have between 5 and 10 objects. If you need to hard-code a maximum, you can assume max_n_objs=22.
+- Events will usually contain between 2 and 5 objects which are part of the target-particle.
+</Guidelines>

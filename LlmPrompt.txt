@@ -1,0 +1,155 @@
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+            Perplexity Pro
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+<InstructionForThisQuestion>
+Please think about the primary task given below in the section PrimaryTaskDescription, and ask any follow up questions you would like to know the answer to before starting on the primary task.
+</InstructionForThisQuestion>
+
+<PrimaryTaskDescription>
+Write python code for 3 different possible neural network architectures which perform 3-way classification, given input tensors with dimensions [batch object variable], and one-hot encoded outputs of shape [batch num_classes]. Try to make them different from each other, and explain, for each of them, which properties make it particularly suited to the classification task given in the Context section below.
+</PrimaryTaskDescription>
+
+<Guidelines>
+- You do not need to write the code which actually does the training, as this will be provided for you. It will include dataset preparation/looping, optimization and any relevant metric logging. Data will be provided as batches of x with shape=(batch_size, max_n_objs, 6) and y with shape (batch_size, 3).
+- You should use pytorch as the base for writing the models, and can optionally choose to use other state-of-the-art python libraries if you want/need.
+- You should think about the specific problem, mentioned below in terms of choosing architectures that make sense, but do not try to do any feature engineering - your input data must be in the form given.
+- Make use of up-to-date architectures, and feel free to search the web for cutting-edge techniques used in the field.
+</Guidelines>
+
+<Context>
+You are a particle physics researcher at a particle collider, and have been given a dataset consisting of LHC collision events which are labelled as either background, signal-type-1, or signal-type-2.
+Each event contains a different number of reconstructed objects (up to a maximum of max_n_objs), for which the following information is provided:
+- px: momentum in the x-direction
+- py: momentum in the y-direction
+- pz: momentum in the z-direction
+- e: energy of the object
+- tagInfo: any relevant tagging information for the particle. This indicates a likelihood that a jet is a b-jet (for small jets), or X->bb jet (for large jets). For neutrinos, muons and electrons, this will be equal to zero.
+- type: an integer indicating what type of physics-object the object corresponds to. This is determined by the following mapping: {0: electron, 1: muon, 2: neutrino, 3: large jet, 4: small jet}.
+Every event will contain exactly one neutrino, exactly one lepton (electron OR muon) and at least one large jet. Within an event, the objects come in the order neutrino, lepton (electron OR muon), all large jets, all small jets (along the second dimension of our input tensor).
+</Context>-
+
+
+
+
+
+# Follow up to perplexityPro answer (not-Pro)
+In what way, if any, would you change these architectures if the objects for a given event were shuffled (ie, the x tensor was presented to you shuffled along dim=1)?
+
+
+
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+            GROK 2
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
+
+
+
+
+<InstructionForThisQuestion>
+Please think about the primary task given below in the section PrimaryTaskDescription, and ask any follow up questions you would like to know the answer to before starting on the primary task.
+</InstructionForThisQuestion>
+
+<PrimaryTaskDescription>
+Write python code for 3 different possible neural network architectures which perform 3-way classification, given input tensors with dimensions [batch object variable], and one-hot encoded outputs of shape [batch num_classes]. Try to make them different from each other, and explain, for each of them, which properties make it particularly suited to the classification task given in the Context section below.
+</PrimaryTaskDescription>
+
+<Guidelines>
+- You do not need to write the code which actually does the training, as this will be provided for you. It will include dataset preparation/looping, optimization and any relevant metric logging. Data will be provided as batches of x with shape=(batch_size, max_n_objs, 6) and y with shape (batch_size, 3).
+- You should use pytorch as the base for writing the models, and can optionally choose to use other state-of-the-art python libraries if you want/need.
+- You should think about the specific problem, mentioned below in terms of choosing architectures that make sense, but do not try to do any feature engineering - your input data must be in the form given.
+- Make use of up-to-date architectures, and feel free to search the web for cutting-edge techniques used in the field.
+</Guidelines>
+
+<Context>
+You are a particle physics researcher at a particle collider, and have been given a dataset consisting of LHC collision events which are labelled as either background, signal-type-1, or signal-type-2.
+Each event contains a different number of reconstructed objects (up to a maximum of max_n_objs), for which the following information is provided:
+- px: momentum in the x-direction
+- py: momentum in the y-direction
+- pz: momentum in the z-direction
+- e: energy of the object
+- tagInfo: any relevant tagging information for the particle. This indicates a likelihood that a jet is a b-jet (for small jets), or X->bb jet (for large jets). For neutrinos, muons and electrons, this will be equal to zero.
+- type: an integer indicating what type of physics-object the object corresponds to. This is determined by the following mapping: {0: electron, 1: muon, 2: neutrino, 3: large jet, 4: small jet}.
+Every event will contain exactly one neutrino, exactly one lepton (electron OR muon) and at least one large jet. Within an event, the objects may come in any order along the object dimension of the input tensor, except for the fact that the neutrino will always come first.
+</Context>-
+
+
+
+# Response to Grok2's questions
+1) Assume max_n_objs=14
+2) Assume you should output logits for cross-entropy
+3) Assume no symmetries (so indeed, assume that the order of objects beyond neutrino being first carries no physical meaning).
+4) Focus entirely on performance (but note that your dataset size is ~ 10 million events, and you don't want to overfit).
+5) The events will be weighted individually to account for any class imbalance (so you do not need to be concerned with this). In terms of number of objects within an event, there is not a high variability, and most events ahve between 5 and 10 objects. The distribution of events with different object totals is given as follows (to 2 decimal places): {1: 0.00, 2: 0.00, 3: 0.00, 4: 0.00, 5: 0.04, 6: 0.10, 7: 0.16, 8: 0.19, 9: 0.20, 10: 0.13, 11: 0.07, 12: 0.05, 13: 0.02}
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+            Claude
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+<InstructionForThisQuestion>
+Please think about the primary task given below in the section PrimaryTaskDescription, and ask any follow up questions you would like to know the answer to before starting on the primary task.
+</InstructionForThisQuestion>
+
+<PrimaryTaskDescription>
+Write python code for 3 different possible neural network architectures which perform 3-way classification, given input tensors with dimensions [batch object variable], and one-hot encoded outputs of shape [batch num_classes]. Try to make them different from each other, and explain, for each of them, which properties make it particularly suited to the classification task given in the Context section below.
+</PrimaryTaskDescription>
+
+<Context>
+You are a particle physics researcher at a particle collider, and have been given a dataset consisting of LHC collision events which are labelled as either background, signal-type-1, or signal-type-2.
+Each event contains a different number of reconstructed objects (up to a maximum of max_n_objs), for which the following information is provided:
+- px: momentum in the x-direction
+- py: momentum in the y-direction
+- pz: momentum in the z-direction
+- e: energy of the object
+- tagInfo: any relevant tagging information for the particle. This indicates a likelihood that a jet is a b-jet (for small jets), or X->bb jet (for large jets). For neutrinos, muons and electrons, this will be equal to zero.
+- type: an integer indicating what type of physics-object the object corresponds to. This is determined by the following mapping: {0: electron, 1: muon, 2: neutrino, 3: large jet, 4: small jet}.
+Every event will contain exactly one neutrino, exactly one lepton (electron OR muon) and at least one large jet. Within an event, the objects may come in any order along the object dimension of the input tensor, except for the fact that the neutrino will always come first.
+</Context>-
+
+<Guidelines>
+- You do not need to write the code which actually does the training, as this will be provided for you. It will include dataset preparation/looping, optimization and any relevant metric logging. Data will be provided as batches of x with shape=(batch_size, max_n_objs, 6) and y with shape (batch_size, 3).
+- You should use pytorch as the base for writing the models, and can optionally choose to use other state-of-the-art python libraries if you want/need.
+- You should think about the specific problem, mentioned below in terms of choosing architectures that make sense, but do not try to do any feature engineering - your input data must be in the form given.
+- Make use of up-to-date architectures, and feel free to search the web for cutting-edge techniques used in the field.
+- Focus primarily on performance (but note that your dataset size is ~ 10 million events, and you don't want to overfit).
+- The events will be weighted individually for loss calculation to account for any class imbalance (so you do not need to be concerned with this). In terms of number of objects within an event, there is not a high variability, and most events have between 5 and 10 objects. If you need to hard-code a maximum, you can assume max_n_objs=14.
+</Guidelines>
+
+
+# Responses to claude's questions
+1) No constraints on inference time/performance. You have access to a GPU for training/inference, and we don't need to make predictions particularly quickly.
+2) There is no meaningful situational relationship in the objects other than the neutrino being first; in fact they are shuffled along the dim=1 axis of the tensor (aside from the neutrino) before being presented to the code.
+3) For the relevant object types (large jet and small jet), the tagging information is a single floating point integer (taking any value, but generally between -10 and 10). The tagging information for small jets is completely separate from the tagging information for large jets (so they can be treated differently during input processing). For neutrino/electron/muon, it is simply the value 0 and should be ignored/provides no information.
+4) Assume, for the time being, that there are no symmetries or conservation laws that should be respected by the network. We may re-think this assumption later, but for now assume this.
+
+Please go ahead and proceed with the primary task.
