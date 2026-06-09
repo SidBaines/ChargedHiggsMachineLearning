@@ -54,6 +54,32 @@
   available as fallback (classifier training on 2.7M bkg events may want it; signal-only
   reco training should be fine on MPS).
 
+## heppc inventory (from Sid's probes, late 2026-06-10)
+
+- `~/Code/` repo clones: **`ChargedHiggs_CodeForThesis`** (1.5G, last touched 2025-06-18;
+  `output/` = PlotsForThesis + yields only — plotting, not training) and
+  **`ChargedHiggs_ExperimentalML`** (2.3G, last touched 2025-10-29 = the `heppc-work`
+  clone; `output/` full of TrainingOutput dirs incl. a 2025-07-08..11 burst, + `wandb/`).
+  Also `ChargedHiggs_ProcessingForIntNote` (4.6G, contains a `particle_transformer/` —
+  brief ParT benchmarking), `ChargedHiggsML2025Jan` (548K), `20250609/` (28M).
+- `/data/atlas/baines/`: the full memmap-dataset zoo, names = preprocessing flags. Thesis-
+  relevant: `20250321v1_…15_MetCut…` (reco), `20250321v2_AppliedRecoNNSplit_…30…`
+  (classifier), `20250429v1_…OnlyLjetBosonTruth`, high-level dirs, 2025-06-18/19 sets.
+  **`TmpCommonModelResults/`** (12 subdirs) = the model store the `CompareAllModels*`
+  scripts read. Mystery **`20250711_ChargedHiggsCode/`** code copy (matches the July
+  TrainingOutput burst).
+- **Bonus**: Nov-2024 `tmp_shuffled_*.bin` + `models/` (97 subdirs, Oct-2024) are almost
+  certainly the missing data+models of the old TransformerLens/SAE event-classifier work
+  (`MLEventSel_OnlyImportant` on the Mac, broken `data` symlink) — that thread is
+  recoverable too.
+- Sid confirms heppc most likely IS the thesis-training machine ("third machine" mystery
+  resolved); access retained for a while, so urgency reduced.
+- heppc git is ancient (no `git -C`); write probe commands accordingly.
+- Recovery queued: 5 repo dirs (~8.5 GB) → `/Volumes/Seagate/heppc_recovered/Code/`,
+  chained after the ROOT rsync via ssh ControlMaster (auth up front) + pgrep-wait.
+- Decisions: model-organisms approach + H1 opener confirmed by Sid, with the explicit
+  precondition that the lepton→neutrino association must be re-verified in each organism.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
