@@ -80,6 +80,24 @@
 - Decisions: model-organisms approach + H1 opener confirmed by Sid, with the explicit
   precondition that the lepton→neutrino association must be re-verified in each organism.
 
+## Late-night probe round 2 + overnight queue (2026-06-10, ~00:30–01:00)
+
+- **`ChargedHiggs_CodeForThesis` is NOT a git repo** (plain copy) — the thesis-plot code
+  state exists only there → wholesale copy is the most valuable recovery item.
+- `ChargedHiggs_ExperimentalML` = our `heppc-work` @ `9fbe40e`, clean (only `__pycache__`
+  untracked) → no unique code; value = `output/` (TrainingOutputs 2025-02 → 2025-07) +
+  `wandb/`. Remote is `git@github.com:SidBaines/ChargedHiggsML2025Jan.git`.
+- Dataset sizes: `20250321v1` reco 12G; `20250321v2` classifier 17G; `20250429v1` 1.3G +
+  high-level 761M/22M; June-2025 sets 4.1–4.4G ×4 (one empty: `20250618v1_…RemovedWrong
+  TruthForTraining…` = 0); `TmpCommonModelResults` 3.2G (run dirs 2025-02-11→03-10);
+  `20250711_ChargedHiggsCode` 1.6M (code snapshot). Round-3 total ≈ 51G — take all.
+- Overnight queue verified on the Mac: ROOT rsync running; ssh ControlMaster alive;
+  watcher chain healthy BUT Sid's `caffeinate` prefix was lost → fixed by attaching
+  `caffeinate -i -w <watcher-pid>` (nohup'd). Learning: **verify the process tree after
+  launching chained jobs** — a dropped wrapper is silent until 3am.
+- Round 3 (datasets, ~51G) command handed to Sid for the morning; optional round 4 =
+  Oct/Nov-2024 `models/` + `tmp_shuffled_*.bin` (the old MLEventSel/SAE-era artifacts).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
