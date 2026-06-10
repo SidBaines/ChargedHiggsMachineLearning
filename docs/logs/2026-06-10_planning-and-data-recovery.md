@@ -199,6 +199,24 @@ unmount /Volumes/Seagate` → unplug.**
 - Sid's direction: registry ✓, thesis-model pass ✓, but expect to TRAIN OUR OWN organisms
   (better frontier expected with current codebase+context) rather than only reuse old ones.
 
+## wandb mined (after Sid's relogin, afternoon 06-10)
+
+- Entity `luke-sid-baines-blank`; reco runs live in **`HEP-Transformers-TruthMatchingReco`**
+  (203 runs; names = output-dir timestamps + variant code, e.g.
+  `_20250512-093728_LowLevel_DSSARVTSBN3_YesEnt1_YesBn` = thesis model); classifier/
+  high-level runs in `HEP-Transformers` (341 runs).
+- **Hyperparameters were NOT logged to wandb** (config = `{magic: enable}` only) → the
+  registry + script blocks remain the only config source. But **final summaries are
+  rich**: archived to `docs/run_configs/*.json` for all 9 registry runs (incl. the
+  lost-checkpoint `20250328-113053`).
+- **Thesis-model quantitative targets now on file** (val PerfectRecoPct by mass):
+  0.8 TeV → 0.698, 1.0 → 0.784, 1.4 → 0.856, 2.0 → 0.902, 3.0 → 0.932. These are the
+  numbers the 20250321v1 rerun must reproduce (Phase 0.5 gate).
+- **Cross-check win**: wandb-logged final per-head attention entropies (block 2:
+  0.024/0.023/0.17/0.11) match what we measured locally on different data
+  (0.025/0.048/0.14/0.24 in the same ranking) → our hook/eval pipeline reproduces
+  training-time behavior.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
