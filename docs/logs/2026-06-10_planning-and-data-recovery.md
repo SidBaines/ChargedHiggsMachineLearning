@@ -668,6 +668,19 @@ All thesis model, 12,288 val events.
    (hadronic-vs-leptonic comparator) deliver the verdict to lep and ν IN PARALLEL —
    bidirectionally causally verified; lockstep = shared wires, nothing more.
 
+## Session close 06-11: the mass-window divergence is a SCALE effect (new-organism A1)
+
+A1 rerun on the freshly trained organism (`--ckpt-override
+output/20260610-203258_TrainingOutput/.../chkpt29_10290.pth`): **monotonic again**
+(claim 0.964 @5 GeV → 0.648 @300, no bump) — near-identical to the old organism
+despite independent training (30 vs 10 epochs, 2026 vs 2025, our trainer, better
+final performance 0.8142). ⇒ **two independently trained d20 organisms learn the
+crude "lighter ⇒ more W-like" discriminant; only the 677k thesis model learns the
+true W-mass window.** The window is a capacity/scale phenomenon, not a training
+artifact. (Where exactly it emerges — d_model sweep — is a natural Phase-2 tradeoff
+question; also check the un-constrained `plain-d152` twin to separate size from the
+entropy/bottleneck constraints.)
+
 ## Next session
 
 - **Stage B** (competition sub-circuit): SB1-SB6, preregistered in
