@@ -19,6 +19,21 @@
 > decouples jet label from verdict; embed-patch partial recovery = stage-B teaser).
 > Stages (a) and (c) of the circuit are closed on the thesis model. **Next: Stage B
 > (SB1-SB6 below).** New organism trained (0.8142) — universality reruns pending.
+>
+> **RED-TEAM PASS 2026-06-11** (adversarial controls + new factorials →
+> [`logs/2026-06-11_red-team-h1.md`](logs/2026-06-11_red-team-h1.md)): core account
+> SURVIVES (census + flip rates replicate on unseen events; wire-swap is specific —
+> placebo 0, norm-matched random kick 2%; parallel readers confirmed in the
+> sufficiency direction too). **Corrections**: (1) candidacy is RELATIVE event
+> hardness, not absolute pT (rest×2 drops claims 0.92→0.57 without touching the W);
+> (2) exclusivity is emergent score-ranking, not enforced — identical candidates
+> BOTH claim in 74% of events, and the thesis model's ranking is mass-window-
+> dominated H-ward (pT 450/m 80 beats pT 600/m 110 ~90/10) while the ORGANISM ranks
+> by pT everywhere (scale divergence extends to the competition rule); (3)
+> "direction-blind" fails under tied competition (coherent original wins 88/12);
+> (4) wires: b1h3+b2h2 carry ~80-90% of the verdict flow, b2h0+b2h3 a real ~12%
+> (clamping all 12 = exactly 0 flips; architecturally closed). **Update SB1-SB6
+> predictions for points (1)-(3) before running Stage B.**
 
 ## The hypothesis under test
 
