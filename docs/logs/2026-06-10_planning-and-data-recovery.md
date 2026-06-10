@@ -340,6 +340,9 @@ magnitudes, sjet system, multi-object combinations); (d) compare with the 20k-pa
 
 ## Night 06-10: H1 round 2 — CLEAR SIGNAL: the channel decision reads the JET system
 
+> ⚠️ **CORRECTION (round 2d below): every "sjet"/"ljet" in rounds 2-2c is SWAPPED**
+> (scripts used SJ=3/LJ=4; truth is 3=ljet, 4=sjet). Numbers are valid; names are not.
+
 Scripts: `tmp_h1_round2.py` (margins, jet-system swap, corruption grid),
 `tmp_h1_round2b.py` (sjet count-vs-content), both `--model`-parameterized; run on
 **thesis-ent1-bn1-d152 AND ent1-d20-2blk** (12,288 val events: 8,174 lvbb / 4,114 qqbb).
@@ -392,6 +395,9 @@ cleanly separates marginal-content vs relational-structure hypotheses.
 
 ## Night 06-10 (round 2c): Sid's "ask the jets" hypothesis — first three tests PASS
 
+> ⚠️ **CORRECTION (round 2d below)**: "partial (1 sjW)" is really **boosted (W = 1 ljet)**
+> and "boosted (≥1 ljW)" is really **resolved (W = 2 sjets)**. Numbers valid, names swapped.
+
 Sid's reframe: each jet computes "am I the H+'s W?"; lep/ν read the aggregate answer
 (NOT(some jet is the W) ⇒ we are). `tmp_h1_round2c.py`, both models.
 
@@ -419,6 +425,52 @@ Sid's reframe: each jet computes "am I the H+'s W?"; lep/ν read the aggregate a
   residual streams, freeze lep/ν streams); logit-lens timing (do jets "know" before
   lep/ν?); attention W-ljet-vs-H-ljet contrast in boosted events; bottleneck-message
   patching (thesis model); coherent-W INSERTION into lvbb (sufficiency).
+
+## Late night 06-10 (round 2d): TYPE-LABEL BUG FOUND — Sid's "1 sjet?!" instinct was right
+
+Sid flagged "W = exactly one sjet, zero 2-sjet events" as unphysical → investigation
+(`tmp_h1_round2d_forensics.py` + code archaeology) found the cause was OUR bug, not the
+truth scheme: **rounds 2/2b/2c used SJ=3, LJ=4 but the real mapping is 3=LJET, 4=SJET**
+(`RunLowLevelInterp.py:77-80`, `preprocessing-scripts/preprocessLowLevel.py:377`;
+confirmed from kinematics: type 3 median mass 114.5 GeV / pT 535 GeV at 1.6/event;
+type 4: 8.9 GeV / 62 GeV at 3.9/event).
+
+**Corrected truth picture — perfectly physical:** qqbb = **76.9% boosted (W = exactly
+one LJET, mass median 85.0 GeV ≈ m_W)** + **23.1% resolved (W = exactly two SJETS)**;
+no other strata exist. Boosted fraction rises 0.62→0.88 across 0.8→3.0 TeV ✓.
+H-ljet (truth-1) mass 119.8 GeV ✓. The per-object label is `trueInclusion` = membership
+in the truth-matched reconstruction (`preprocessLowLevel.py:64`); x[...,5] is
+`recoInclusion` (the cut-based algo's choice — useful for H4 later!).
+
+**Corrected round-2 narrative (numbers unchanged, objects renamed):**
+- "mask sjets flips 82% of qqbb" → **mask LJETS flips 82%** (removes the boosted
+  W-ljet — and the H-ljet — in the 77% stratum).
+- "mask ljets flips 21%" → **mask SJETS flips 21% ≈ exactly the resolved fraction**.
+- Stratified (2c, corrected): mask-ljets flips 89.5% of boosted / 58.3% of resolved;
+  mask-sjets flips 80.0% of resolved / 2.9% of boosted. Surgical truth-W removal:
+  77% boosted / 56% resolved (organism 66%/31%); sham: 20% boosted / 54% resolved
+  (organism 4.5%/17%) ⇒ the boosted-W mechanism is crisp; the resolved stratum is
+  generically more fragile (thesis sham≈surgical there) — model handles it worse.
+- 2b reinterpretation: the "sjet pools" were LJET pools; "count vs content" tested
+  ljet count (lvbb 1 = H; qqbb 2 = H+W) — adding a second H-like ljet to lvbb does
+  NOT fake a W (D4, ~no effect) ⇒ the model checks W-likeness of the ljet, not ljet
+  multiplicity. Round-2's jet-system swap + surgical/sham/XOR/mediation conclusions
+  are type-agnostic and stand unchanged.
+- **H1 v2 restated**: channel verdict ≈ "is there a hadronic-W candidate — usually a
+  single W-mass-window LJET (77%), else an sjet pair (23%)?" vs leptonic-side hardness.
+- **Tension to resolve next**: round-1 logged "ljet mass ×0.5 → only 4.5% flips" — if
+  that really was type 3 (ljet), it conflicts with a W-ljet mass-window detector;
+  re-verify with correct ids, then scale the truth-W-ljet mass in boosted events
+  specifically. (Round-1 inline corruption namings now all suspect.)
+- **Curiosity**: resolved-stratum m(jj) of the two truth-W sjets: median 167 GeV,
+  W-peak at the low edge (16% ≈ 78 GeV) + long tail to ~400 — the ΔR-based truth
+  matching is loose here; check `app:TruthMatching:Type2` + matching code when
+  regenerating memmaps. May explain why the model is less crisp on resolved events.
+
+**Learning (promote to convention): before any interp analysis, hard-code the
+types_dict from the source-of-truth script and SANITY-CHECK it against kinematics
+(masses/pT/multiplicities) — a swapped label survives every downstream test silently.**
+Scripts fixed: 2c/2b constants now SJ=4/LJ=3; 2.py grid labels corrected.
 
 ## Next session
 

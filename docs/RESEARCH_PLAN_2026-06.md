@@ -67,8 +67,9 @@ Concrete, falsifiable hypotheses first; generic dashboards second.
 - **H1 — the neutrino-pairing circuit** — **v1 REFUTED, v2 ESTABLISHED behaviorally
   (2026-06-10, rounds 1-2)**: there is no lepton→[head]→ν message circuit; the lep/ν
   "W vs none" verdict is a *global channel decision* (lvbb vs qqbb) computed from the
-  **jet system** — primarily the *relational coherence of the sjet system* (hadronic-W
-  candidate), secondarily the lepton+MET magnitude — then broadcast, with lep+ν
+  **jet system** — primarily the presence of a *hadronic-W candidate* (a W-mass-window
+  ljet in ~77% of qqbb, an sjet pair in ~23%; see round-2d type-label correction),
+  secondarily the lepton+MET magnitude — then broadcast, with lep+ν
   inheriting it in lockstep (P(ν=lep)≥0.95 under every intervention tried). Identical
   mechanism in the 677k thesis model and the 20k organism. **Remaining for H1: localize
   the circuit** that computes the channel score (per-block/per-head patching on the
