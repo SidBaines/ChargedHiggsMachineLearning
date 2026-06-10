@@ -484,6 +484,56 @@ each with preregistered predictions + outcome interpretations, ordered in 5 wave
 pivot criteria. Key discriminator: direction/timing of information flow (D1 patching ×
 D2 logit-lens — organism has no LayerNorm so the lens is exact).
 
+## Late night 06-10: WAVE 1 RUN (D2, A1, B1-B3, A6) — H-A's structure confirmed,
+## but the candidacy FEATURE diverges across scale
+
+Scripts: `tmp_h1_wave1_behav.py`, `tmp_h1_wave1_lens.py` (both `--model`/`--batches`/
+`--ckpt-override`; lens gotcha: snapshot captured streams before re-calling
+`classifier()` — its pre-hook overwrites the final depth). Old organism + thesis model,
+12,288 val events. New organism still training (rerun on it when done).
+
+**vs preregistrations (docs/H1_ASK_THE_JETS_TEST_PLAN.md):**
+- **B1 ✓** XOR(jet-system claims, lep=W) holds: 0.985/0.96/0.87 organism,
+  0.991/0.977/0.912 thesis (lvbb/boosted/resolved). #claiming jets: boosted → exactly 1
+  in 99.3/99.6%; resolved → 2 in only 47%/63% (1 in 33%/24%) — **pair binding is weak**,
+  esp. in the organism. XOR drops to 0.80/0.85 among error events.
+- **B2 ✓✓** lep margin vs best-jet margin: r = −0.96/−0.97 overall and **−0.82…−0.92
+  WITHIN each stratum** — a shared scalar read with opposite signs, event-by-event.
+  Plots: `tmp_plots/wave1_B2_*.png`.
+- **B3 ✓ (with a twist)** errors are detector misses (P(no claim|error)=0.90-0.98 vs
+  0.02-0.16|correct) — but missed boosted W-ljets are **SOFT (pT med 444-454 vs 691-694
+  GeV), NOT off-mass (89.6-89.9 vs 84.8)**. pT, not mass, drives misses. Resolved:
+  correct events have HIGHER m(jj) (169-173 vs 121) — anti-window, confounded w/ hardness.
+- **A1 ⚡ THE HEADLINE — models diverge:**
+  - **Thesis model: textbook mass bump peaking at m_W**: claim 0.34 @5 GeV → **0.96 @80**
+    → 0.81 @125 → plateau ~0.83 @150-200 → 0.72 @300; P(lep=W) mirrors exactly
+    (0.42 → 0.018 → 0.12). A real W-mass-window feature.
+  - **Organism: monotonic decreasing** (0.96 @5 GeV → 0.71 @300, no bump): its
+    "W-candidacy" is more like "the lighter / not-H ljet" — a relative discriminant
+    that works in-distribution but is NOT a W detector. (OOD caveat at m≤20 GeV.)
+  - ⇒ **Behavior transfers across scale; the FEATURE does not.** Organism findings
+    about WHAT is computed must be re-verified on the big model (mechanism-level
+    organisms-first still fine: structure matched everywhere else).
+- **A6 ✓** exact permutation invariance (0 pred mismatches, |Δlogit| ≤ 2e-5). Cite forever.
+- **D2 ✓ (H-A timing)** logit-lens staircase, both models: **jet claims crystallize one
+  block before the lep/ν verdict**; the verdict + broadcast land in the final block
+  (organism: W-claim 0→0.45→0.90; AUC ch|lep 0.85→0.85→0.99; thesis: 0.04→0.55→0.89→0.93
+  and 0.87→0.95→0.98→0.99 with ν lagging lep early). Even the H-jet token ends at
+  AUC 0.87-0.92 (broadcast — matches round-1 residual convergence).
+  - **Bonus finding**: the lep token's OWN embedding already separates the channel at
+    AUC 0.85-0.87 (lepton hardness differs by channel) but this never improves until
+    the final-block read — *informative but overridden* by the jet verdict. Consistent
+    with "leptonic side = secondary input".
+
+**Hypothesis scoreboard after wave 1:** H-C (lepton-primary) dead. H-D (output
+bookkeeping) disfavored (XOR = anti-correlated internal margins, not output artifact).
+H-A structure (jets compute first; lep/ν read late; exclusion via shared score)
+supported on both models. H-B not dead: the final-block read could be of an
+*event-level summary* rather than the W-jet token specifically — that's exactly what
+D1 patching (wave 3) separates. New wave-2 priorities: A2 (H-ljet dose-response —
+competition/elimination test), pT dose-response (B3 says pT drives misses), and the
+lep-prior override (patch lep embeddings).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
