@@ -169,6 +169,36 @@ unmount /Volumes/Seagate` → unplug.**
 - July 2025 high-level runs saved `*_config.json` next to outputs — config serialization
   was already started for the high-level task; extend the pattern to low-level (Phase 1.2).
 
+## Afternoon 06-10: model registry built+validated; first interp pass of the new era
+
+- **`models/registry.py` created (Phase 1.3 done, uncommitted)**: the nine `if 0:` blocks
+  of `RunLowLevelInterp.py:174-361` are now `VARIANTS` (dataclass entries with kwargs +
+  checkpoint relpaths + provenance) and `load_model(name)`, which **auto-registers the
+  bottleneck forward hook** — critical, because `TestNetwork.forward()` does NOT apply
+  the bottleneck (docstring "kinda hacky"); validation showed max|Δlogit| up to ~79
+  between hooked/unhooked. Validation (`tmp_validate_registry.py`): **all 8 recovered
+  variants strict-load and run** (`plain-d152-ln` checkpoint lost). Key entries:
+  `thesis-ent1-bn1-d152` (677k params), `plain-d152` (unconstrained twin baseline),
+  `ent1-d20-2blk` (20k-param proto-organism).
+- **Thesis model run over local 20k signal events** (`tmp_thesis_model_local_pass.py`,
+  truncated /tmp copies, LOCAL norms → qualitative only):
+  - **Attention entropy confirms single-particle training worked**: block 2 heads at
+    0.025–0.24 nats (block 0: 0.45–1.7).
+  - **Type→type attention heatmaps reproduced** (`tmp_plots_attention/*.png`), rich
+    structure: b0h2 = "collect sjets" head; b0h3 = leptons read neutrino; **b2h3 =
+    neutrino reads leptons (H1's predicted direction!)**; b1h1/b2h1 = everything reads
+    ljet; b2h0 = everyone reads leptons.
+  - ⚠️ **Quantitative reco accuracy on local data is BAD** (~0.47 per-object, 0 perfect
+    events, predictions collapse to class 0; excluding truth==3 only →0.54). NOT
+    surprising-in-hindsight: local 20250311 derivation differs from training data
+    (truth scheme "OldTruth"? + non-matching normalization constants). **Do NOT chase
+    this**; redo quantitatively on `20250321v1` (its first files have already landed,
+    incl. `mean.npy`/`std.npy`) — that's the real thesis-numbers sanity check.
+- wandb still "relogin required" (CLI's "already logged in" only checks .netrc exists).
+  Sid to `wandb login --relogin` with a fresh key.
+- Sid's direction: registry ✓, thesis-model pass ✓, but expect to TRAIN OUR OWN organisms
+  (better frontier expected with current codebase+context) rather than only reuse old ones.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
