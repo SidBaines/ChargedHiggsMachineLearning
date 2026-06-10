@@ -98,6 +98,45 @@
 - Round 3 (datasets, ~51G) command handed to Sid for the morning; optional round 4 =
   Oct/Nov-2024 `models/` + `tmp_shuffled_*.bin` (the old MLEventSel/SAE-era artifacts).
 
+## Morning of 06-10: overnight results + the transfer debugging saga
+
+**Outcome: ROOT transfer ✅ complete** (31G, 678 `.root` files, signal 5101xx ×102 +
+V+jets 700xxx ×323 present, zero leftover rsync partials). Repo+dataset transfer
+restarted cleanly at ~09:45 via `tmp_recover_heppc.sh` (gitignored, repo root) after a
+chain of failures, each with a lesson:
+
+1. **The queued repo rsync hung all night at a password prompt.** The overnight ssh
+   ControlMaster died (idle gateway kill); ssh hit `Broken pipe` on the dead socket,
+   fell back to a fresh connection, and sat at `password:` from 05:29. Diagnosis trail:
+   0.18s CPU over 3h, zero network, nothing written, then the prompt visible in the tty.
+2. **Root cause discovered: heppc402's final hop was password-auth** (Sid's `id_ed25519`
+   wasn't in its `authorized_keys`; only the ITS-gateway hop used a key). **Fixed
+   permanently** with `ssh-copy-id` → passwordless verified. Queued/unattended transfers
+   are now actually safe.
+3. **Modern-rsync gotcha**: rsync ≥3.2.4 (local 3.4.1) no longer lets the remote shell
+   word-split a quoted `"path1 path2"` source list → `chdir "…path1 path2…"` failure.
+   Use one source per arg: `host:path1 :path2 :path3`. Also: terminal copy-paste had
+   injected literal newlines into the quoted list (use script files, not pasted
+   multiline commands → hence `tmp_recover_heppc.sh`).
+4. **The Seagate "two drives" were one drive all along**: a single NTFS disk. Writable
+   mount = ntfs-3g/macFUSE at `/Volumes/Seagate`; after any unplug, macOS auto-mounts it
+   READ-ONLY as `/Volumes/Seagate Expansion Drive` (fskit). **Remount recipe** (from zsh
+   history):
+   ```
+   diskutil unmount /dev/disk4s1
+   sudo mkdir -p /Volumes/Seagate
+   sudo /opt/homebrew/bin/ntfs-3g /dev/disk4s1 /Volumes/Seagate \
+     -o local,allow_other,auto_xattr,windows_names,uid=$(id -u),gid=$(id -g)
+   ```
+   (If "dirty volume": `sudo ntfsfix -d /dev/disk4s1` first. Device id can change —
+   check `diskutil list external`.)
+5. Laptop moved mid-morning → internet + drive disconnected; harmless (no active
+   writes), but triggered the read-only remount above.
+
+**State at session pause**: `tmp_recover_heppc.sh` running under caffeinate — stage 1
+repos (~8.5G, ~45k files) then stage 2 datasets (~51G) → `/Volumes/Seagate/heppc_recovered/`.
+Reconvene when done.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
