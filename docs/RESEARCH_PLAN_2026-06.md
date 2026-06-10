@@ -64,10 +64,15 @@
 
 Concrete, falsifiable hypotheses first; generic dashboards second.
 
-- **H1 — the neutrino-pairing circuit** (best first target; thesis robustness results
-  already imply it): find the head(s) that move lepton info → neutrino; verify by
-  activation patching (swap lepton kinematics between paired events) + DLA. Deliverable:
-  the first fully-verified circuit in the model.
+- **H1 — the neutrino-pairing circuit** — **v1 REFUTED, v2 ESTABLISHED behaviorally
+  (2026-06-10, rounds 1-2)**: there is no lepton→[head]→ν message circuit; the lep/ν
+  "W vs none" verdict is a *global channel decision* (lvbb vs qqbb) computed from the
+  **jet system** — primarily the *relational coherence of the sjet system* (hadronic-W
+  candidate), secondarily the lepton+MET magnitude — then broadcast, with lep+ν
+  inheriting it in lockstep (P(ν=lep)≥0.95 under every intervention tried). Identical
+  mechanism in the 677k thesis model and the 20k organism. **Remaining for H1: localize
+  the circuit** that computes the channel score (per-block/per-head patching on the
+  organism) — merges into H2/H3 below.
 - **H2 — angular-proximity heads**: heads computing ΔR/Δφ/Δη(query, key) — prior PySR
   hints + entropy models. Fit attention *logits* (not post-softmax weights) as functions
   of pairwise physics features; quantify R² per head.
@@ -109,3 +114,4 @@ One line per session; details in `docs/logs/` (convention in `CLAUDE.md`).
 
 - 2026-06-08 — Repo/branch/data investigation after long gap → `docs/SESSION_FINDINGS_2026-06-08.md` (predates the logs convention).
 - 2026-06-09/10 — Codebase + thesis ch.7 survey; found live heppc rsync; wrote this plan; agreed interp-first goals → [`logs/2026-06-10_planning-and-data-recovery.md`](logs/2026-06-10_planning-and-data-recovery.md).
+- 2026-06-10 (night) — MPS training crashed the Mac → organism relaunched on CPU (healthy, ~5 min/epoch); **H1 round 2: channel decision reads the jet system** (sjet-system coherence + lepton/MET magnitude; replicates on the 20k organism) → same log, "H1 round 2" section.

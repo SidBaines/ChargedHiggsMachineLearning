@@ -314,6 +314,82 @@ magnitudes, sjet system, multi-object combinations); (d) compare with the 20k-pa
   (`_20260610-1625*_LowLevel_ORG2026_d20b2_YesEnt1_NoBn`). If training models on MPS
   again (the M5!), keep these guards.
 
+## Night 06-10: organism attempt 2 crashed the MACHINE; relaunched on CPU
+
+- **Attempt 2 (gg9bt2mj) was healthy but took the whole Mac down at 16:48** (hard reset:
+  `ResetCounter` diag 16:48:51; wandb internal log stops mid-stream 16:46:59, no
+  traceback anywhere — the process tree died with the OS). Sid confirms the machine
+  crashed. Strong suspicion: Metal/MPS kernel panic under the sustained training load
+  (the NaN guards themselves worked: 1 non-finite grad-norm skipped, training continued).
+- **Before dying it validated the recipe**: epoch 0 val PerfectRecoPct_all = **0.7295**
+  (lvbb 0.827 / qqbb 0.533) after ONE epoch vs the old organism's 0.8055 after 10 —
+  comfortably on track. `chkpt0_343.pth` + `config.json` saved.
+- **CPU smoke test passed** (30 steps in ~36 s ≈ 1 s/step — comparable to MPS, which was
+  dataloader-bound anyway, and immune to Metal panics). Added `--device` flag to
+  `tmp_train_organism.py`.
+- **Attempt 3 launched on CPU** ~20:33 (`OMP_NUM_THREADS=8`, nohup + caffeinate -i,
+  log `tmp_organism_train_cpu.log`). ETA ~3.5–4 h.
+- **Learnings**: (i) on this Mac, treat sustained MPS training as a machine-crash risk —
+  for small organisms CPU is just as fast (tiny model = dataloader-bound); on the M5,
+  smoke-test MPS with a short run before trusting it overnight. (ii) The 16:48 reboot
+  also killed the stage-2 dataset rsync; Seagate was unplugged without the graceful-pause
+  ritual → run `ntfsfix` before the ntfs-3g remount next plug-in, then rerun
+  `tmp_recover_heppc.sh` (idempotent).
+- Phase 1.1 done: `requirements.txt` frozen (55 pkgs) from the venv that reproduced the
+  thesis numbers — torch 2.12.0, numpy 2.4.6, wandb 0.27.2 (no pysr yet — not installed).
+
+## Night 06-10: H1 round 2 — CLEAR SIGNAL: the channel decision reads the JET system
+
+Scripts: `tmp_h1_round2.py` (margins, jet-system swap, corruption grid),
+`tmp_h1_round2b.py` (sjet count-vs-content), both `--model`-parameterized; run on
+**thesis-ent1-bn1-d152 AND ent1-d20-2blk** (12,288 val events: 8,174 lvbb / 4,114 qqbb).
+Checkpoints side-fetched from heppc to `tmp_checkpoints/` (Seagate unplugged) — pass
+`checkpoint_root` to `load_model`.
+
+**Findings (consistent across BOTH models — 33× parameter gap):**
+1. **Margins explain round 1's "corruptions don't flip"**: under lepton-φ randomization,
+   flips live entirely in the lowest |ν margin| decile (thesis: 15.5% flip in decile 0,
+   ~0 above decile 3; AUC(|margin|→no-flip)=0.96; organism even sharper, 0.04% overall).
+   The decision has a wide margin; single-feature corruption only flips borderline events.
+2. **Jet-system swap (decisive)**: transplant ALL jets from an opposite-channel event
+   (lep/ν untouched; repack control clean at ±0.3%): lvbb leps + qqbb jets →
+   P(lep=W) 0.97→**0.61**; qqbb leps + lvbb jets → 0.06→**0.66** (organism 0.63/0.56).
+   Same-channel-donor controls ~0.93/0.09 ⇒ the flip is channel content, not
+   foreign-jet incoherence. **P(ν=lep) ≥ 0.95 under EVERY intervention** — the lep/ν
+   coupling itself is never broken; only the joint verdict moves.
+3. **Sjets are the main carrier**: masking all sjets flips **82%** of qqbb events to
+   lep=W (thesis; organism 57%) vs 4-5% of lvbb. Masking ljets: only 21%/14%.
+   Tag-zeroing: ≤7%. ⇒ "no hadronic-W candidate among the sjets ⇒ the lepton must be
+   the W" is nearly deterministic; presence of one only partially overrides a good
+   leptonic side (asymmetry).
+4. **Not count, mostly coherence**: n_sjets only weakly separates channels (lvbb median
+   1, qqbb 2, big overlap). D4: padding lvbb events to qqbb-median count with innocuous
+   donor sjets ≈ no effect (0.94→0.93). D2: replacing qqbb sjets with same-count
+   random OTHER-qqbb sjets already flips 16% (relational structure broken); lvbb-pool
+   donors add ~13pt more (D1, 0.34). Coherent-system transplant ≫ pooled-sjet
+   transplant ⇒ the model reads **within-event relational structure of the sjet system**
+   (W→qq̄-compatible pairing w.r.t. the rest of the event), not sjet marginals.
+5. **Lepton/MET magnitudes are the secondary input** (angles ~irrelevant): lep+ν ×2
+   flips 22%/27% of qqbb (thesis/organism); ×0.5 flips 14%/17% of lvbb. A continuous
+   "how W-like is the leptonic side" score.
+
+**H1 reformulated (v2):** the model computes a global event-channel score
+(lvbb vs qqbb) ≈ [coherent hadronic-W structure in the sjet system] vs [hardness of
+the lepton+MET system], broadcasts it (residual-stream convergence, round 1), and lep+ν
+inherit the verdict in lockstep. The organism shows the identical mechanism ⇒ use it
+for the circuit-level dig.
+
+**Next experiments queued:** (i) find WHERE the channel score is computed in the
+organism (per-block patching of the score between channel-opposite event pairs);
+(ii) H2 tie-in: which heads read sjet-pair structure — fit attention logits / bottleneck
+messages against pairwise invariants (dijet mass, ΔR) on the organism; (iii) probe for
+"dijet-mass-≈-mW" in the residual stream (targeted probe, H3-style).
+
+**Methodology:** event REBUILD (repack into fresh 15-slot tensors) is a clean, verified
+intervention primitive (controls at ±0.3%); object order doesn't matter (permutation-
+equivariant model, shuffle-trained). Donor-pool sampling vs whole-system transplant
+cleanly separates marginal-content vs relational-structure hypotheses.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
