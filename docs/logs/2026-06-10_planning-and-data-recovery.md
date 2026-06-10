@@ -137,6 +137,38 @@ chain of failures, each with a lesson:
 repos (~8.5G, ~45k files) then stage 2 datasets (~51G) → `/Volumes/Seagate/heppc_recovered/`.
 Reconvene when done.
 
+## Midday 06-10: drive corruption episode + THESIS MODEL RECOVERED & LOADED
+
+**Second yank (mid-write this time) corrupted NTFS dirs** under `CodeForThesis/lwtnn/build/`
+(EIO on stat/mkdir; `ntfsfix` clears the dirty flag but NOT index corruption; rsync was
+silently skipping corrupt dirs = hole risk). Fix: killed transfer, `rm -rf` partial copy
+(ghost dirs that survive rm parked at `Code/.CORRUPT_GHOSTS_ignore/` — only a Windows
+chkdsk can reclaim), added `--exclude=lwtnn/build` (disposable Boost/Eigen tree, ~60k
+files) to `tmp_recover_heppc.sh`, re-ran. **Graceful-pause ritual: Ctrl+C → `diskutil
+unmount /Volumes/Seagate` → unplug.**
+
+**Recovery status**: ROOT 32G ✅ (verified readable); repos 5.1G ✅; datasets ~51G ⏳.
+
+**Verification wins (while datasets transfer):**
+- `ExperimentalML/output/`: **876 training runs, 2250 checkpoints** recovered. All
+  model-variant runs referenced in `RunLowLevelInterp.py:174-361` present EXCEPT
+  `20250328-113053` (missing on heppc too, presumably deleted).
+- **THE THESIS MODEL LOADS**: `20250512-093728…/chkpt29_164490.pth` → strict
+  `load_state_dict` into repo `TestNetwork` (config from `RunLowLevelInterp.py:319-340`:
+  d=152, 3 blocks, 4 heads, MLP 400, bottleneck=1, entropy-trained) ✅ + clean forward
+  pass. 676,587 params. Test script: `tmp_load_thesis_model.py` (gitignored).
+- **Type-encoding question RESOLVED for the thesis era**: checkpoint `type_embedding` is
+  `[6,6]` → **N_CTX=6 = 5 object types + padding=5** (OLD encoding, same as the local
+  20250311 scratch memmaps; no separate Xbb type). `RunLowLevelInterp.py:79` (`N_CTX=6`)
+  is the active branch. ⇒ When regenerating memmaps for thesis-model comparisons, must
+  reproduce 5-types+padding=5 (check how `preprocessLowLevel.py` maps the C++ type 5=Xbb
+  → presumably collapses to 3; verify when regenerating).
+- **Sid's last pre-pause run (20250709-095246) is a proto-model-organism**: d=20,
+  2 blocks, 4 heads, entropy penalty, NO bottleneck → loads fine, **20,559 params**.
+  Phase 2 has a head start.
+- July 2025 high-level runs saved `*_config.json` next to outputs — config serialization
+  was already started for the high-level task; extend the pattern to low-level (Phase 1.2).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
