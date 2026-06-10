@@ -284,6 +284,25 @@ magnitudes, sjet system, multi-object combinations); (d) compare with the 20k-pa
 - Inline heredoc python via Bash kept corrupting long f-strings (stray tokens) — write
   scripts to files (`tmp_*.py`) instead of long heredocs.
 
+## Evening 06-10: first locally-trained model organism LAUNCHED (MPS)
+
+- **Training works on this Mac**: `tmp_train_organism.py` mirrors the
+  `TrainLowLevelReconstruction.py` entropy-penalty recipe (Adam, basic_lr_scheduler
+  3e-4→5e-7 log-decay, warmup 100, wd 1e-6, batch 4096, entropy_weight 1e-2 target 0,
+  30 epochs) on the SSD signal data (1.40M train / 1.40M val, eventNumber split).
+  Differences from original: uses `interp.activations.hook_attention_heads(detach=False)`
+  for the grad-attached attention cache (mechinterputils needs pysr, not installed), and
+  **serializes full config to wandb AND `output/<ts>/config.json`** (Phase 1.2 pattern).
+- Smoke test (30 steps) ✓ on MPS; full run launched ~16:17: run
+  `_20260610-161723_LowLevel_ORG2026_d20b2_YesEnt1_NoBn` (wandb ag6vm16o), d=20,
+  2 blocks, 4 heads, 20,559 params — architecture-identical to old `ent1-d20-2blk`.
+  ETA ~2-2.5h (dataloader-bound, ~1.3 it/s).
+- **Comparison target** (old organism, 10 epochs, from archived wandb summary):
+  val PerfectRecoPct_all 0.8055 (0.652@0.8 TeV → 0.907@3.0 TeV).
+- Gotchas hit: `HEPLossWithEntropy` returns `(loss, dict)` tuple; `mechinterputils`
+  import fails on missing pysr (avoid importing it); `compute_and_log` prints the whole
+  metric dict (noisy but harmless).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
