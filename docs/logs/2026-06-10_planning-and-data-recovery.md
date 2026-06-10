@@ -302,6 +302,17 @@ magnitudes, sjet system, multi-object combinations); (d) compare with the 20k-pa
 - Gotchas hit: `HEPLossWithEntropy` returns `(loss, dict)` tuple; `mechinterputils`
   import fails on missing pysr (avoid importing it); `compute_and_log` prints the whole
   metric dict (noisy but harmless).
+- **Attempt 1 NaN'd late in epoch 0 (MPS)**: healthy to step 300 (loss 0.27), then NaN →
+  all-zero val metrics → "Only self-attention is supported" error (NaN≠NaN breaks the
+  q==k identity check in `activations.py:144` — that error is a SYMPTOM of NaN weights,
+  not a hook bug). Root cause (likely): padding objects are all-zero ⇒
+  `pt=sqrt(0)` has infinite gradient and `eta=asinh(0/0)` NaNs in backward
+  (`models.py:66-67`; `nan_to_num` only fixes forward). CPU/CUDA survived this for the
+  2025 runs; **MPS doesn't**. Fix in trainer: `sanitize_padding()` (benign nonzero
+  4-momenta for padding rows — they're masked everywhere) + grad-norm clip 1.0 +
+  non-finite-loss batch skipping. Attempt 2 launched ~16:25
+  (`_20260610-1625*_LowLevel_ORG2026_d20b2_YesEnt1_NoBn`). If training models on MPS
+  again (the M5!), keep these guards.
 
 ## Next session
 
