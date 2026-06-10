@@ -390,6 +390,36 @@ intervention primitive (controls at ±0.3%); object order doesn't matter (permut
 equivariant model, shuffle-trained). Donor-pool sampling vs whole-system transplant
 cleanly separates marginal-content vs relational-structure hypotheses.
 
+## Night 06-10 (round 2c): Sid's "ask the jets" hypothesis — first three tests PASS
+
+Sid's reframe: each jet computes "am I the H+'s W?"; lep/ν read the aggregate answer
+(NOT(some jet is the W) ⇒ we are). `tmp_h1_round2c.py`, both models.
+
+- **Truth-topology stratification (Sid's question: was 82/21 just prevalence? YES):**
+  qqbb = **76.9% "partial"** (exactly ONE sjet labeled truth-2 — NO 2-sjet resolved
+  events exist in this truth scheme; check `preprocessLowLevel.py` ΔR-unique matching)
+  + **23.1% "boosted"** (W = ljet). Round-2's "mask ljets flips 21%" ≈ the boosted
+  fraction exactly. Stratified: mask-ljets flips 80% of boosted vs 2.9% of partial
+  (thesis); mask-sjets flips 89.5% of partial.
+- **Surgical vs sham**: masking ONLY the truth-2 jet flips 77%/66% (thesis/organism,
+  partial stratum); masking the same NUMBER of non-W jets flips 19.6%/**4.5%**.
+  lvbb surgical = 0.0000 flips (no truth-2 jets exist → perfect negative control).
+- **Prediction-level XOR**: P(exactly one of {some-jet-pred-W, lep-pred-W}) =
+  0.99/0.96 (lvbb/qqbb, thesis) — the model behaves as if "exactly one W per event"
+  were a hard constraint, on errors too.
+- **Mediation (key)**: after masking the truth-W jet, flips track whether the model
+  RE-FINDS a W among remaining jets: thesis 87.8% flip when no jet claims W vs 11.8%
+  when one does; organism 71.8% vs **5.7%**. The lep/ν verdict reads "did any jet
+  claim the W", not the jets' raw content.
+- **Wrinkles**: (i) thesis-model boosted stratum is generically fragile (sham flips 54%
+  there vs organism 17%); (ii) under mask-ALL-sjets (heavier OOD) the thesis model's
+  exclusivity breaks (flips ~82% regardless of remaining jetW) while the organism's
+  mediation survives — another reason to dig on the organism first.
+- **Queued next (H1 v3 mechanistic)**: activation-level mediation (patch jet-token
+  residual streams, freeze lep/ν streams); logit-lens timing (do jets "know" before
+  lep/ν?); attention W-ljet-vs-H-ljet contrast in boosted events; bottleneck-message
+  patching (thesis model); coherent-W INSERTION into lvbb (sufficiency).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
