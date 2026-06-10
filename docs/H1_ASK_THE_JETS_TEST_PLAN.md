@@ -328,3 +328,75 @@ across tokens → pivot the framing from "ask the jets" to "shared event summary
 and target the summary's construction instead of jet→lep edges. If A1 shows no mass
 window → chase the candidacy feature (A5/E2/E4) before any patching, since "claim"
 needs an input-level handle for clean interventions.
+
+---
+
+## Wave 3 — REVISED after waves 1-2 (2026-06-11, thesis model only)
+
+The readout stage (c) is solved (D4-lite). Remaining holes, in priority order:
+
+1. **A5 tag surgery** (S) — the A2 refutation's prime suspect. First establish what
+   `tag` encodes per type (preprocessing INCLUDE_TAG_INFO semantics). Then: lvbb
+   H-ljet {m→80 only, tag→0 only, both}; boosted W-ljet {tag→1}.
+   *Predict*: m→80+tag→0 ≫ m→80 alone for H-claims-W; W-ljet with tag→1 loses
+   candidacy (or migrates to claiming H). If tag does nothing → the gate is
+   relational context (ΔR to lepton? recoil?) → E2.
+2. **D4-lite at the LEPTON position** (S) — overwrite the lep's b1h3/b2h2 scalars;
+   *predict*: lep flips like ν did (≥99% with both wires swapped) while ν holds →
+   completes the "parallel readers of shared evidence" claim causally, both directions.
+3. **D6 probes + D1c patching: where candidacy lives in the JET's stream** (M) —
+   probe "am I the truth-W?" at jet tokens per depth; patch the W-ljet's stream at
+   depth ℓ with an H-ljet/donor stream. *Predict*: candidacy linearly decodable and
+   committed by end of block 1 (claims crystallize blocks 0-1 per D2); patching it
+   away flips ν via the wires. Localizes the stage (a)→(b) boundary.
+4. **E2 feature attribution on candidacy** (S-M) — per-feature occlusion/DLA of the
+   W-ljet's own claim margin; quantify the pT vs mass vs tag vs direction mix that
+   waves 1-2 probed one-at-a-time.
+5. **A3-lite resolved-stratum battery** (M) — rerun C1 + decomposition + D4-lite on
+   resolved events: do the wires read the sjet PAIR? *Predict*: messier attention,
+   weaker single-sender dominance — the mechanistic source of the resolved
+   performance gap (ties to thesis Table RecoTransformerModifications cats 0-3).
+6. *(parked while thesis-focused: F1 training dynamics, E3 universality/new-organism
+   replication, A9 2D scan, A10 mT, D8 scrubbing-as-capstone.)*
+
+## Stage B — the competition sub-circuit (preregistered 2026-06-11, not yet run)
+
+A8 found: two real W-ljets ⇒ exactly one claims 86.5%, higher-pT wins 87%, and the
+lepton goes MORE firmly to "none". How is winner-take-all implemented? Note the
+"loser" effect must live in the jets' OWN streams (claims are per-token classifier
+outputs), so competition ≠ reader-softmax artifact.
+
+Mechanism hypotheses:
+- **B-i lateral inhibition via attention**: jets attend each other in blocks 0-1;
+  the higher-pT jet's presence suppresses the other's candidacy in its stream.
+- **B-ii relative-context scoring**: each jet's candidacy score is computed against
+  an event-level context (e.g. "am I the hardest non-H jet?") gathered by attention —
+  no directed inhibition edge, but the same prediction at the output.
+- **B-iii independent thresholding** (null): no interaction; apparent exclusivity is
+  coincidental thresholds. (Disfavored already: P(both)=8% ≪ independent expectation.)
+
+Experiments:
+- **SB1 ΔpT dose-response** (S): insert the second W-ljet with controlled pT ratio r =
+  pT_ins/pT_orig ∈ [0.5, 2]. *Predict (B-i/B-ii)*: P(both claim) peaks sharply at
+  r≈1 (competition is comparative); P(ins wins) is a smooth sigmoid in r crossing 0.5
+  at r≈1. *B-iii predicts* flat P(both).
+- **SB2 lens timing on two-W events** (S): per-depth claim margins of winner vs loser.
+  *Predict (B-i/B-ii)*: margins start TOGETHER (both look like W at embed/blk0) and
+  diverge at the block where competition acts; *B-iii*: never together.
+- **SB3 jet↔jet attention** (S): in two-W events, a(loser→winner) vs a(winner→loser)
+  vs single-W baselines, per head. *Predict (B-i)*: asymmetric edge (loser attends
+  winner); the suppression head is identifiable. *B-ii*: symmetric/diffuse.
+- **SB4 edge knockout** (M): kill the jet↔jet attention edges between the two W-jets
+  (per head / per block). *Predict (B-i)*: both claim — exclusivity broken between
+  jets while lep/ν still read "W found". *B-ii*: knockout does little (context comes
+  from everywhere).
+- **SB5 stream patching of the loser** (M): patch the loser's post-blk0/blk1 stream
+  from its single-W twin run (same event, inserted jet removed). Localizes WHEN the
+  suppression lands in the loser's stream.
+- **SB6 does the WINNER know it won?** (S): compare winner's claim margin in two-W vs
+  single-W events. *Predict (B-i/B-ii)*: slightly reduced but robust (suppression is
+  one-sided toward the loser); large reduction would suggest mutual inhibition with
+  a threshold readout.
+
+Bookkeeping: same battery on the H-side (two H-ljets, A8-style) would tell us whether
+competition machinery is per-class or shared — park until W-side is mapped.
