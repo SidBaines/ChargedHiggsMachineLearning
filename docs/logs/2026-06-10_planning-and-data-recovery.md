@@ -562,6 +562,59 @@ events sitting on the "other" peak) = misreconstructed events. `tmp_h1_b2h3_spli
   prediction; truth-only splits mix verdict structure with error structure (and the
   modes may be neither — check covariates like multiplicity/flavor before interpreting).
 
+## Small hours 06-11: WAVE 2 — the ν verdict's causal wires found and seized
+
+Scripts: `tmp_h1_wave2_dose.py` (A2, A1-pT, A4, A8; both models),
+`tmp_h1_wave2_wires.py` (C1, C4-lep, per-key decomposition, D4-lite; thesis model).
+
+**Input-level (both models agree unless noted):**
+- **A2 ✗(prereg): mass alone is NOT sufficient.** Dragging the lvbb H-ljet to 80 GeV:
+  it claims W at only 1.2%/0.6% (thesis/organism; thesis peak at 80, organism at 40 —
+  matching their A1 shapes); in boosted qqbb the dragged H reaches just 8.2%/4.1% with
+  tiny lep movement. Something protects the H / gates candidacy — **prime suspect: the
+  tag feature (A5 next)**, plus context.
+- **A1-pT ✓: pT is the dominant shared causal feature.** Claim rate vs pT-scale at
+  fixed mass: 0.04@0.25× → 0.93@1× → 0.97@2× (thesis; organism near-identical); lep
+  verdict mirrors (0.70 flips at 0.25×). The "W-finder" is more pT-gated than
+  mass-gated, in BOTH models.
+- **A4 ✓(partial sufficiency):** a real W-ljet copied into lvbb claims 34%/37% and
+  drags P(lep=W) 0.97→0.65/0.61 (synthetic m=80/pT=600 similar; m=125 control: 5%/9%
+  claims; soft-sjet control: nil). Exclusion holds under intervention (both-W ≤2.7%).
+- **A8 ✓: winner-take-all among candidates.** Second real W-ljet inserted into boosted:
+  exactly-one-claims = 86.5%/79%, and the winner is the **higher-pT one 87%/91%** of
+  the time (closer-to-80-mass only 62%/58%). Two candidates ⇒ lep even more firmly
+  "none" (0.033→0.012): evidence accumulates.
+
+**Wire-level (thesis model; decomposition reconstructs cached scalars to 1e-6):**
+- **C4-lep: the lepton reads THE SAME two wires** (into-lep AUC vs pred: b1h3 0.985,
+  b2h2 0.997) as ν.
+- **C1 head taxonomy (boosted, both ljets present; identical for lep & ν):**
+  W-ljet-pointing readers b1h2/b1h3/b2h2/b2h3 (P(a→W > a→H) = 0.91–0.98) vs
+  H-ljet-pointing b1h0/b1h1/b2h1 (a→H ≈ 0.96). The readers have *learned to point at
+  the actual W candidate* within the event.
+- **Per-key decomposition of ν's verdict scalars:** b2h2's boosted-side value comes
+  ENTIRELY from the W-ljet (−1.29; every other sender ≈ 0); its lvbb-side value
+  (+1.5) from H/other jets — a "W found / not found" detector whose SIGN is the
+  verdict. **b1h3 is a two-sided comparator**: in qqbb its message comes from the jets
+  (+0.63 W-ljet, +0.43 other), in lvbb from the LEPTON (−0.73) and ν-self (−0.57) —
+  the hadronic-vs-leptonic hypothesis comparison is visible in the wiring.
+- **D4-lite (the causal certificate): overwriting the two scalars at the ν position
+  with opposite-class means flips ν's verdict in 99.9% (lvbb) / 99.7% (qqbb) of
+  events while the untouched lepton flips 0.02% → P(ν=lep) collapses 0.995→0.006.**
+  The lockstep is parallel same-evidence reading, NOT ν-reading-lep, and the
+  "distributed summary" variant of H-B is dead for ν. Zeroing the same wires flips
+  only 7.5%/16% — removal ≠ reversal (signed evidence with redundant backups), which
+  retroactively explains ALL of round-1's null ablations. Single wires: b2h2 alone
+  61%/96%, b1h3 alone 6%/20% — b2h2 dominates.
+
+**Circuit status (thesis model):** jets are scored for W-candidacy (pT-dominant,
+mass-window, context/tag-gated) → winner-take-all among jets → b2h2 reports
+"W-found(sign)" and b1h3 compares against leptonic evidence → lep and ν read both
+wires in parallel → verdict + lockstep. Remaining: where candidacy is computed in the
+jet's own stream (D1c/D6), the tag question (A5), the resolved stratum, organism
+analog (no bottleneck — use per-head value decomposition), universality (new organism
++ seeds; training at epoch 22/30 at session close).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).

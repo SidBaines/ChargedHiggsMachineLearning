@@ -3,6 +3,14 @@
 > Drafted 2026-06-10 (late night), Sid + Claude, **before running any of these** —
 > predictions below are preregistered. Status: for discussion; mark experiments
 > RUN/SKIP as we go and record outcomes against the predictions.
+>
+> **STATUS 2026-06-11 (small hours)**: Wave 1 RUN (D2 ✓ timing, A1 ⚡ models diverge —
+> thesis mass-bump@80, organism monotonic; B1/B2/B3 ✓, A6 ✓) and wave 2 RUN
+> (A2 ✗ mass-not-sufficient, A1-pT ✓ pT dominates, A4 partial-sufficiency,
+> A8 winner-take-all by pT, C1/C4 reader heads mapped, D4-lite: **full causal control
+> of ν's verdict via the b2h2+b1h3 scalars; lockstep broken**). Results in the
+> session log (wave-1 and wave-2 sections). Next: A5 (tag), D1c/D6 (candidacy in the
+> jet stream), organism wire-analog, new-organism/seed universality.
 
 ## The hypothesis under test
 
