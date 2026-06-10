@@ -615,6 +615,59 @@ jet's own stream (D1c/D6), the tag question (A5), the resolved stratum, organism
 analog (no bottleneck — use per-head value decomposition), universality (new organism
 + seeds; training at epoch 22/30 at session close).
 
+## Small hours 06-11: WAVE 3 — candidacy formula closed; full bidirectional wire
+## control; resolved-mode weakness explained; stage-B teaser
+
+Scripts: `tmp_h1_wave3_a5_e2.py`, `tmp_h1_wave3_wires2.py`, `tmp_h1_wave3_patchprobe.py`.
+All thesis model, 12,288 val events.
+
+- **Tag forensics**: ljet `tag` (= `ll_particle_tagInfo`) is a CONTINUOUS discriminant
+  (Xbb-like score): H-ljets median +3.0, W-ljets −2.6, other ljets −1.1. (sjets:
+  bimodal, b-tag-like. Gotcha: tag is not a bit — surgeries must use class medians.)
+- **A5 ✓ tag is a real gate**: boosted W-ljet with tag→+3.0 (H-median): claims drop
+  0.93→0.58; full H-disguise (m→125 + tag→+3.0): claims 0.18, P(pred H)=0.73 — the
+  model re-labels it as a Higgs. lvbb H-ljet with m→80+tag→−2.6: claims W only 11%
+  (vs 1.2% mass-only) — tag helps 9× but context still dominates; NOTE the confound:
+  converting the ONLY ljet removes the event's H-hypothesis (the model needs an H —
+  more global-coherence/competition evidence; cf. A4 insertions which kept the H and
+  claimed 34%).
+- **E2 occlusion table (candidacy drivers, claim rate / med Δmargin)**: pT×0.5 →
+  0.52/−4.1 ≫ m→40 → 0.79/−2.4 ≈ tag→Hmed → 0.58/−1.2 ≫ φ/η ≈ nothing.
+  **Candidacy ≈ f(pT↑↑, mass-window, anti-Xbb tag), direction-blind.**
+- **D4-lite by position ✓✓ (parallel readers, causally closed)**: swap wires @ν → ν
+  flips 99.8%, lep 0.02%; @lep → lep 99.9%, ν 0.06%; @both → both flip and
+  **P(ν=lep) returns to 0.994 in the flipped state**. Each token's verdict is fully
+  determined by its own copies of the same two scalars.
+- **A3-lite ✓ resolved weakness explained**: ν's verdict-head attention in resolved
+  events spreads over the W-sjet pair vs other jets ~50/50 (b2h2: 0.476/0.490 — vs
+  boosted 0.96 on the W-ljet), and b2h2's "found" contribution is split W-sjets −0.26 /
+  other-jets −0.25 (vs boosted: W-ljet −1.29, rest ≈0) with HALF the magnitude. The
+  resolved W-detector is weak and unspecific → the cats-0-3 performance gap.
+- **D6 probes**: "is this ljet the truth-W" is linearly decodable in the ljet's own
+  stream at **AUC 0.93 at the EMBEDDING** (vs-H 0.97), 0.98/0.99 after block 0 —
+  candidacy is essentially a per-object computation (pT/m/tag are all object-net
+  inputs), lightly refined by block-0 context.
+- **D1c stream patching (W-ljet ← same-event H-ljet stream)**: patch at post-blk0 or
+  post-blk1 → claims ≈0.05, ν AND lep flip ~51% (equal — parallel readers again);
+  patch at the FINAL depth → claims vanish (0.01) but ν/lep flip **0.0000** (verdict
+  already delivered; jet-label and verdict fully decouple — bookkeeping violations on
+  demand). **Patch at the embedding flips only 25%** — earlier patch, smaller effect:
+  the network partially RECOVERS, consistent with re-scoring/competition finding a
+  substitute candidate when given all three blocks to react (stage-B preview).
+- **New organism FINISHED**: 30 epochs / 149.7 min CPU, final val PerfectRecoPct_all
+  **0.8142** (old organism 0.8055), full config serialized
+  (`output/20260610-203258_TrainingOutput`). Ready for universality reruns.
+
+**H1 thesis-model circuit, end-to-end (current best account):**
+1. (a) per-jet W-candidacy scored largely in the OBJECT NET + block 0
+   (pT-dominant, W-mass-window, anti-Xbb-tag, direction-blind);
+2. (b) competition: winner-take-all among candidates (pT-ranked), exactly-one-W
+   bookkeeping, partial recovery when the winner is removed early — mechanism TBD
+   (Stage B preregistered);
+3. (c) readout: b2h2 ("W found", sign-coded, single-sender from the W-jet) + b1h3
+   (hadronic-vs-leptonic comparator) deliver the verdict to lep and ν IN PARALLEL —
+   bidirectionally causally verified; lockstep = shared wires, nothing more.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).

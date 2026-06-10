@@ -9,8 +9,16 @@
 > (A2 ✗ mass-not-sufficient, A1-pT ✓ pT dominates, A4 partial-sufficiency,
 > A8 winner-take-all by pT, C1/C4 reader heads mapped, D4-lite: **full causal control
 > of ν's verdict via the b2h2+b1h3 scalars; lockstep broken**). Results in the
-> session log (wave-1 and wave-2 sections). Next: A5 (tag), D1c/D6 (candidacy in the
-> jet stream), organism wire-analog, new-organism/seed universality.
+> session log (wave-1 and wave-2 sections).
+>
+> **Wave 3 RUN (same night)**: A5 ✓ (tag = continuous Xbb-score, real gate; full
+> H-disguise re-labels the W as H), E2 ✓ (candidacy ≈ pT↑↑ × mass-window × anti-tag,
+> direction-blind), D4-lite@lep ✓ (parallel readers closed bidirectionally),
+> A3-lite ✓ (resolved detector weak+unspecific), D6 ✓ (candidacy decodable at the
+> EMBEDDING, AUC 0.93), D1c ✓ (verdict transits blk-1/2 reads; final-depth patch
+> decouples jet label from verdict; embed-patch partial recovery = stage-B teaser).
+> Stages (a) and (c) of the circuit are closed on the thesis model. **Next: Stage B
+> (SB1-SB6 below).** New organism trained (0.8142) — universality reruns pending.
 
 ## The hypothesis under test
 
