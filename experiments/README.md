@@ -16,14 +16,26 @@ proto-organism** (`ent1-d20-2blk`, 20k params), both loaded via `models/registry
 
 ## The headline result these scripts established
 
-The lep/ν "W vs none" assignment is a **global channel decision**: each jet's
-W-candidacy is scored almost entirely per-object (pT ≫ mass-window ≈ anti-Xbb-tag;
-direction-blind), candidates compete winner-take-all (pT-ranked), and the verdict is
-delivered to the lepton and neutrino **in parallel** through two bottleneck scalars —
-**b2h2** ("W found", sign-coded, single-sender from the W-jet) and **b1h3**
-(hadronic-vs-leptonic comparator). Overwriting those two numbers at the ν position
-flips its verdict in 99.8% of events while the lepton holds (and vice versa); the
-famous P(ν=lep)≈1 lockstep is nothing but shared wiring.
+(as revised by the 2026-06-11 red-team pass —
+[`docs/logs/2026-06-11_red-team-h1.md`](../docs/logs/2026-06-11_red-team-h1.md))
+
+The lep/ν "W vs none" assignment is a **global channel decision**: each jet computes
+a W-candidacy score from its **hardness relative to the event** (not absolute pT —
+doubling everything *except* the W drops its claim rate 0.92→0.57; holds on both
+models), an m²-window and an anti-Xbb tag. Candidates are **score-ranked with no
+enforced exclusivity**: identical candidates BOTH claim W in ~74% of events, and the
+thesis model penalises H-ward masses so heavily that (pT 450, m 80) beats
+(pT 600, m 110) ~90/10, while the d20 organism ranks by pT everywhere — the
+cross-scale feature divergence found in wave 1 extends to the competition rule.
+The verdict is delivered to the lepton and neutrino **in parallel** through
+bottleneck scalars: **b2h2** ("W found", sign-coded, single-sender from the W-jet)
+and **b1h3** (hadronic-vs-leptonic comparator) carry ~80-90% of the causal flow,
+with **b2h0+b2h3** a real ~12% secondary path (clamping all 12 scalars at ν
+reproduces its verdict exactly — the set is architecturally closed). Overwriting the
+two primary scalars at the ν position flips its verdict in 99.9% of events while the
+lepton holds (and vice versa), and the swap is wire-specific (own-class placebo 0%,
+norm-matched random kick 2%); the famous P(ν=lep)≈1 lockstep is nothing but shared
+wiring.
 
 ## Prerequisites (gitignored, machine-local)
 
@@ -81,15 +93,32 @@ thesis-only. Experiment IDs refer to the test plan.
 | `round2e_message_split.py` | (C4 seed) | truth×prediction split of bottleneck scalars into ν → found the real verdict wires **b2h2 (AUC vs pred 0.996), b1h3 (0.989)**; b2h3's modes = ljet-multiplicity + e/μ. thesis-only |
 | `wave1_behavior.py` | B1 B2 B3 A1 A6 | claim bookkeeping (XOR), shared-score anti-correlation (r≈−0.96, holds within strata), error autopsy (misses are SOFT W-jets), **A1 mass dose-response: thesis = bump@80 GeV, organism = monotonic** (cross-scale divergence), permutation control |
 | `wave1_logit_lens.py` | D2 | exact logit-lens (no LayerNorm); jets claim a block before lep/ν verdict; lepton's own prior informative-but-overridden. Gotcha in-file: snapshot streams before re-calling `classifier()` |
-| `wave2_dose_insertion.py` | A2 A1-pT A4 A8 | mass-not-sufficient; **pT dominates candidacy**; insertion sufficiency (real W-ljet claims 34% in lvbb); two-claimant winner-take-all, **higher-pT wins ~90%** |
+| `wave2_dose_insertion.py` | A2 A1-pT A4 A8 | mass-not-sufficient; **pT dominates candidacy**; insertion sufficiency (real W-ljet claims 34% in lvbb); two-claimant winner-take-all, **higher-pT wins ~90%** ⚠ A8's pT-vs-mass comparison superseded by `redteam_rt3_wta.py` (real-W pairs have degenerate masses) |
 | `wave2_wires.py` | C1 C4 D4-lite | reader-head taxonomy (W-pointing vs H-pointing); per-key decomposition of ν's scalars (b2h2 single-sender = W-ljet; b1h3 = two-sided comparator); **scalar-overwrite: ν flips 99.8%, lockstep breaks**. thesis-only |
-| `wave3_tag_occlusion.py` | A5 E2 | tag forensics + surgery (full H-disguise re-labels W as H) + the candidacy occlusion table (pT ≫ mass ≈ tag ≫ direction) |
+| `wave3_tag_occlusion.py` | A5 E2 | tag forensics + surgery (full H-disguise re-labels W as H) + the candidacy occlusion table (pT ≫ mass ≈ tag ≫ direction) ⚠ ranking conflates perturbation sizes; "pT" is largely RELATIVE hardness (`redteam_rt4_relpt.py`); "direction-blind" fails under tied competition (`redteam_rt3_wta.py`) |
 | `wave3_wires_positions_resolved.py` | D4-lite@lep, A3-lite | **bidirectional parallel-reader proof** (swap @both restores lockstep in flipped state); resolved stratum: detection weak + unspecific (the cats-0-3 gap, mechanistically) |
 | `wave3_probe_patch.py` | D6 D1c | candidacy linearly decodable **at the embedding** (AUC 0.93); stream-patching: verdict transits blk-1/2 reads; final-depth patch decouples jet label from verdict (0 flips); embed-patch partial recovery (stage-B teaser). thesis-only |
 
+### `h1/redteam_*` — the 2026-06-11 adversarial pass
+All run on val batches **13-18** (the waves used 1-12; loader slices are disjoint by
+construction, so this is a clean held-out set). Results + verdict:
+[`docs/logs/2026-06-11_red-team-h1.md`](../docs/logs/2026-06-11_red-team-h1.md).
+`rt3`/`rt4` take `--model`; the rest are thesis-only.
+
+| script | what it tested | outcome |
+|---|---|---|
+| `redteam_rt6_data.py` | split parity (float32 eventNumbers), slice composition/disjointness, strata exhaustiveness, types kinematics | all clean |
+| `redteam_rt1_wires.py` | D4-lite specificity: census replication out-of-sample; per-scalar swap controls; own-class placebo; norm-matched random + non-wire-direction kicks; RT8 XOR independence null | certificate survives (placebo 0%, random kick 2.1%); census replicates; "fully determined" → ~95%; XOR-ok mostly base rates (report φ≈−0.8) |
+| `redteam_rt2_clamp.py` | sufficiency direction: input-side verdict flips (surgical mask / W insertion) with ν's wires clamped to clean values | wires carry ~80-90% of flow (restoration 81.6% / 90.7%); lep-side mirror symmetric |
+| `redteam_rt2b_bypass.py` | which scalars carry the residual | b2h0+b2h3 (14.3%→2.1%); clamping all 12 = exactly 0 flips (architecturally closed) |
+| `redteam_rt3_wta.py` | factorial two-candidate (pT, m) competition + symmetric tie | exclusivity is emergent (ties → both claim 74%); thesis = H-ward-mass-dominated ranking, organism = pT-first; coherence wins ties 88/12 (thesis) |
+| `redteam_rt4_relpt.py` | absolute vs relative pT gating (complement scaling + per-DSID observational) | candidacy = RELATIVE event hardness, both models |
+
 ### What's next (preregistered, not yet run)
-Stage B — the competition sub-circuit (SB1-SB6 in the test plan): how winner-take-all
-among candidates is implemented (lateral inhibition vs relative-context scoring).
-Plus: universality reruns on the freshly trained organism
-(`output/20260610-203258_TrainingOutput`, use `--ckpt-override`), F1 training-dynamics
-across its 30 checkpoints, E4 PySR extraction of the candidacy formula.
+Stage B — the competition sub-circuit (SB1-SB6 in the test plan, **preregs amended
+post-red-team**: strong lateral inhibition already disfavoured by the tie result;
+key open question = weak B-i vs B-ii, and whether two-candidate suppression shares
+machinery with the solo relative-hardness dependence). Plus: universality reruns on
+the freshly trained organism (`output/20260610-203258_TrainingOutput`, use
+`--ckpt-override`), F1 training-dynamics across its 30 checkpoints, E4 PySR
+extraction of the candidacy formula (**include event-context features** — RT4).

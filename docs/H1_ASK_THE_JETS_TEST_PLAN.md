@@ -398,28 +398,60 @@ Mechanism hypotheses:
 - **B-iii independent thresholding** (null): no interaction; apparent exclusivity is
   coincidental thresholds. (Disfavored already: P(both)=8% ≪ independent expectation.)
 
+> **PREREG UPDATE 2026-06-11 (post-red-team — amendments below marked [RT]; see
+> `logs/2026-06-11_red-team-h1.md`, RT3/RT4):**
+> - **Already settled by RT3**: at an exact tie (identical pT/m/tag), **both claim in
+>   74.6%** of events (organism 74.1%) — exclusivity is emergent score-ranking, NOT an
+>   enforced exactly-one constraint. This kills *strong* B-i (mutual inhibition with
+>   symmetry-breaking would force one winner at ties). Remaining question = **weak B-i
+>   vs B-ii**: is there ANY directed jet→jet suppression edge, or is the score-gap
+>   effect entirely context-relative scoring?
+> - **Already settled by RT4**: the candidacy score is context-relative even with ONE
+>   candidate (rest×2 → claims 0.92→0.57, both models) — strong prior for B-ii. SB
+>   experiments should therefore test whether two-candidate suppression is the SAME
+>   mechanism as the solo rest×2 effect (e.g. does the suppression "edge" in SB3/SB4
+>   route through the same heads that carry the solo context dependence?).
+> - **Design confound to control (RT3)**: an inserted foreign-direction candidate has a
+>   ~16pp claim handicap vs the in-event original on the thesis model (87.9/12.1 at the
+>   symmetric tie; organism ≈ none, 57.5/42.5). SB1's sigmoid crossing will sit at
+>   r > 1 on the thesis model for that reason alone — either symmetrize (insert BOTH
+>   candidates) or quote the crossing relative to the tie-cell asymmetry.
+> - **Ranking feature differs by model (RT3 h/i)**: thesis = mass-window-dominated on
+>   the H-ward side (450/80 beats 600/110 ~90/10), organism = pT-first everywhere.
+>   Run SB batteries on both models but do NOT pool or transfer conclusions; add
+>   H-ward-mass cells, not just pT ratios.
+
 Experiments:
 - **SB1 ΔpT dose-response** (S): insert the second W-ljet with controlled pT ratio r =
   pT_ins/pT_orig ∈ [0.5, 2]. *Predict (B-i/B-ii)*: P(both claim) peaks sharply at
   r≈1 (competition is comparative); P(ins wins) is a smooth sigmoid in r crossing 0.5
-  at r≈1. *B-iii predicts* flat P(both).
+  at r≈1. *B-iii predicts* flat P(both). **[RT: peak at r≈1 already confirmed —
+  P(both)=0.746 at the exact tie; the open quantity is the WIDTH of the peak (how big
+  a score gap suppresses the loser) and the crossing offset from the coherence
+  handicap. Expect crossing at r>1 on thesis; ≈1 on organism.]**
 - **SB2 lens timing on two-W events** (S): per-depth claim margins of winner vs loser.
   *Predict (B-i/B-ii)*: margins start TOGETHER (both look like W at embed/blk0) and
   diverge at the block where competition acts; *B-iii*: never together.
 - **SB3 jet↔jet attention** (S): in two-W events, a(loser→winner) vs a(winner→loser)
   vs single-W baselines, per head. *Predict (B-i)*: asymmetric edge (loser attends
-  winner); the suppression head is identifiable. *B-ii*: symmetric/diffuse.
+  winner); the suppression head is identifiable. *B-ii*: symmetric/diffuse. **[RT:
+  also compare against the solo rest×2 condition — if the same heads mediate both,
+  "competition" reduces to context-relative scoring (B-ii) with no dedicated edge.]**
 - **SB4 edge knockout** (M): kill the jet↔jet attention edges between the two W-jets
   (per head / per block). *Predict (B-i)*: both claim — exclusivity broken between
   jets while lep/ν still read "W found". *B-ii*: knockout does little (context comes
-  from everywhere).
+  from everywhere). **[RT: given the tie result, expect the B-ii outcome; a clean B-i
+  signature would now be surprising and worth double-checking against the coherence
+  confound.]**
 - **SB5 stream patching of the loser** (M): patch the loser's post-blk0/blk1 stream
   from its single-W twin run (same event, inserted jet removed). Localizes WHEN the
   suppression lands in the loser's stream.
 - **SB6 does the WINNER know it won?** (S): compare winner's claim margin in two-W vs
   single-W events. *Predict (B-i/B-ii)*: slightly reduced but robust (suppression is
   one-sided toward the loser); large reduction would suggest mutual inhibition with
-  a threshold readout.
+  a threshold readout. **[RT: claim-rate version already observed — orig drops only
+  0.980→0.937 against an equal competitor (RT3 cells a vs e); measure the margin to
+  confirm the mild one-sided picture.]**
 
 Bookkeeping: same battery on the H-side (two H-ljets, A8-style) would tell us whether
 competition machinery is per-class or shared — park until W-side is mapped.
