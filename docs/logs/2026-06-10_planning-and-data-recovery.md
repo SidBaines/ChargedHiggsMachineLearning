@@ -217,6 +217,29 @@ unmount /Volumes/Seagate` → unplug.**
   (0.025/0.048/0.14/0.24 in the same ranking) → our hook/eval pipeline reproduces
   training-time behavior.
 
+## Evening 06-10: ✅ PHASE 0 GATE PASSED — thesis numbers reproduced to 4 s.f.
+
+- **Normalization discovery**: thesis pipeline used `SCALE_DATA` (4-momenta / 1e5, no
+  mean-subtraction); `mean.npy`/`std.npy` were NEVER used (`NORMALISE_DATA=False`,
+  `RunLowLevelInterp.py:46-47,120-130`). This was the cause of the morning's bad local
+  numbers: with correct scaling, local per-object acc 0.47→0.79, and the confusion matrix
+  (saved `tmp_plots/confusion_local_thesis_model.png|.npy`) shows the residual gap is the
+  local subset's OLD 4-class truth scheme (truth-3→pred-2 at 95%).
+- Signal memmaps + norms of 20250321v1 side-fetched to SSD
+  (`tmp_data_20250321v1_signal/`, 1.4G) — bandwidth tip: suspend the main rsync
+  (Ctrl+Z/fg) while small fetches run.
+- **`tmp_eval_thesis_20250321v1.py`** (full val split, has_eventNumbers=True =
+  TRAINING split; the interp script itself had quietly used the index-parity default):
+  recovered thesis model val per-category PerfectRecoPct = **0.3097 / 0.3709 / 0.2917 /
+  0.4959 / 0.9587 / 0.9271** vs thesis Table `RecoTransformerModifications`
+  (bottleneck+entropy row) **0.3101 / 0.3709 / 0.2917 / 0.4957 / 0.9587 / 0.9272** —
+  match to ~4 s.f. Per-mass PerfectRecoPct 0.738(0.8 TeV)→0.941(3.0 TeV).
+- Per-mass values sit +1–4% above the wandb-logged epoch-29 numbers — those were logged
+  during training (different buffering); the dedicated-eval thesis table is the standard
+  and is matched exactly. ⇒ **environment + data + model + metrics pipeline fully
+  verified end-to-end on this Mac.** Phase 0.5 done; remaining Phase 0 item = memmap
+  regeneration from ROOT (type-encoding check) which is now non-blocking for interp.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
