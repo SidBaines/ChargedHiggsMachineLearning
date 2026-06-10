@@ -534,6 +534,34 @@ D1 patching (wave 3) separates. New wave-2 priorities: A2 (H-ljet dose-response 
 competition/elimination test), pT dose-response (B3 says pT drives misses), and the
 lep-prior override (patch lep embeddings).
 
+## Late night 06-10: b2h3 histogram autopsy (Sid's bimodality question) → found the
+## REAL verdict wires (b2h2, b1h3); round-1's b2h3 was a mixed signal
+
+Sid asked whether the second hump of the round-1 `h1_b2h3_message_hist.png` (true-lvbb
+events sitting on the "other" peak) = misreconstructed events. `tmp_h1_b2h3_split.py`
+(thesis model, 24,576 events; plot `tmp_plots/h1_b2h3_message_hist_split.png`):
+
+- **Sid right in direction**: missed lvbb events DO sit near the other peak (b2h3 mean
+  −0.57 vs +0.26 correct / −0.76 other). **But misses are only ~3% of true-lvbb** —
+  the visible hump is mostly **correctly-reconstructed lvbb with ≥2 ljets** (mean
+  −0.25 vs +0.55 for 1-ljet events; AUC 0.78!) plus an e/μ shift (e +0.08, μ +0.47,
+  AUC 0.67). b2h3's scalar is a MIXED message (channel ⊕ ljet-multiplicity ⊕ lepton
+  flavor), which also explains its mediocre verdict-AUC.
+- **Census of all 12 scalars into ν (AUC vs truth / vs prediction)**: the true verdict
+  carriers are **b2h2 (0.987 / 0.9963)** and **b1h3 (0.978 / 0.9892)** — both track the
+  PREDICTION better than the truth (error events follow the prediction side). Round 1
+  ablated b2h3/b2h0/b1h3 but **never b2h2** — "no single carrier" needs re-testing with
+  b2h2 included (joint b2h2+b1h3 ablation/patching → wave-2/3 list).
+- **Not post-decision flags but graded evidence**: within fixed prediction, truth still
+  separates (b2h2 within-pred AUC 0.86-0.91); errors sit at intermediate scalar values
+  (false-pos means ≈ 0 on both heads) — the messages are a continuous channel-evidence
+  score (the B2 shared scalar made visible), with errors = genuinely borderline events.
+- ν gets a near-perfect verdict signal already in BLOCK 1 (b1h3) — consistent with the
+  D2 lens (ν AUC 0.98 after blk1).
+- **Method lesson (promote)**: always split message/attention analyses by truth ×
+  prediction; truth-only splits mix verdict structure with error structure (and the
+  modes may be neither — check covariates like multiplicity/flavor before interpreting).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
