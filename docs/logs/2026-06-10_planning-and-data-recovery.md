@@ -670,7 +670,13 @@ All thesis model, 12,288 val events.
 
 ## Next session
 
-- Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
-- wandb relogin → archive thesis-model hyperparameters.
-- When ROOT transfer completes: verify counts/sizes vs cluster, then Phase 0.4
-  (regenerate memmaps; resolve the 3-vs-5 type-encoding question).
+- **Stage B** (competition sub-circuit): SB1-SB6, preregistered in
+  `docs/H1_ASK_THE_JETS_TEST_PLAN.md`.
+- Universality reruns of the wave batteries on the NEW organism
+  (`output/20260610-203258_TrainingOutput`, `--ckpt-override`) + F1 training dynamics
+  over its 30 checkpoints; E4 PySR extraction of the candidacy score (needs pysr).
+- Housekeeping: Seagate stage-2 dataset rsync resume (ntfsfix first — unclean unplug
+  at the 16:48 crash); M5 Pro migration (requirements.txt ready; smoke-test MPS before
+  long runs); Phase 0.4 memmap regeneration still open (non-blocking).
+- Code now lives in `experiments/` (see its README); tmp_* scripts were promoted there
+  2026-06-11.
