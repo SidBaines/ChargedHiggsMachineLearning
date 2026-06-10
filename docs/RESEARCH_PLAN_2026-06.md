@@ -72,8 +72,9 @@ Concrete, falsifiable hypotheses first; generic dashboards second.
   secondarily the lepton+MET magnitude — then broadcast, with lep+ν
   inheriting it in lockstep (P(ν=lep)≥0.95 under every intervention tried). Identical
   mechanism in the 677k thesis model and the 20k organism. **Remaining for H1: localize
-  the circuit** that computes the channel score (per-block/per-head patching on the
-  organism) — merges into H2/H3 below.
+  the circuit** that computes the channel score — preregistered test battery (~30
+  experiments, waves 1-5) in [`H1_ASK_THE_JETS_TEST_PLAN.md`](H1_ASK_THE_JETS_TEST_PLAN.md);
+  merges into H2/H3 below.
 - **H2 — angular-proximity heads**: heads computing ΔR/Δφ/Δη(query, key) — prior PySR
   hints + entropy models. Fit attention *logits* (not post-softmax weights) as functions
   of pairwise physics features; quantify R² per head.

@@ -472,6 +472,18 @@ types_dict from the source-of-truth script and SANITY-CHECK it against kinematic
 (masses/pT/multiplicities) — a swapped label survives every downstream test silently.**
 Scripts fixed: 2c/2b constants now SJ=4/LJ=3; 2.py grid labels corrected.
 
+## Late night 06-10: preregistered H1-v3 test battery written (no experiments run)
+
+Sid asked for a full brainstorm BEFORE running anything →
+[`docs/H1_ASK_THE_JETS_TEST_PLAN.md`](../H1_ASK_THE_JETS_TEST_PLAN.md): 4 competing
+hypotheses (H-A "ask the jets" / H-B "parallel global" / H-C "lepton-primary" /
+H-D "output bookkeeping"), ~30 experiments in 6 families (input dose-response &
+insertion; output-level laws; attention analyses; activation patching/probing/steering/
+scrubbing; geometry/PySR; training-dynamics on the new organism's 30 checkpoints),
+each with preregistered predictions + outcome interpretations, ordered in 5 waves with
+pivot criteria. Key discriminator: direction/timing of information flow (D1 patching ×
+D2 logit-lens — organism has no LayerNorm so the lens is exact).
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
