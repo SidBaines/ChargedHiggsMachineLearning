@@ -240,6 +240,50 @@ unmount /Volumes/Seagate` → unplug.**
   verified end-to-end on this Mac.** Phase 0.5 done; remaining Phase 0 item = memmap
   regeneration from ROOT (type-encoding check) which is now non-blocking for interp.
 
+## Late afternoon 06-10: H1 investigation round 1 (thesis model, 20250321v1 val signal)
+
+Scripts: `tmp_h1_step12.py`, `tmp_h1_step3_ablate.py` (+ inline experiments). ~50k events.
+
+**Established facts:**
+1. **Truth-label encoding (file)**: {0:none, 1:H, 2:W-hadronic, 3:W-leptonic} → training
+   collapses to model classes {0,1,2,2}. Leptons/ν only ever {0,3}; jets {0,1,2}.
+   (Also fully explains the morning's local-data confusion matrix.)
+2. **Behavioral coupling**: P(pred_ν = pred_lep) = 0.9953; truth(ν)=truth(lep) always.
+3. **Channel-conditional attention routing**: ν→lep mean attention in true-Wlν vs other:
+   b1h3 0.49/0.08, b2h0 0.49/0.01, b2h3 0.40/0.00 (b0h0 always-on 0.54/0.40). The
+   late-head attention pattern itself encodes the (already-computed) channel decision.
+4. **The b2h3 bottleneck scalar into ν separates true channel at AUC 0.83**
+   (`tmp_plots/h1_b2h3_message_hist.png`).
+5. **Ablations (per-head exact subtraction, verified Σ per-head ≈ block output, rel ~5e-3
+   — residual = shared out_proj bias):** REFUTE the naive "b2h3 is THE carrier" picture.
+   b2h3/b2h0/b1h3 individually or jointly: ν-acc essentially unchanged (0.96). Largest
+   single-head hit to lep/ν = **b0h0** (0.96→0.89); b0h1 is the jet-relevant head
+   (jet 0.95→0.90, evt-perfect 0.85→0.64). Even ablating ALL of block 0: ν-acc 0.82,
+   **P(ν=lep) ≥ 0.97 under every ablation tried** — coupling is hyper-redundant.
+6. **Input corruptions**: randomizing lepton φ/pz → only 2.8%/3.1% of ν/lep predictions
+   flip; ν corruption even less (1.2%); ljet φ-rotation 1.4%, **ljet mass ×0.5 only
+   4.5%**, ljet tag-zero 2.3%. P(ν=lep) stays ≥0.99 in all cases.
+
+**Interpretation / status of H1:** the naive message-passing circuit (lepton →[one head]→
+neutrino) is WRONG. The ν/lep "W vs none" assignment is computed globally and
+redundantly: no single head, block-0 ensemble, or single-object kinematic corruption
+breaks it. Possible reframings for next round: (a) decision is event-global (residual
+streams progressively merge: cos(ν,lep) = 0.65→0.79→0.88 entering blocks 0/1/2; all
+tokens may converge on a shared channel representation); (b) flips concentrate in
+low-margin events — measure flip rate vs logit margin; (c) feature-sweep/saliency to
+find which inputs DO drive the decision (untested candidates: lepton/ν pT, MET-related
+magnitudes, sjet system, multi-object combinations); (d) compare with the 20k-param
+`ent1-d20-2blk` organism — less capacity for redundancy, maybe a crisper circuit.
+
+**Methodology learnings:**
+- For bottleneck models the per-head cache decomposition enables clean ablations:
+  register `hook_attention_heads` first, then a subtracting hook (chained hooks receive
+  the previous hook's modified output).
+- `hook_attention_heads` returns BOTH attention modules and MLP Sequentials — filter by
+  module type before indexing by block.
+- Inline heredoc python via Bash kept corrupting long f-strings (stray tokens) — write
+  scripts to files (`tmp_*.py`) instead of long heredocs.
+
 ## Next session
 
 - Ingest Sid's heppc probe results → prioritize + run recovery rsyncs (checkpoints first).
