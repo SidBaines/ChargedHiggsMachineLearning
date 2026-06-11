@@ -455,3 +455,23 @@ Experiments:
 
 Bookkeeping: same battery on the H-side (two H-ljets, A8-style) would tell us whether
 competition machinery is per-class or shared — park until W-side is mapped.
+
+> **STAGE B RUN 2026-06-11 (evening) — RESOLVED: B-ii established and localized.**
+> Full results: `logs/2026-06-11_stage-b-competition.md`. Thesis model, fresh val
+> slice (batches 19-24). Scripts `experiments/h1/stageb_sb{1,2,3,4}_*.py`.
+> - **SB3**: only block 2 has a jet↔jet attention asymmetry (loser→winner on
+>   b2h0/b2h2/b2h3); blocks 0-1 symmetric/diffuse. Top heads identical to the solo
+>   rest×2 mediation set — the RT shared-machinery prediction hit exactly.
+> - **SB2**: big gaps resolve at blk0-1 (context-relative scoring); near-ties flip
+>   AT block 2. SB6: the winner pays −3.3 margin vs its solo twin (rates hid this;
+>   the "mild one-sided" guess above was wrong).
+> - **SB4**: edge KO restores the tie loser 93% — **b2h2 alone is the comparator**
+>   (h0/h3 nothing, despite b2h3's larger attention). Direction-resolved KO: each
+>   jet suppresses only ITSELF via its own read of the rival ⇒ **weak B-i dead**.
+>   The b0+b1 KO "control" ALSO restores ⇒ two-stage circuit (b0/b1 silent context
+>   absorption + b2h2 comparator), each stage necessary. Solo KO: candidacy is
+>   constitutively relational (no context ⇒ no claim; the lepton then takes W).
+> - **SB1**: sym design crosses at r=1.00 exactly; asym at r≈1.07 ⇒ coherence
+>   handicap ≈ 7% pT-equivalent. Both-claim peak: half-suppression at ~10-15% pT
+>   gap. Comparator = graded score-ranking with ~10% pT resolution.
+> - **SB5 skipped** — superseded by SB2+SB4 (timing + causal carrier both answered).
