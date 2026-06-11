@@ -199,6 +199,14 @@ print("=> the verdict moves; the lockstep does not. They read the same wire.")
 # the top relative-hardness quartile and ~95% at r=3; direction/coherence is not
 # the cross-system handicap either, H-jet-direction == foreign).
 #
+# **What "leptonic-W evidence" is (LW1, `lw1_leptonic_evidence.py`)**: magnitudes
+# only — mT(lep,nu) correlates ~0.00 with the wires, and rotating nu to phi+180
+# (which RAISES mT but shrinks |p_lep+p_nu|) WEAKENS the evidence: the model uses
+# the vector-sum hardness, not W-likeness. Both tokens contribute (scaling either
+# alone moves the verdict), with extra weight on the lepton beyond the vector sum.
+# The comparator's best single correlate is the RATIO pT(lepW)/HT(jets)
+# (rho=-0.80) — the cross-system twin of the jets' relative-hardness candidacy.
+#
 # **Causal? Yes** (input-side surgery in both directions, dose-controlled).
 # **Confidence: very high.** Replicated on the 20k organism (coarse structure).
 #
@@ -361,6 +369,16 @@ print("note: 'event x0.5' barely moves; 'rest x2' (W untouched!) suppresses ->"
 # **Alternatives ruled out**: "any large perturbation flips it" (norm-matched kick
 # control), "the wires are epiphenomenal" (clamp blocks input-side flips), "more
 # wires hide elsewhere" (closure: all-12 clamp is exact).
+#
+# **How the wires are built (LW1 per-key value decomposition, keys sum to the
+# cached scalar to 1e-6)**: b1h3 at nu in lvbb = lepton -0.73 + nu -0.58 + jets
+# +0.21 — a signed sum with leptonic keys pushing lvbb-ward and jet keys
+# qqbb-ward: b1h3 IS the hadronic-vs-leptonic comparator, computed at the readout.
+# b2h2 = jets only (1.19 ljets + 0.34 sjets; lepton/nu exactly 0.000) — the
+# one-sided hadronic-claim wire. Identical decompositions at the lep position.
+# Edge-KO adds a twist: cutting lep->candidate edges at r=2 makes the lepton keep
+# its W (0.10->0.99) AND the candidate concede (0.90->0.15) without touching the
+# candidate's own reads — competition flows MULTI-HOP through token states.
 #
 # **Causal? Yes**, with quantified completeness. **Confidence: very high** for the
 # wires' identity & role; the 80/90-vs-12 split is point-estimated on one slice.

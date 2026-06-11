@@ -212,6 +212,52 @@ Narrative notebook claim 2 + scoreboard updated; A4b promoted to `experiments/h1
 can masquerade as mechanism ceilings — always dose-control before concluding a
 flip rate is "low".
 
+## Addendum 3 (same session): LW1 — where the hadronic-vs-leptonic comparison
+## lives and what "leptonic-W evidence" is made of
+
+Sid asked: where is the leptonic side read from, and how is it calculated?
+(`experiments/h1/lw1_leptonic_evidence.py`, fresh slice, thesis model.)
+
+**Where (1) — at the readout, b1h3 literally IS the comparator.** Per-key value
+decomposition of b1h3 at the ν position in clean lvbb (sanity: keys sum to the
+cached scalar to 1e-6): **lepton −0.73, ν −0.58, ljets +0.06, sjets +0.15** — a
+signed sum with leptonic keys pushing lvbb-ward and jet keys qqbb-ward. Identical
+at the lep position (parallel readers again). b2h2 by contrast is purely jet-fed
+(ljets 1.19, sjets 0.34, lepton/ν 0.000) — the one-sided hadronic-claim wire.
+
+**Where (2) — the lepton learns the hadronic claim via b2h2 (+b1), and the
+candidate learns the leptonic evidence both directly and MULTI-HOP.** At r=2.0
+(lepton normally concedes, keeps 0.10): KO lep→ins all blocks → lep keeps 0.99 —
+and the **candidate then concedes too (0.90→0.15)** despite none of ITS edges
+being cut: it reads the now-confident lepton's stream and gives up. Competition
+is bidirectional through token states, not just direct edges. Block-resolved:
+b2-only restores lep to 0.62 (b2h2 alone 0.55), b1-only 0.24 (b1h3 alone 0.16).
+KO lep+ν→ins: both keep W 0.99, candidate 0.02. Cutting only ν→ins splits the
+lockstep (ν 0.98 vs lep 0.53) — shared wiring, separate inputs, as claimed.
+D1 caveat: at r=1.0 no single edge-cut FREES the candidate (suppression is
+distributed across its context reads; renormalization redistributes attention,
+so "remove the leptonic keys" ≠ "remove the leptonic evidence" at the jet query).
+
+**What (variables) — magnitudes only, lepton-weighted, no W-structure:**
+- mT(lep,ν) correlation with both wires ≈ **0.00**; rotating ν to φ+180° (which
+  RAISES mT but shrinks |p_lep+p_ν|) WEAKENS the evidence (lep keeps 0.68→0.54)
+  → the model uses the vector-sum magnitude, not W-likeness. (Confirms the thesis
+  robustness hint "ν angles irrelevant" — angles only matter through the sum.)
+- Best single correlate of b1h3@ν: **pT(lepW)/HT(jets), ρ=−0.795** (vs −0.55 for
+  pT(lepW) alone) — the comparator tracks a leptonic-to-hadronic hardness RATIO,
+  the cross-system twin of the jets' relative-hardness candidacy.
+- Both tokens contribute individually (lep×1.3 OR MET×1.3 each push lep-keeps
+  0.68→0.83/0.85; both×1.3→0.93, both×0.77→0.29), with extra lepton weight beyond
+  the vector sum (swap-magnitudes test 0.68→0.62; kill-MET hurts far less than
+  the vector-sum prediction: 0.37 observed vs ~0.07 predicted from the A4b
+  sigmoid at the implied r_eff≈2.6).
+
+**Learnings**: (i) per-key value decomposition + edge KO disagree informatively —
+decomposition shows WHERE a scalar's value comes from; KO shows what the network
+DOES when a read is removed (renorm + multi-hop effects included). Use both.
+(ii) Multi-hop: cutting reader→source edges can flip the SOURCE via the reader's
+changed stream — interpret single-edge KOs with the full loop in mind.
+
 ## Next steps
 
 - **Universality**: rerun SB1-SB4 on the fresh organism

@@ -136,6 +136,7 @@ test-plan addendum.
 SB5 skipped — superseded by SB2+SB4.
 
 | `a4b_lvbb_insertion_dose.py` | A4b | resolves the A4 "only ~30% flip" puzzle: broadcast is tight (P(lep=W\|ins claims)=0.06 vs 0.96); the average was donor composition; cross-system dose at pT=r×pT(lepW) is a clean sigmoid crossing r≈1.4 ⇒ the verdict is a **graded hadronic-vs-leptonic comparison** (claim-2 sharpened: "ask the jets" → "weigh the jets against the leptonic side") |
+| `lw1_leptonic_evidence.py` | LW1 | the leptonic side, localized & characterized: **b1h3 IS the comparator** (per-key value decomposition at ν: lepton −0.73, ν −0.58 vs jets +0.21; b2h2 purely jet-fed); evidence = **magnitudes only, lepton-weighted, best correlate pT(lepW)/HT(jets) ρ=−0.80, mT ρ≈0.00** (φ+180° test rules out W-structure); lepton reads the candidate via b2h2(+b1h3); **multi-hop competition**: KO lep→ins makes the lepton keep W AND the candidate concede (0.90→0.15) via the lepton's changed stream |
 
 ### What's next
 Universality reruns of Stage B on the freshly trained organism
