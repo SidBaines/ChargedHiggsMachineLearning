@@ -235,23 +235,29 @@ def report(nm, out):
           f"{(ow&iw).float().mean():7.4f} {lw.float().mean():9.4f} {lr:19.4f}")
 report("baseline", out0)
 E_OI = [(wp, oh_slot)]; E_IO = [(slot, oh_wp)]; E_BI = E_OI + E_IO
-report("KO b2 o<->i all heads", fwd_ko_multi(Xv, Tv, {2}, ALLH, E_BI))
-report("KO b2 o->i all heads", fwd_ko_multi(Xv, Tv, {2}, ALLH, E_OI))
-report("KO b2 i->o all heads", fwd_ko_multi(Xv, Tv, {2}, ALLH, E_IO))
-for h in (0, 2, 3):
-    report(f"KO b2 o<->i head {h} only", fwd_ko_multi(Xv, Tv, {2}, (h,), E_BI))
-report("KO b2 o<->i heads {0,2,3}", fwd_ko_multi(Xv, Tv, {2}, (0, 2, 3), E_BI))
-report("KO b0+b1 o<->i all heads (control)", fwd_ko_multi(Xv, Tv, {0, 1}, ALLH, E_BI))
-report("KO b0+b1+b2 o<->i all heads", fwd_ko_multi(Xv, Tv, {0, 1, 2}, ALLH, E_BI))
-report("KO b2 o<->i all heads NO-renorm", fwd_ko_multi(Xv, Tv, {2}, ALLH, E_BI, renorm=False))
+LAST = NBLK - 1
+EARLY = set(range(LAST))
+report(f"KO b{LAST} (last) o<->i all heads", fwd_ko_multi(Xv, Tv, {LAST}, ALLH, E_BI))
+report(f"KO b{LAST} o->i all heads", fwd_ko_multi(Xv, Tv, {LAST}, ALLH, E_OI))
+report(f"KO b{LAST} i->o all heads", fwd_ko_multi(Xv, Tv, {LAST}, ALLH, E_IO))
+for h in range(NH):
+    report(f"KO b{LAST} o<->i head {h} only", fwd_ko_multi(Xv, Tv, {LAST}, (h,), E_BI))
+for blk in sorted(EARLY):
+    report(f"KO b{blk} o<->i all heads", fwd_ko_multi(Xv, Tv, {blk}, ALLH, E_BI))
+report(f"KO early ({sorted(EARLY)}) o<->i all heads", fwd_ko_multi(Xv, Tv, EARLY, ALLH, E_BI))
+report("KO ALL blocks o<->i all heads", fwd_ko_multi(Xv, Tv, set(range(NBLK)), ALLH, E_BI))
+report(f"KO b{LAST} o<->i all heads NO-renorm", fwd_ko_multi(Xv, Tv, {LAST}, ALLH, E_BI, renorm=False))
 
 print("\n=== solo conditions: KO W->context ===")
 E_CTX = [(wp, ctx)]
 print(f"{'condition':44s} {'P(W claims)':>12s} {'P(lep=W)':>9s}")
 for nm, (rs,) in {"solo600": (1.0,), "solo600 rest x2": (2.0,)}.items():
     Xs_, Ts_ = build(600, 80, rest_scale=rs)
-    for ko_nm, blocks in (("none", None), ("KO b2 W->ctx", {2}),
-                          ("KO b0+b1 W->ctx", {0, 1})):
+    solo_conds = [("none", None), (f"KO b{LAST} W->ctx", {LAST}),
+                  ("KO early W->ctx", EARLY)]
+    if len(EARLY) > 1:
+        solo_conds += [(f"KO b{blk} W->ctx", {blk}) for blk in sorted(EARLY)]
+    for ko_nm, blocks in solo_conds:
         out = (fwd_ko(Xs_, Ts_) if blocks is None
                else fwd_ko_multi(Xs_, Ts_, blocks, ALLH, E_CTX))
         pr = out.argmax(-1)

@@ -23,7 +23,14 @@ import os, sys
 import numpy as np
 import torch
 
-REPO = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, REPO)
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); sys.path.insert(0, REPO)
+import argparse
+ap = argparse.ArgumentParser()
+ap.add_argument("--model", default="thesis-ent1-bn1-d152")
+ap.add_argument("--batches", type=int, default=6)
+ap.add_argument("--skip", type=int, default=18)
+ap.add_argument("--ckpt-override", default=None)
+ARGS = ap.parse_args()
 torch.set_num_threads(6)
 from models.registry import load_model
 from interp.activations import ActivationCache, hook_attention_heads
@@ -42,16 +49,17 @@ dl = ProportionalMemoryMappedDataset(
     max_objs_in_memmap=15, batch_size=2048, device="cpu", is_train=False,
     n_splits=2, validation_split_idx=0, n_targets=3, shuffle=False, shuffle_batch=False,
     means=None, stds=stds, objs_to_output=15, signal_only=True, has_eventNumbers=True)
-for _ in range(18):
+for _ in range(ARGS.skip):
     next(dl)
 
-model, _ = load_model("thesis-ent1-bn1-d152", checkpoint_root=os.path.join(REPO, "tmp_checkpoints"),
-                      register_bottleneck_hook=False)
+BN = 1 if "bn1" in ARGS.model else None
+model, _ = load_model(ARGS.model, checkpoint_root=os.path.join(REPO, "tmp_checkpoints"),
+                      register_bottleneck_hook=False, checkpoint_override=ARGS.ckpt_override)
 model.eval()
 cache = ActivationCache()
 handles = [m.register_forward_hook(fn, with_kwargs=True)
            for m, fn in hook_attention_heads(model, cache, detach=True,
-                 SINGLE_ATTENTION=False, bottleneck_attention_output=1)]
+                 SINGLE_ATTENTION=False, bottleneck_attention_output=BN)]
 
 def fwd(x, types):
     outs = []
@@ -61,7 +69,7 @@ def fwd(x, types):
     return torch.cat(outs)
 
 Xs, Ts = [], []
-for _ in range(6):
+for _ in range(ARGS.batches):
     b = next(dl)
     types = b["types"]
     ok = ((types == NU).sum(1) == 1) & (((types == 0) | (types == 1)).sum(1) == 1)

@@ -21,6 +21,7 @@ from utils.utils import basic_lr_scheduler
 
 p = argparse.ArgumentParser(); p.add_argument("--smoke", action="store_true")
 p.add_argument("--device", default=None, help="override CONFIG device (cpu/mps)")
+p.add_argument("--seed", type=int, default=None, help="override CONFIG seed")
 ARGS = p.parse_args()
 
 CONFIG = dict(
@@ -47,6 +48,8 @@ if ARGS.smoke:
     CONFIG.update(num_epochs=1, wandb=False)
 if ARGS.device:
     CONFIG["device"] = ARGS.device
+if ARGS.seed is not None:
+    CONFIG["seed"] = ARGS.seed
 
 torch.manual_seed(CONFIG["seed"]); np.random.seed(CONFIG["seed"])
 device = CONFIG["device"] if torch.backends.mps.is_available() else "cpu"
