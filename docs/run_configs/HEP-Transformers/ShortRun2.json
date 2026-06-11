@@ -1,0 +1,308 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_ShortRun_LowLevel2",
+ "run_id": "rb6gvzuv",
+ "created": "2025-01-24T17:41:34Z",
+ "state": "finished",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {
+  "epoch": 9,
+  "gradients/W_Embed": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.b": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.w": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.W_U": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.b_U": {
+   "_type": "histogram"
+  },
+  "loss/ce": 0.008832750841975212,
+  "loss/total": 0.49256983399391174,
+  "step": 8910,
+  "train/_bkg_lvbb_fraction/signal_acceptance_50": 0.003336278721690178,
+  "train/_bkg_lvbb_fraction/signal_acceptance_70": 0.014143692329525948,
+  "train/_bkg_lvbb_fraction/signal_acceptance_90": 0.06269382685422897,
+  "train/_bkg_qqbb_fraction/signal_acceptance_50": 0.013125428929924963,
+  "train/_bkg_qqbb_fraction/signal_acceptance_70": 0.045277368277311325,
+  "train/_bkg_qqbb_fraction/signal_acceptance_90": 0.1717953979969025,
+  "train/accuracy": 0,
+  "train/auc": 0,
+  "train/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/train/confusion_matrix_8909_6a9e656ca54b389e2796.png",
+   "sha256": "6a9e656ca54b389e2796e75981984ae20e01889fc89c82da7639fe957cb8cef6",
+   "size": 36299,
+   "width": 800
+  },
+  "train/loss_total": 0.013510975758174596,
+  "train/lr": 0.0001,
+  "train/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "train/lvbb_threshold/signal_acceptance_50": -1.2057905197143557,
+  "train/lvbb_threshold/signal_acceptance_70": -0.5959150195121765,
+  "train/lvbb_threshold/signal_acceptance_90": 0.3465427756309509,
+  "train/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "train/qqbb_threshold/signal_acceptance_50": -0.3700382709503174,
+  "train/qqbb_threshold/signal_acceptance_70": 0.36193886399269104,
+  "train/qqbb_threshold/signal_acceptance_90": 1.3190773725509644,
+  "train/sample_predictions": {
+   "_latest_artifact_path": "wandb-client-artifact://k5secr8cp4roasmdo6nyupicnqlsd7g6goyro2qkij405ovvmu8k2ee012eahdlihzshhwg9hg3jt2oenhnven8h49zse1ir79badvgmt9kb7iplw3sgpi4bttjzb63o:latest/train/sample_predictions.table.json",
+   "_type": "table-file",
+   "artifact_path": "wandb-client-artifact://63lxv0fb8evhyqi0sipxcvgta59dffgizrihyq1arl28tiy9i07sw0dgtppduadzay6f7waptvcw3acve1abcadc7csjwajs46huy0rqtw710jt9je64j3t9v7hey90z/train/sample_predictions.table.json",
+   "ncols": 3,
+   "nrows": 5,
+   "path": "media/table/train/sample_predictions_8910_0f3b6cc322bb00f89c1a.table.json",
+   "sha256": "0f3b6cc322bb00f89c1ad438cd84ffca720eea18d3707e77a2e768ba939e31ed",
+   "size": 497
+  },
+  "val/_bkg_lvbb_fraction/signal_acceptance_50": 0.008651237934827805,
+  "val/_bkg_lvbb_fraction/signal_acceptance_70": 0.02552400529384613,
+  "val/_bkg_lvbb_fraction/signal_acceptance_90": 0.09145667403936386,
+  "val/_bkg_qqbb_fraction/signal_acceptance_50": 0.023570816963911057,
+  "val/_bkg_qqbb_fraction/signal_acceptance_70": 0.061238404363393784,
+  "val/_bkg_qqbb_fraction/signal_acceptance_90": 0.1959488540887833,
+  "val/accuracy": 0.7984041313650622,
+  "val/auc": 0.08041846627990405,
+  "val/best_significance": 504.5291527564293,
+  "val/best_threshold": 0.9791009426116944,
+  "val/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/val/confusion_matrix_8911_a0512074f74c27fd2db0.png",
+   "sha256": "a0512074f74c27fd2db08477dd62cfd1211ff8097137003820c66a0b60de904a",
+   "size": 32299,
+   "width": 800
+  },
+  "val/loss_ce": 0.013539635263589854,
+  "val/loss_total": 0.013539635263589854,
+  "val/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "val/lvbb_threshold/signal_acceptance_50": -1.2005795240402222,
+  "val/lvbb_threshold/signal_acceptance_70": -0.5726051330566406,
+  "val/lvbb_threshold/signal_acceptance_90": 0.4065183997154236,
+  "val/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "val/qqbb_threshold/signal_acceptance_50": -0.27279067039489746,
+  "val/qqbb_threshold/signal_acceptance_70": 0.4508144557476044,
+  "val/qqbb_threshold/signal_acceptance_90": 1.4188096523284912,
+  "val/roc_curve": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/val/roc_curve_8911_8b05a84d14bb7b685ee3.png",
+   "sha256": "8b05a84d14bb7b685ee35560dcf03ef4477758c9aff54021729b6bb301f2fa41",
+   "size": 20938,
+   "width": 640
+  }
+ }
+}

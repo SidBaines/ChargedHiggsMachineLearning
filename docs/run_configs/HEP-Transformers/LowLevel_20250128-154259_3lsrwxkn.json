@@ -1,0 +1,302 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_LowLevel_20250128-154259",
+ "run_id": "3lsrwxkn",
+ "created": "2025-01-28T15:43:15Z",
+ "state": "crashed",
+ "config": {
+  "name": "_LowLevel_20250128-154259",
+  "wandb": true,
+  "epochs": 200,
+  "dataset": "ATLAS_ChargedHiggs",
+  "batch_size": 2048,
+  "architecture": "PhysicsTransformer",
+  "learning_rate": 0.0001
+ },
+ "final_summary": {
+  "epoch": 1,
+  "gradients/W_Embed": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.b": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.w": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.W_U": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.b_U": {
+   "_type": "histogram"
+  },
+  "loss/total": 0.8610249161720276,
+  "step": 1026,
+  "train/accuracy": 0.6227760727529199,
+  "train/auc": 0.2602635274330775,
+  "train/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/train/confusion_matrix_890_0890a0bbfd71f6b465f4.png",
+   "sha256": "0890a0bbfd71f6b465f431100ad4b2e153291e9420f284b32e97e3e642e3faf2",
+   "size": 29046,
+   "width": 800
+  },
+  "train/loss_total": 0.025836750621335985,
+  "train/lr": 0.0001,
+  "train/sample_predictions": {
+   "_latest_artifact_path": "wandb-client-artifact://yq5u9s0q2uujb2xdg50o0bkrpm4g786yyqkkqp9c9y6x2tt65mp3titrbzzc9f177vkv2qitniof29ecp47ftvn63q499kmeq55dchrwdv7hk69tkjanync73qi4kqp9:latest/train/sample_predictions.table.json",
+   "_type": "table-file",
+   "artifact_path": "wandb-client-artifact://21p9dget7161ypict0tk78xe9tyvjltx0u2dkxpuetqbsf6xja4l89skcyfc2rykl658ukkvi0quyztenh60p8byct7nm4uymfgddfnua2ruxqf3he6d84gb6adn7llz/train/sample_predictions.table.json",
+   "ncols": 3,
+   "nrows": 5,
+   "path": "media/table/train/sample_predictions_891_84b4b35e708bc611e730.table.json",
+   "sha256": "84b4b35e708bc611e730ac998fc9223b99587fa65a1657a4bf3c9f93025bc25a",
+   "size": 489
+  },
+  "train/signal_acceptance_50/bkg_lvbb_expected": 0,
+  "train/signal_acceptance_50/bkg_qqbb_expected": 0,
+  "train/signal_acceptance_50/lvbb_threshold": 0.47135764360427856,
+  "train/signal_acceptance_50/qqbb_threshold": 0.9121002554893494,
+  "train/signal_acceptance_70/bkg_lvbb_expected": 0,
+  "train/signal_acceptance_70/bkg_qqbb_expected": 0,
+  "train/signal_acceptance_70/lvbb_threshold": 0.5533173084259033,
+  "train/signal_acceptance_70/qqbb_threshold": 1.1411685943603516,
+  "train/signal_acceptance_90/bkg_lvbb_expected": 0,
+  "train/signal_acceptance_90/bkg_qqbb_expected": 0,
+  "train/signal_acceptance_90/lvbb_threshold": 0.732670247554779,
+  "train/signal_acceptance_90/qqbb_threshold": 1.4564553499221802,
+  "val/accuracy": 0.6206970589198685,
+  "val/auc": 0.2720199127991994,
+  "val/best_significance": 135000,
+  "val/best_threshold": 0.8823924660682678,
+  "val/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/val/confusion_matrix_892_2975087c6aea4a37fbc3.png",
+   "sha256": "2975087c6aea4a37fbc3ebdf9fe86f779d52b24d1e58bca7f6897cf1177e404d",
+   "size": 32032,
+   "width": 800
+  },
+  "val/loss_ce": 0.023405030569331117,
+  "val/loss_total": 0.023405030569331117,
+  "val/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "val/roc_curve": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/val/roc_curve_892_3e56ff277882d05195e7.png",
+   "sha256": "3e56ff277882d05195e7b3494f6640c083cdf0c39709eee8621758c9a17f5be5",
+   "size": 21601,
+   "width": 640
+  },
+  "val/signal_acceptance_50/bkg_lvbb_expected": 0,
+  "val/signal_acceptance_50/bkg_qqbb_expected": 0,
+  "val/signal_acceptance_50/lvbb_threshold": 0.31357479095458984,
+  "val/signal_acceptance_50/qqbb_threshold": 1.1056091785430908,
+  "val/signal_acceptance_70/bkg_lvbb_expected": 0,
+  "val/signal_acceptance_70/bkg_qqbb_expected": 0,
+  "val/signal_acceptance_70/lvbb_threshold": 0.4816437959671021,
+  "val/signal_acceptance_70/qqbb_threshold": 1.3460735082626345,
+  "val/signal_acceptance_90/bkg_lvbb_expected": 0,
+  "val/signal_acceptance_90/bkg_qqbb_expected": 0,
+  "val/signal_acceptance_90/lvbb_threshold": 0.7540967464447021,
+  "val/signal_acceptance_90/qqbb_threshold": 1.6568641662597656
+ }
+}

@@ -1,0 +1,45 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_20250322-160541_HighLevellvbb",
+ "run_id": "q6prt1kc",
+ "created": "2025-03-22T16:05:49Z",
+ "state": "killed",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {
+  "epoch": 0,
+  "loss/correlation": 8.778714800428133e-06,
+  "loss/total": 0.6285244822502136,
+  "loss/total_withCorrelation": 0.6285420060157776,
+  "step": 4501,
+  "train/accuracy_0.8": 0.5795577340682769,
+  "train/accuracy_0.9": 0.5783337475843314,
+  "train/accuracy_1.0": 0.5820109534832207,
+  "train/accuracy_1.2": 0.5796194827646765,
+  "train/accuracy_1.4": 0.5790899027159894,
+  "train/accuracy_1.6": 0.5801351169638768,
+  "train/accuracy_1.8": 0.583021103916744,
+  "train/accuracy_2.0": 0.5839237718116329,
+  "train/accuracy_2.5": 0.5818360950348143,
+  "train/accuracy_3.0": 0.586046593230897,
+  "train/accuracy_lvbb": 0.7294134111578424,
+  "train/auc_lvbb": 0.8372547684325624,
+  "train/lr": 1e-05,
+  "train_MC/accuracy_0.8": 0.5793962380192784,
+  "train_MC/accuracy_0.9": 0.609765093577081,
+  "train_MC/accuracy_1.0": 0.6027307578011477,
+  "train_MC/accuracy_1.2": 0.6332490319650927,
+  "train_MC/accuracy_1.4": 0.6426855359489064,
+  "train_MC/accuracy_1.6": 0.6916530916622701,
+  "train_MC/accuracy_1.8": 0.7099905156259582,
+  "train_MC/accuracy_2.0": 0.661125020743602,
+  "train_MC/accuracy_2.5": 0.6649071495382202,
+  "train_MC/accuracy_3.0": 0.6538224802983049,
+  "train_MC/accuracy_lvbb": 0.8268162920954191,
+  "train_MC/auc_lvbb": 0.7905439744241978,
+  "train_samps_processed": 1152256
+ }
+}

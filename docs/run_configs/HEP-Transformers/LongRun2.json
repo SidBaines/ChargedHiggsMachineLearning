@@ -1,0 +1,500 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_LongRun_LowLevel2",
+ "run_id": "4qythh3t",
+ "created": "2025-01-24T18:01:57Z",
+ "state": "failed",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {
+  "epoch": 137,
+  "gradients/W_Embed": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.4.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.5.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.6.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.7.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.b": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.w": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.W_U": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.b_U": {
+   "_type": "histogram"
+  },
+  "loss/ce": 0.007134221028536558,
+  "loss/total": 0.3941245973110199,
+  "step": 122162,
+  "train/_bkg_lvbb_fraction/signal_acceptance_50": 0.0070022293366491795,
+  "train/_bkg_lvbb_fraction/signal_acceptance_70": 0.019328296184539795,
+  "train/_bkg_lvbb_fraction/signal_acceptance_90": 0.05939623713493347,
+  "train/_bkg_qqbb_fraction/signal_acceptance_50": 0.005809859372675419,
+  "train/_bkg_qqbb_fraction/signal_acceptance_70": 0.03826503083109856,
+  "train/_bkg_qqbb_fraction/signal_acceptance_90": 0.11998814344406128,
+  "train/accuracy": 0.8474362307317893,
+  "train/auc": 0.05101309592525164,
+  "train/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/train/confusion_matrix_122066_f54e8521375b1abf2476.png",
+   "sha256": "f54e8521375b1abf2476793d0df75f1a217086035a7f38f017094f940243f7fa",
+   "size": 36442,
+   "width": 800
+  },
+  "train/loss_total": 0.010726902921637131,
+  "train/lr": 0.0001,
+  "train/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "train/lvbb_threshold/signal_acceptance_50": -1.464099645614624,
+  "train/lvbb_threshold/signal_acceptance_70": -0.7516221404075623,
+  "train/lvbb_threshold/signal_acceptance_90": 0.3623194992542267,
+  "train/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "train/qqbb_threshold/signal_acceptance_50": -0.3888581693172455,
+  "train/qqbb_threshold/signal_acceptance_70": 0.4222595095634461,
+  "train/qqbb_threshold/signal_acceptance_90": 1.3931254148483276,
+  "train/sample_predictions": {
+   "_latest_artifact_path": "wandb-client-artifact://448oe3orrlho9gittdr12q9wmis06qok8qfkigjtk66mwf1tdxi4u5teupl2plr18tslxnghro2f7vpx6f235or45r5f893890vae6b4jxtxokrchptqjommaqrgqyrq:latest/train/sample_predictions.table.json",
+   "_type": "table-file",
+   "artifact_path": "wandb-client-artifact://svv9rjyw4vnljbkd4dbq1y3cqh5b6cc13h83x4wpbjkabfe27cwku9nuc1ltnuz3fhojq0aas7xtm0xgtiqvzqqn9fw5z8oz8kgv7acg6me65971irf6b4mk7t7vv6he/train/sample_predictions.table.json",
+   "ncols": 3,
+   "nrows": 5,
+   "path": "media/table/train/sample_predictions_122067_bd9da9173e14d29573cb.table.json",
+   "sha256": "bd9da9173e14d29573cb18116a791137ddec9d894cd74ba73c451573a93e1814",
+   "size": 499
+  },
+  "val/_bkg_lvbb_fraction/signal_acceptance_50": 0.005704318173229694,
+  "val/_bkg_lvbb_fraction/signal_acceptance_70": 0.016637366265058517,
+  "val/_bkg_lvbb_fraction/signal_acceptance_90": 0.06126584857702255,
+  "val/_bkg_qqbb_fraction/signal_acceptance_50": 0.013575872406363487,
+  "val/_bkg_qqbb_fraction/signal_acceptance_70": 0.0393219031393528,
+  "val/_bkg_qqbb_fraction/signal_acceptance_90": 0.137147918343544,
+  "val/accuracy": 0.8306629545953206,
+  "val/auc": 0.056654163946708046,
+  "val/best_significance": 34000,
+  "val/best_threshold": 0.9999386072158812,
+  "val/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/val/confusion_matrix_122068_ab60d04787f0ba4fb39a.png",
+   "sha256": "ab60d04787f0ba4fb39ad1ec46b69a965898097379d53c89b0997a511eaf93da",
+   "size": 33376,
+   "width": 800
+  },
+  "val/loss_ce": 0.011484576598847808,
+  "val/loss_total": 0.011484576598847808,
+  "val/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "val/lvbb_threshold/signal_acceptance_50": -1.5270590782165527,
+  "val/lvbb_threshold/signal_acceptance_70": -0.7282289266586304,
+  "val/lvbb_threshold/signal_acceptance_90": 0.44429248571395874,
+  "val/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "val/qqbb_threshold/signal_acceptance_50": -0.16245022416114807,
+  "val/qqbb_threshold/signal_acceptance_70": 0.6555096507072449,
+  "val/qqbb_threshold/signal_acceptance_90": 1.7936944961547852,
+  "val/roc_curve": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/val/roc_curve_122068_1803dfc3f5334d590a00.png",
+   "sha256": "1803dfc3f5334d590a007221927a9fd57e51d3ac572d446097ef2bee89f4b11c",
+   "size": 20418,
+   "width": 640
+  }
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_ShortRun_LowLevelUnweighted2",
+ "run_id": "7sqra6oa",
+ "created": "2025-01-23T23:58:58Z",
+ "state": "failed",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {
+  "epoch": 0,
+  "loss/ce": 0.011160006746649742,
+  "loss/total": 0.011160006746649742,
+  "step": 1400,
+  "train/accuracy": 0.5,
+  "train/auc": 0.8338868021965027,
+  "train/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/train/confusion_matrix_1350_c640a46839ad4725a005.png",
+   "sha256": "c640a46839ad4725a005896c2d2f401378a80f6aa2bb492733e889a1a9b7051e",
+   "size": 20912,
+   "width": 640
+  },
+  "train/lr": 0.0001,
+  "train/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "train/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "train/sample_predictions": {
+   "_latest_artifact_path": "wandb-client-artifact://6j5r63n9ri6c12xl14gez1ax54vlhj72nah48m8rma2sh97jysasezw57zmsm311d0spcw1p3n102xljqb6idtmzargcqzacvge9334h0j4w8yew2r7729h2qpi5mrdn:latest/train/sample_predictions.table.json",
+   "_type": "table-file",
+   "artifact_path": "wandb-client-artifact://d6vlbh5p961xn53kjzc8g683xsu4o9ly8is7pwnzfn026yldgozn4uyolcckcffj2bruc3bkg2xmirxb5b5db8pbxi581ktu7d5ngo8qzwsz3633nc8o70l8c8ux5tz8/train/sample_predictions.table.json",
+   "ncols": 3,
+   "nrows": 5,
+   "path": "media/table/train/sample_predictions_1350_cc5407b0baafdb1b8aee.table.json",
+   "sha256": "cc5407b0baafdb1b8aee48df62b569c2ea717f0e1b0fdebfecd8ed66a35a67b3",
+   "size": 493
+  }
+ }
+}

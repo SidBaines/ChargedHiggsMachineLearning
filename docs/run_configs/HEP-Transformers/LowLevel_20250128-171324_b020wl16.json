@@ -1,0 +1,311 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_LowLevel_20250128-171324",
+ "run_id": "b020wl16",
+ "created": "2025-01-28T17:17:22Z",
+ "state": "crashed",
+ "config": {
+  "name": "_LowLevel_20250128-171324",
+  "wandb": true,
+  "epochs": 200,
+  "dataset": "ATLAS_ChargedHiggs",
+  "batch_size": 2048,
+  "architecture": "PhysicsTransformer",
+  "learning_rate": 0.0001
+ },
+ "final_summary": {
+  "epoch": 3,
+  "gradients/W_Embed": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.0.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.1.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.2.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.W_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_K": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_O": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_Q": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.attn.b_V": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln1.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.b": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.ln2.w": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.W_out": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_in": {
+   "_type": "histogram"
+  },
+  "gradients/blocks.3.mlp.b_out": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.b": {
+   "_type": "histogram"
+  },
+  "gradients/ln_final.w": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.W_U": {
+   "_type": "histogram"
+  },
+  "gradients/unembed.b_U": {
+   "_type": "histogram"
+  },
+  "loss/total": 0.6126675009727478,
+  "step": 2788,
+  "train/accuracy": 0.7431078959676386,
+  "train/auc": 0.12610183159510294,
+  "train/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/train/confusion_matrix_2672_0890a0bbfd71f6b465f4.png",
+   "sha256": "0890a0bbfd71f6b465f431100ad4b2e153291e9420f284b32e97e3e642e3faf2",
+   "size": 29046,
+   "width": 800
+  },
+  "train/loss_total": 0.017329712707330903,
+  "train/lr": 0.0001,
+  "train/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "train/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "train/sample_predictions": {
+   "_latest_artifact_path": "wandb-client-artifact://r6ledwxeteiokf4y4e1qf0gjatq49vyej1v3iimpeausy8kz1pmxdq2zitcqlo30xdd02jzwdw7qx8anrojxswx4wlauubo18czsm9kd52u83miigmfc473g5njysmrd:latest/train/sample_predictions.table.json",
+   "_type": "table-file",
+   "artifact_path": "wandb-client-artifact://6aj70psapznt370o14lstb9g6uxjiu0mbe3zc3m3eexfvoihy51ngui20x64vnrzb6rldj249sj0vx2lxkujg3nyhrxqmdwaxi9nqp0ymty6ugrytl3eto5befs3ib3k/train/sample_predictions.table.json",
+   "ncols": 3,
+   "nrows": 5,
+   "path": "media/table/train/sample_predictions_2673_4723c1f5be0d5cd1da92.table.json",
+   "sha256": "4723c1f5be0d5cd1da9270293e2b5d46a141a56a3db23a518ab7b71e84c70b20",
+   "size": 495
+  },
+  "train/signal_acceptance_50/bkg_lvbb_expected": 4867195.486930416,
+  "train/signal_acceptance_50/bkg_qqbb_expected": 4867195.486930416,
+  "train/signal_acceptance_50/lvbb_threshold": 0.3286922574043274,
+  "train/signal_acceptance_50/qqbb_threshold": 0.6487260460853577,
+  "train/signal_acceptance_70/bkg_lvbb_expected": 15039702.949916918,
+  "train/signal_acceptance_70/bkg_qqbb_expected": 15039702.949916918,
+  "train/signal_acceptance_70/lvbb_threshold": 0.46616071462631226,
+  "train/signal_acceptance_70/qqbb_threshold": 1,
+  "train/signal_acceptance_90/bkg_lvbb_expected": 39525243.51637752,
+  "train/signal_acceptance_90/bkg_qqbb_expected": 39525243.51637752,
+  "train/signal_acceptance_90/lvbb_threshold": 1,
+  "train/signal_acceptance_90/qqbb_threshold": 1,
+  "val/accuracy": 0.7415710917071352,
+  "val/auc": 0.1280010143915812,
+  "val/best_significance": 30000,
+  "val/best_threshold": 0.9935961365699768,
+  "val/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 800,
+   "path": "media/images/val/confusion_matrix_2674_4df851409dc03bbfb59f.png",
+   "sha256": "4df851409dc03bbfb59f30191999d8618d15c853d4c9ea87bd450b4ac59c9321",
+   "size": 32076,
+   "width": 800
+  },
+  "val/loss_ce": 0.01676583050955113,
+  "val/loss_total": 0.01676583050955113,
+  "val/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "val/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "val/roc_curve": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/val/roc_curve_2674_e6afd078a7b7d38c5cce.png",
+   "sha256": "e6afd078a7b7d38c5ccec021f110a56d0eb4083f65729e0dbf9ad73fcce3e14f",
+   "size": 20987,
+   "width": 640
+  },
+  "val/signal_acceptance_50/bkg_lvbb_expected": 418596.3436435725,
+  "val/signal_acceptance_50/bkg_qqbb_expected": 418596.3436435725,
+  "val/signal_acceptance_50/lvbb_threshold": 0.2303055077791214,
+  "val/signal_acceptance_50/qqbb_threshold": 0.612280547618866,
+  "val/signal_acceptance_70/bkg_lvbb_expected": 1185541.7818052142,
+  "val/signal_acceptance_70/bkg_qqbb_expected": 1185541.7818052142,
+  "val/signal_acceptance_70/lvbb_threshold": 0.36614155769348145,
+  "val/signal_acceptance_70/qqbb_threshold": 0.8976473808288574,
+  "val/signal_acceptance_90/bkg_lvbb_expected": 3856272.199397517,
+  "val/signal_acceptance_90/bkg_qqbb_expected": 3856272.199397517,
+  "val/signal_acceptance_90/lvbb_threshold": 1,
+  "val/signal_acceptance_90/qqbb_threshold": 1
+ }
+}

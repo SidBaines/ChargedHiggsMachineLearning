@@ -1,0 +1,13 @@
+{
+ "wandb_project": "HEP-Transformers-TruthMatchingReco",
+ "run_name": "_20250414-000755_LowLevel_DSSARVTSBN3",
+ "run_id": "n56nkj7l",
+ "created": "2025-04-13T23:08:04Z",
+ "state": "failed",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {}
+}

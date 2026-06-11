@@ -1,0 +1,82 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_ShortRun_LowLevelUnweighted1",
+ "run_id": "q9yyev1l",
+ "created": "2025-01-23T23:42:35Z",
+ "state": "finished",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {
+  "epoch": 29,
+  "gradients": {
+   "_type": "large-array",
+   "value": []
+  },
+  "loss/ce": 0.000836932857055217,
+  "loss/total": 0.000836932857055217,
+  "parameters": {
+   "_type": "large-array",
+   "value": []
+  },
+  "step": 42900,
+  "train/accuracy": 0.5,
+  "train/auc": 0.8824540972709656,
+  "train/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/train/confusion_matrix_42820_c640a46839ad4725a005.png",
+   "sha256": "c640a46839ad4725a005896c2d2f401378a80f6aa2bb492733e889a1a9b7051e",
+   "size": 20912,
+   "width": 640
+  },
+  "train/lr": 0.0001,
+  "train/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "train/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "train/sample_predictions": {
+   "_latest_artifact_path": "wandb-client-artifact://32tmpi0n1scivoz94x51vqdzp9s2a08xuucwht8u1tt7o1y5ruc2j9wwplmszxppmw0m0u4pfzk5640hcbix4yeo69tmgbflsjwm3upgttvq9ko0xqghxg0xwyyfgvlc:latest/train/sample_predictions.table.json",
+   "_type": "table-file",
+   "artifact_path": "wandb-client-artifact://b183wazbx62v8wqcfk26elrjwb5nzug0rppk5fc3tdgc3uh84zs9nv4kbapubppw7oc7025923o4u8vw5l6j5snef17d17dfrsasiyfmdn7n9ntdnitui1qxrp1uja0x/train/sample_predictions.table.json",
+   "ncols": 3,
+   "nrows": 5,
+   "path": "media/table/train/sample_predictions_42870_ba3530448da40079999d.table.json",
+   "sha256": "ba3530448da40079999dfbbd9d01840b17d2034417bf9397a669b5ba84c0a945",
+   "size": 496
+  },
+  "val/accuracy": 0.5,
+  "val/auc": 0.8790937662124634,
+  "val/best_significance": 14000,
+  "val/best_threshold": 0.9991046786308287,
+  "val/confusion_matrix": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/val/confusion_matrix_42870_e0d9d34c95fa11b69d4a.png",
+   "sha256": "e0d9d34c95fa11b69d4a964da45ef03943dac77e10139575f1aa8982d1c2dc03",
+   "size": 16443,
+   "width": 640
+  },
+  "val/lvbb_mass": {
+   "_type": "histogram"
+  },
+  "val/qqbb_mass": {
+   "_type": "histogram"
+  },
+  "val/roc_curve": {
+   "_type": "image-file",
+   "format": "png",
+   "height": 480,
+   "path": "media/images/val/roc_curve_42870_1eb65885e7f481d0a103.png",
+   "sha256": "1eb65885e7f481d0a103d7c2fb55a281f0679866e1c11cd819ad22063f5e1f2e",
+   "size": 20445,
+   "width": 640
+  }
+ }
+}

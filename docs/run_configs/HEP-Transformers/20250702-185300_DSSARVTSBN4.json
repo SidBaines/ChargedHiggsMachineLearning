@@ -1,0 +1,13 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_20250702-185300_LowLevel_DSSARVTSBN4",
+ "run_id": "5dkwbw8e",
+ "created": "2025-07-02T17:53:23Z",
+ "state": "failed",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {}
+}

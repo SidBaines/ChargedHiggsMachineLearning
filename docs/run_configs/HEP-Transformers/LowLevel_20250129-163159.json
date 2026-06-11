@@ -1,0 +1,13 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_LowLevel_20250129-163159",
+ "run_id": "77j0o7ns",
+ "created": "2025-01-29T16:32:10Z",
+ "state": "finished",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {}
+}

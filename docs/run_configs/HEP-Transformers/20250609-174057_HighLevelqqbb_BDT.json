@@ -1,0 +1,13 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_20250609-174057_HighLevelqqbb_BDT",
+ "run_id": "kf569m5l",
+ "created": "2025-06-09T16:41:05Z",
+ "state": "failed",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {}
+}

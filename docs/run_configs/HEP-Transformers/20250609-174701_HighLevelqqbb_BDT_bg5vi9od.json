@@ -1,0 +1,32 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_20250609-174701_HighLevelqqbb_BDT",
+ "run_id": "bg5vi9od",
+ "created": "2025-06-09T16:47:59Z",
+ "state": "crashed",
+ "config": {
+  "name": "_20250609-174701_HighLevelqqbb_BDT",
+  "wandb": true,
+  "epochs": 1,
+  "dataset": "ATLAS_ChargedHiggs",
+  "batch_size": 256,
+  "bdt_params": {
+   "n_jobs": 16,
+   "max_depth": 8,
+   "subsample": 0.8,
+   "eval_metric": "logloss",
+   "tree_method": "hist",
+   "n_estimators": 500,
+   "learning_rate": 0.05,
+   "colsample_bytree": 0.8,
+   "use_label_encoder": false,
+   "early_stopping_rounds": 30
+  },
+  "architecture": "BDT",
+  "weight_decay": 2e-05,
+  "learning_rate_low": 2e-07,
+  "cosine_lr_n_epochs": 50,
+  "learning_rate_high": 5e-05
+ },
+ "final_summary": {}
+}

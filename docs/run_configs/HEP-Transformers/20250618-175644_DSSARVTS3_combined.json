@@ -1,0 +1,21 @@
+{
+ "wandb_project": "HEP-Transformers",
+ "run_name": "_20250618-175644_LowLevel_DSSARVTS3_combined",
+ "run_id": "y6kmjrsp",
+ "created": "2025-06-18T16:56:57Z",
+ "state": "failed",
+ "config": {
+  "magic": {
+   "enable": true
+  }
+ },
+ "final_summary": {
+  "epoch": 0,
+  "loss/correlation": 0.13184578716754913,
+  "loss/entropy": 0,
+  "loss/total": 0.4912647008895874,
+  "loss/total_withCorrelation": 0.6231104731559753,
+  "train/lr": 0.00019548677593800548,
+  "train_samps_processed": 49920
+ }
+}
