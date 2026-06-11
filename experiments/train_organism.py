@@ -26,6 +26,13 @@ p.add_argument("--epochs", type=int, default=None, help="override CONFIG num_epo
 p.add_argument("--ckpt-every-steps", type=int, default=None,
                help="ALSO save a checkpoint every N optimizer steps (formation studies)")
 p.add_argument("--no-wandb", action="store_true")
+p.add_argument("--lr", type=float, default=None, help="override peak learning_rate")
+p.add_argument("--lr-low", type=float, default=None, help="override learning_rate_low")
+p.add_argument("--schedule", choices=["log", "cosine"], default=None,
+               help="decay shape (default: CONFIG learning_rate_log_decay -> log)")
+p.add_argument("--warmup-mode", choices=["ramp", "legacy"], default=None,
+               help="ramp = linear 0->peak over warmup_steps; legacy = constant 1e-3 "
+                    "(the thesis-era behaviour, 3.3x ABOVE peak)")
 ARGS = p.parse_args()
 
 CONFIG = dict(
@@ -58,12 +65,20 @@ if ARGS.epochs is not None:
     CONFIG["num_epochs"] = ARGS.epochs
 if ARGS.no_wandb:
     CONFIG["wandb"] = False
+if ARGS.lr is not None:
+    CONFIG["learning_rate"] = ARGS.lr
+if ARGS.lr_low is not None:
+    CONFIG["learning_rate_low"] = ARGS.lr_low
+CONFIG["lr_schedule"] = ARGS.schedule or ("log" if CONFIG["learning_rate_log_decay"] else "linear")
+CONFIG["warmup_mode"] = ARGS.warmup_mode or "legacy"   # legacy default = exact thesis-era recipe
 
 torch.manual_seed(CONFIG["seed"]); np.random.seed(CONFIG["seed"])
 device = CONFIG["device"] if torch.backends.mps.is_available() else "cpu"
 
 stamp = time.strftime("%Y%m%d-%H%M%S")
-run_name = f"_{stamp}_LowLevel_ORG2026_d{CONFIG['d_model']}b{CONFIG['num_blocks']}_YesEnt1_NoBn"
+run_name = (f"_{stamp}_LowLevel_ORG2026_d{CONFIG['d_model']}b{CONFIG['num_blocks']}_YesEnt1_NoBn"
+            f"_lr{CONFIG['learning_rate']:g}-{CONFIG['learning_rate_low']:g}"
+            f"_{CONFIG['lr_schedule']}_{CONFIG['warmup_mode']}_s{CONFIG['seed']}")
 OUT = os.path.join(REPO, "output", f"{stamp}_TrainingOutput")
 MODELS_OUT = os.path.join(OUT, "models", f"Nplits{CONFIG['n_splits']}_ValIdx{CONFIG['validation_split_idx']}")
 os.makedirs(MODELS_OUT, exist_ok=True)
@@ -142,10 +157,23 @@ for epoch in range(CONFIG["num_epochs"]):
     n_steps = SMOKE_STEPS if ARGS.smoke else steps_per_epoch
     for bi in range(n_steps):
         if bi % 10 == 0:
-            lr = basic_lr_scheduler(bi + epoch * steps_per_epoch, CONFIG["learning_rate"],
-                                    CONFIG["learning_rate_low"], num_lr_steps,
-                                    CONFIG["learning_rate_log_decay"], warmup_steps=CONFIG["warmup_steps"],
-                                    warmup_rate=1e-3)
+            step = bi + epoch * steps_per_epoch
+            hi, lo, wsteps = CONFIG["learning_rate"], CONFIG["learning_rate_low"], CONFIG["warmup_steps"]
+            if CONFIG["warmup_mode"] == "legacy":
+                lr = basic_lr_scheduler(step, hi, lo, num_lr_steps,
+                                        CONFIG["lr_schedule"] == "log",
+                                        warmup_steps=wsteps, warmup_rate=1e-3)
+            else:  # ramp: linear 0->peak over warmup, then decay over the remainder
+                if step < wsteps:
+                    lr = hi * (step + 1) / wsteps
+                else:
+                    t = (step - wsteps) / max(num_lr_steps - wsteps, 1)
+                    if CONFIG["lr_schedule"] == "cosine":
+                        lr = lo + 0.5 * (hi - lo) * (1 + np.cos(np.pi * t))
+                    elif CONFIG["lr_schedule"] == "log":
+                        lr = hi * (lo / hi) ** t
+                    else:
+                        lr = hi - (hi - lo) * t
             for g in optimizer.param_groups: g["lr"] = lr
         global_step += 1
         b = next(train_dl)
