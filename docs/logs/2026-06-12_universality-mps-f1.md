@@ -87,6 +87,27 @@ On the seed-0 organism (30 checkpoints, 1/epoch):
   the real birth order — worth doing on the seed-1 MPS run config. Also rerun this
   battery on seed-1 when done (seed-robustness of the timeline).
 
+## Addendum (same session): seed-1 complete; step-resolved formation
+
+- **Seed-1 MPS run finished: 30 epochs in 11.0 min (~13× CPU)** — MPS fully
+  validated; final val 0.8116 (seed-0: 0.8142). → `output/20260611-234355_…`.
+- **F1 on seed-1**: timeline replicates qualitatively (circuit at ckpt 0, lockstep
+  locks by ep2, threshold calibrates ep0-5). One quantitative seed difference:
+  final SB6 competition cost −0.90 vs seed-0's −1.62 — competition PRESSURE varies
+  by seed even when the structure doesn't.
+- **Step-resolved formation** (new trainer flags `--ckpt-every-steps/--epochs/
+  --no-wandb`; 3-epoch seed-0 run, ckpt every 10 steps, 1.3 min on MPS;
+  F1 now step-indexed): the birth order inside "epoch 0" is
+  **(1) indiscriminate claiming** (steps ~10-20: W-jet claims ~1.0, ties both ~1.0)
+  → **(2) selectivity crisis** (steps ~20-100: claims collapse to ~0.2, exclusivity
+  OVERSHOOTS — tie-both dips to 0.3, below final) → **(3) relational consolidation**
+  (steps ~100-400: broadcast, lockstep and competition cost rise together, then
+  freeze). "Claim first, learn to compare second." CAVEAT: the 3-epoch run has a
+  compressed LR schedule (final task 0.73 ≠ the 30-epoch 0.90), so treat as
+  qualitative birth-order evidence; a 30-epoch run with step checkpoints in epoch
+  0 only would be the clean version (trivial now on MPS).
+  → `tmp_plots/f1_formation_20260611-235629.{csv,png}`.
+
 ## Artifacts
 
 - `experiments/h1/f1_formation_dynamics.py` (new), `a4b` parameterized,

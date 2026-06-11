@@ -46,7 +46,7 @@ stds = np.ones(7); stds[:4] = 1e5
 torch.manual_seed(0)
 
 ckpts = sorted(glob.glob(os.path.join(REPO, ARGS.run, "models", "*", "chkpt*.pth")),
-               key=lambda p: int(re.search(r"chkpt(\d+)_", p).group(1)))
+               key=lambda p: int(re.search(r"_(\d+)\.pth", p).group(1)))
 ckpts = ckpts[::ARGS.every]
 assert ckpts, f"no checkpoints under {ARGS.run}"
 print(f"{len(ckpts)} checkpoints from {ARGS.run}")
@@ -173,7 +173,7 @@ def probe(model):
 
 rows_out = []
 for ck in ckpts:
-    ep = int(re.search(r"chkpt(\d+)_", ck).group(1))
+    ep = int(re.search(r"_(\d+)\.pth", ck).group(1))  # global step (monotone across epochs)
     model, _ = load_model(ARGS.model, checkpoint_root="unused",
                           register_bottleneck_hook=False, checkpoint_override=ck)
     model.eval()
@@ -208,12 +208,12 @@ a.plot(eps, [r["tie_both"] for r in rows_out], "s-", label="tie: P(both claim)")
 a.legend(fontsize=8); a.set_title("context-relativity + comparator")
 a = axes[1, 0]
 a.plot(eps, [r["tie_margin_cost"] for r in rows_out], "o-")
-a.set_title("SB6 winner margin cost (tie - solo)"); a.set_xlabel("epoch")
+a.set_title("SB6 winner margin cost (tie - solo)"); a.set_xlabel("global step")
 a = axes[1, 1]
 for rr, mk in ((1.0, "o-"), (1.4, "s-"), (2.0, "^-")):
     a.plot(eps, [r[f"xsys{rr}"] for r in rows_out], mk, label=f"r={rr}")
 a.legend(fontsize=8); a.set_title("cross-system P(ins claims) at r x pT(lepW)")
-a.set_xlabel("epoch")
+a.set_xlabel("global step")
 plt.tight_layout()
 png_path = os.path.join(REPO, "tmp_plots", f"f1_formation_{stamp}.png")
 plt.savefig(png_path, dpi=120)

@@ -22,6 +22,10 @@ from utils.utils import basic_lr_scheduler
 p = argparse.ArgumentParser(); p.add_argument("--smoke", action="store_true")
 p.add_argument("--device", default=None, help="override CONFIG device (cpu/mps)")
 p.add_argument("--seed", type=int, default=None, help="override CONFIG seed")
+p.add_argument("--epochs", type=int, default=None, help="override CONFIG num_epochs")
+p.add_argument("--ckpt-every-steps", type=int, default=None,
+               help="ALSO save a checkpoint every N optimizer steps (formation studies)")
+p.add_argument("--no-wandb", action="store_true")
 ARGS = p.parse_args()
 
 CONFIG = dict(
@@ -50,6 +54,10 @@ if ARGS.device:
     CONFIG["device"] = ARGS.device
 if ARGS.seed is not None:
     CONFIG["seed"] = ARGS.seed
+if ARGS.epochs is not None:
+    CONFIG["num_epochs"] = ARGS.epochs
+if ARGS.no_wandb:
+    CONFIG["wandb"] = False
 
 torch.manual_seed(CONFIG["seed"]); np.random.seed(CONFIG["seed"])
 device = CONFIG["device"] if torch.backends.mps.is_available() else "cpu"
@@ -161,6 +169,9 @@ for epoch in range(CONFIG["num_epochs"]):
             print(f"  !! non-finite grad-norm at ep {epoch} step {bi} — skipping ({nan_skips})")
             optimizer.zero_grad(); continue
         optimizer.step()
+        if ARGS.ckpt_every_steps and global_step % ARGS.ckpt_every_steps == 0:
+            torch.save(model.state_dict(),
+                       os.path.join(MODELS_OUT, f"chkpt{epoch}_{global_step}.pth"))
         ep_loss += loss.item() * w.sum().item(); ep_w += w.sum().item()
         if bi % 50 == 0:
             print(f"  ep {epoch} step {bi}/{n_steps} loss {loss.item():.4f} ({(time.time()-t0):.0f}s)")
