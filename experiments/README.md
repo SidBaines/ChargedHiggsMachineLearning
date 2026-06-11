@@ -114,11 +114,27 @@ construction, so this is a clean held-out set). Results + verdict:
 | `redteam_rt3_wta.py` | factorial two-candidate (pT, m) competition + symmetric tie | exclusivity is emergent (ties → both claim 74%); thesis = H-ward-mass-dominated ranking, organism = pT-first; coherence wins ties 88/12 (thesis) |
 | `redteam_rt4_relpt.py` | absolute vs relative pT gating (complement scaling + per-DSID observational) | candidacy = RELATIVE event hardness, both models |
 
-### What's next (preregistered, not yet run)
-Stage B — the competition sub-circuit (SB1-SB6 in the test plan, **preregs amended
-post-red-team**: strong lateral inhibition already disfavoured by the tie result;
-key open question = weak B-i vs B-ii, and whether two-candidate suppression shares
-machinery with the solo relative-hardness dependence). Plus: universality reruns on
-the freshly trained organism (`output/20260610-203258_TrainingOutput`, use
-`--ckpt-override`), F1 training-dynamics across its 30 checkpoints, E4 PySR
-extraction of the candidacy formula (**include event-context features** — RT4).
+### `h1/stageb_*` — Stage B: the competition sub-circuit (2026-06-11, RESOLVED)
+All on the fresh val slice (batches 19-24; `--skip 18`). Verdict: **weak B-i dead,
+B-ii established & localized** — competition is per-jet context-relative scoring:
+b0/b1 silent context absorption + the **b2h2 comparator** (the verdict-broadcast
+head), each stage causally necessary; each jet suppresses only ITSELF via its own
+read of the rival. Results: `docs/logs/2026-06-11_stage-b-competition.md` +
+test-plan addendum.
+
+| script | experiments | what it established |
+|---|---|---|
+| `stageb_sb3_attention.py` | SB3 | only-block-2 jet↔jet asymmetry (loser→winner b2h0/b2h2/b2h3); b0-1 symmetric/diffuse; competition-asymmetry heads ≡ solo-rest×2 mediation heads (shared machinery) |
+| `stageb_sb2_lens_timing.py` | SB2 SB6 | big gaps resolve blk0-1, near-ties flip AT blk2; winner pays −3.3 margin vs solo twin (rates hid it) |
+| `stageb_sb4_edge_knockout.py` | SB4 | surgical edge KO (validated by-hand recompute incl. bottleneck): tie loser restored 93% by b2h2 ALONE; direction-resolved ⇒ no winner→loser edge; b0+b1 KO also restores (two-stage); solo KO ⇒ candidacy constitutively relational |
+| `stageb_sb1_dose_response.py` | SB1 | sym design crosses r=1.00 exactly; asym r≈1.07 ⇒ coherence handicap ≈7% pT; half-suppression at ~10-15% pT gap |
+
+SB5 skipped — superseded by SB2+SB4.
+
+### What's next
+Universality reruns of Stage B on the freshly trained organism
+(`output/20260610-203258_TrainingOutput`, use `--ckpt-override`) — RT3 says it
+ranks pT-first; is the two-stage last-block-comparator structure preserved?
+F1 training-dynamics across its 30 checkpoints (when does the comparator form?).
+E4 PySR extraction of the candidacy formula (**include event-context features** —
+RT4; needs `pysr`/Julia). H-side competition battery (parked in the test plan).
