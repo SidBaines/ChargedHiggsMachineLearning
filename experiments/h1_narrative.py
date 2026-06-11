@@ -20,13 +20,14 @@
 # **The journey in one paragraph**: we started from the thesis-era observation that
 # the neutrino's class follows the lepton's (robustness studies), hypothesised a
 # lepton->nu message circuit (H1 v1), **refuted it**, and found instead that the
-# lep/nu "W vs none" verdict is a *global channel decision computed from the jet
-# system* and broadcast through two bottleneck scalars. Each jet computes a
+# lep/nu "W vs none" verdict is a *global channel decision* broadcast through two
+# bottleneck scalars: the best hadronic-W candidacy claim is weighed against the
+# leptonic-W evidence (a graded comparison — b1h3's job). Each jet computes its
 # W-candidacy score *relative to the event context it sees*; candidates are
-# score-ranked with no enforced exclusivity; the winner's identity is delivered to
-# the lepton and neutrino in parallel. Competition between candidates is not an
-# inhibition mechanism — it is the same context-relative scoring, and its
-# comparator is the very head that broadcasts the verdict.
+# score-ranked with no enforced exclusivity; the winning side's identity is
+# delivered to the lepton and neutrino in parallel. Competition between candidates
+# is not an inhibition mechanism — it is the same context-relative scoring, and
+# its comparator is the very head that broadcasts the verdict.
 #
 # ```
 #   blocks 0-1                      block 2                      readout
@@ -166,32 +167,42 @@ print("=> the verdict moves; the lockstep does not. They read the same wire.")
 
 # %% [markdown]
 # ---
-# ## Claim 2 — The lep/nu verdict is a global channel decision computed from the
-# ## jet system ("ask the jets")
+# ## Claim 2 — The lep/nu verdict is a graded comparison of the best hadronic-W
+# ## claim against the leptonic-W evidence ("weigh the jets")
 #
-# **Claim.** The model decides lvbb-vs-qqbb by asking whether any jet claims to be
-# the hadronic W; the lepton and neutrino inherit that decision. Their own
-# kinematics matter only as secondary evidence (lepton+MET magnitude).
+# **Claim.** The model decides lvbb-vs-qqbb by weighing the strongest hadronic-W
+# candidacy claim against the leptonic-W evidence (lepton+MET hardness); the
+# lepton and neutrino inherit whichever side wins. The comparison is graded — the
+# flip threshold scales with the leptonic system's hardness — and b1h3, one of the
+# two verdict wires, is literally this hadronic-vs-leptonic comparator.
 #
 # **Evidence.** (i) Swap the jet system between a lvbb and a qqbb event and the
 # lep/nu verdict follows the jets (round 2). (ii) Surgically mask the true W-jet in
-# boosted qqbb -> the lepton claims the W instead (input-side flip, ~70-80%
-# depending on stratum; `redteam_rt2_clamp.py` used exactly this as its
-# verdict-flipper). (iii) Insert a real W-jet into an lvbb event -> the inserted jet
-# claims in ~34% and the verdict flips with it (A4, `wave2_dose_insertion.py`).
-# (iv) Mediation: flips track "did any jet claim", not the surgery itself
-# (round 2c). (v) Logit-lens timing: jets "know" a block before lep/nu do
-# (`wave1_logit_lens.py`: the W-jet's claim crystallizes by blk1+, the lep/nu
-# margins separate later) — the information flow direction is jets -> verdict.
+# boosted qqbb -> the lepton claims the W instead (~77%; all hadronic evidence gone,
+# the leptonic side wins by default — `redteam_rt2_clamp.py` used this as its
+# verdict-flipper). (iii) Insert a real W-jet into an lvbb event -> the inserted
+# jet claims in ~32% AND the verdict follows it event-by-event:
+# P(lep=W | ins claims)=0.06 vs P(lep=W | no claim)=0.96 — the broadcast is tight;
+# the ~32% average is donor composition, NOT a leak (A4 + A4b). (iv) **The
+# cross-system dose-response** (A4b, live below): a candidate at pT = r x pT(lepW)
+# flips the verdict along a clean sigmoid crossing r~1.4, saturating ~0.95 — a
+# hadronic candidate must beat the leptonic W by ~40% in pT to steal a TRUE lvbb
+# event (sensible: real lvbb events have genuinely W-like leptonic structure, so
+# ties go to the leptonic side). (v) Mediation: flips track "did any jet claim"
+# (round 2c). (vi) Logit-lens timing: jets "know" a block before lep/nu
+# (`wave1_logit_lens.py`) — information flows jets -> verdict.
 #
-# **Alternatives ruled out**: lepton-kinematics-first (lepton-side surgery moves
-# verdicts far less than jet-side; neutrino angles irrelevant — thesis robustness +
-# round 2); count-not-content (adding an H-like ljet does NOT fake a W — round 2b).
+# **Alternatives ruled out**: lepton-kinematics-first (jet-side surgery dominates;
+# neutrino angles irrelevant — thesis robustness + round 2); count-not-content
+# (an H-like ljet does NOT fake a W — round 2b); a hidden gate blocking insertion
+# flips (A4b: the apparent 30% ceiling was donor composition — flip rate is 83% in
+# the top relative-hardness quartile and ~95% at r=3; direction/coherence is not
+# the cross-system handicap either, H-jet-direction == foreign).
 #
-# **Causal? Yes** (input-side surgery in both directions). **Confidence: very
-# high.** Replicated on the 20k organism.
+# **Causal? Yes** (input-side surgery in both directions, dose-controlled).
+# **Confidence: very high.** Replicated on the 20k organism (coarse structure).
 #
-# Live demo: both directions of the input-side flip, as a plot.
+# Live demo: both directions of the input-side flip + the cross-system sigmoid.
 
 # %%
 # direction 1: boosted qqbb, mask the W  (ran above: flip_lep)
@@ -206,20 +217,46 @@ donor_rows = X[bsel_all[don], wp_all[don]].clone(); donor_rows[:, 5:] = 0.0
 Xi[lsel.unsqueeze(1), slot_l.unsqueeze(1)] = donor_rows.unsqueeze(1)
 Ti[lsel, slot_l] = LJ
 outi = fwd(Xi, Ti); pri = outi.argmax(-1)
-ins_claims = (pri[lsel, slot_l] == W).float().mean()
+ins_W = pri[lsel, slot_l] == W
 lep_was_W = (pr0[lsel, lpos[lsel]] == W)
-lep_drops = ((pri[lsel, lpos[lsel]] != W) & lep_was_W).float().sum() / lep_was_W.float().sum()
-print(f"lvbb + inserted real W-ljet: P(ins claims W) = {ins_claims:.3f}, "
+lep_now_W = pri[lsel, lpos[lsel]] == W
+lep_drops = ((~lep_now_W) & lep_was_W).float().sum() / lep_was_W.float().sum()
+print(f"lvbb + inserted real W-ljet: P(ins claims W) = {ins_W.float().mean():.3f}, "
       f"P(lep drops its W | had it) = {lep_drops:.3f}")
+print(f"  coupling: P(lep=W | ins claims) = {lep_now_W[ins_W].float().mean():.3f}  "
+      f"vs P(lep=W | no claim) = {lep_now_W[~ins_W].float().mean():.3f}"
+      "   <- the broadcast is tight; the ~0.3 average is donor composition")
 
-fig, ax = plt.subplots(figsize=(7, 3.2))
+# the cross-system dose-response (A4b): candidate pT = r x pT(leptonic W)
+lar = torch.arange(len(lsel))
+pvec = X[lsel][lar, lpos[lsel], :2] + X[lsel][lar, npos[lsel], :2]
+pt_lepW = torch.sqrt((pvec ** 2).sum(-1)).clamp(min=0.01)        # units of 100 GeV
+RS_X = [0.8, 1.0, 1.25, 1.6, 2.0, 3.0]
+dose_ins, dose_lep = [], []
+for r in RS_X:
+    X2 = X[lsel].clone(); T2 = T[lsel].clone()
+    rows = torch.zeros(len(lsel), 7)
+    p3, E = set_kin(donor_rows[:, :3], r * pt_lepW * 100, 80)
+    rows[:, :3] = p3; rows[:, 3] = E; rows[:, 4] = WTAG
+    X2[lar, slot_l] = rows; T2[lar, slot_l] = LJ
+    pr = fwd(X2, T2).argmax(-1)
+    dose_ins.append((pr[lar, slot_l] == W).float().mean().item())
+    dose_lep.append((pr[lar, lpos[lsel]] == W).float().mean().item())
+
+fig, (ax, axd) = plt.subplots(1, 2, figsize=(11.5, 3.4))
 bars = [("qqbb baseline\nP(lep=W)", (pr0[bsel_all, lpos[bsel_all]] == W).float().mean()),
         ("qqbb, W masked\nP(lep=W)", (prm[bsel_all, lpos[bsel_all]] == W).float().mean()),
         ("lvbb baseline\nP(lep=W)", lep_was_W.float().mean()),
-        ("lvbb, W inserted\nP(lep=W)", (pri[lsel, lpos[lsel]] == W).float().mean())]
+        ("lvbb, W inserted\nP(lep=W)", lep_now_W.float().mean())]
 ax.bar([b[0] for b in bars], [b[1] for b in bars],
        color=["tab:blue", "tab:red", "tab:blue", "tab:red"])
 ax.set_ylabel("P(lepton claims W)"); ax.set_title("The verdict follows the jets, in both directions")
+axd.plot(RS_X, dose_ins, "o-", label="P(ins claims W)")
+axd.plot(RS_X, dose_lep, "o-", label="P(lep keeps W)")
+axd.axvline(1.0, ls="--", c="gray", lw=1)
+axd.set_xlabel("candidate pT / leptonic-W pT")
+axd.set_title("A4b: graded hadronic-vs-leptonic comparison\n(crossing r~1.4: leptonic side wins ties)")
+axd.legend(fontsize=8)
 plt.tight_layout(); os.makedirs(os.path.join(REPO, "tmp_plots"), exist_ok=True)
 plt.savefig(os.path.join(REPO, "tmp_plots", "narrative_ask_the_jets.png"), dpi=120)
 plt.show()
@@ -597,7 +634,7 @@ lib_handles = [m.register_forward_hook(fn, with_kwargs=True)
 # | claim | causal? | controls | replicated out-of-sample? | confidence |
 # |---|---|---|---|---|
 # | 1. lockstep = shared wiring | yes (bidirectional overwrite) | placebo 0%, random kick 2% | yes (RT1) | very high |
-# | 2. verdict = ask-the-jets | yes (input surgery both ways) | sham masks, mediation | yes (+organism) | very high |
+# | 2. verdict = graded hadronic-vs-leptonic comparison ("weigh the jets") | yes (input surgery both ways, dose-controlled) | sham masks, mediation, donor-composition strat, direction control | yes (+organism) | very high |
 # | 3. candidacy features (rel-hardness, m2-win, tag) | yes per-feature | physically-consistent surgery | yes (RT4/RT6) | high (formula NOT extracted) |
 # | 4. wires b2h2+b1h3 (+12% b2h0/h3), closed set | yes (overwrite/clamp/closure) | placebo, norm-matched kick, non-wire swaps | yes (RT1) | very high |
 # | 5. competition = context scoring via b2h2; no inhibition edge | yes (validated edge KO) | direction-resolved, per-head, no-renorm, b0/b1 | fresh slice (single session) | high |

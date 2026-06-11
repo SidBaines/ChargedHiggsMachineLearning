@@ -135,6 +135,8 @@ test-plan addendum.
 
 SB5 skipped — superseded by SB2+SB4.
 
+| `a4b_lvbb_insertion_dose.py` | A4b | resolves the A4 "only ~30% flip" puzzle: broadcast is tight (P(lep=W\|ins claims)=0.06 vs 0.96); the average was donor composition; cross-system dose at pT=r×pT(lepW) is a clean sigmoid crossing r≈1.4 ⇒ the verdict is a **graded hadronic-vs-leptonic comparison** (claim-2 sharpened: "ask the jets" → "weigh the jets against the leptonic side") |
+
 ### What's next
 Universality reruns of Stage B on the freshly trained organism
 (`output/20260610-203258_TrainingOutput`, use `--ckpt-override`) — RT3 says it

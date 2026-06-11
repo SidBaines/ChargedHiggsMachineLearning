@@ -190,6 +190,28 @@ claims 0.318 ≈ A4's 34%; wires AUC-vs-truth 0.987/0.97; SB1/SB2/SB4 reproduce)
 Env additions for notebooks: `jupytext`, `ipykernel`, `nbconvert` (in `.venv`;
 not yet in `requirements.txt` — refreeze when convenient).
 
+## Addendum 2 (same session): A4b — Sid's claim-2 challenge, resolved
+
+Sid spotted that the lvbb-insertion flip rate (~30%, A4) looked too low for
+"the verdict follows the jets". Diagnostic (`experiments/h1/a4b_lvbb_insertion_dose.py`,
+fresh slice): **nothing missing — the verdict is a GRADED hadronic-vs-leptonic
+comparison.** (a) Broadcast tight: P(lep=W|ins claims)=0.06 vs 0.96, P(ν=lep)=0.98.
+(b) The 30% was donor composition: flip rate by donor-pT/lepW-pT quartile =
+0.001/0.05/0.39/0.83 (median lvbb leptonic-W pT 575 GeV). (c) Dose at
+pT=r×pT(lepW): clean sigmoid crossing **r≈1.4**, saturating 0.93/0.96 — a hadronic
+candidate must beat the leptonic W by ~40% pT to steal a true lvbb event (ties go
+to the genuinely-W-like leptonic side; the cross-system analogue of SB1's
+comparator, and literally b1h3's job). (d) Direction control: own-H-jet direction
+≈ foreign — no large cross-system coherence effect. Explains the mask(77%)/insert
+asymmetry: masking removes all hadronic evidence; inserting must BEAT live
+leptonic evidence. **Claim 2 sharpened: "ask the jets" → "weigh the best hadronic
+claim against the leptonic-W evidence; threshold scales with leptonic hardness."**
+Narrative notebook claim 2 + scoreboard updated; A4b promoted to `experiments/h1/`.
+
+**Learning**: averages over heterogeneous intervention strengths (random donors)
+can masquerade as mechanism ceilings — always dose-control before concluding a
+flip rate is "low".
+
 ## Next steps
 
 - **Universality**: rerun SB1-SB4 on the fresh organism
