@@ -74,6 +74,10 @@ All scripts resolve the repo root from their own location — run them from anyw
 ### top level
 | script | what | key result (log section) |
 |---|---|---|
+| `h1_narrative.py` / `.ipynb` | **START HERE for the findings** — the full H1 story as a playable notebook: claims, evidence, causal status, ruled-out alternatives, confidence scoreboard; regenerates the key experiments + figures live (~5-10 min CPU). `.ipynb` ships executed (plots inline); the `.py` is the jupytext source | synthesis of rounds 1-2, waves 1-3, red-team, Stage B |
+
+| script | what | key result (log section) |
+|---|---|---|
 | `train_organism.py` | trains the d20/2-block entropy-penalty organism locally with full config serialization (`--smoke`, `--device`); includes the MPS NaN guards (`sanitize_padding`, grad-clip, non-finite skip) | new organism: val PerfectRecoPct 0.8142 vs old 0.8055 ("organism attempt 2/3" + wave-3 sections). **MPS crashed the machine — train on CPU** |
 | `eval_thesis_numbers.py` | full-val eval of the thesis model on 20250321v1 | reproduced thesis Table values to ~4 s.f. ("PHASE 0 GATE PASSED") |
 | `validate_registry.py` | strict-loads every registry variant + forward pass | needs the Seagate mounted (`DEFAULT_CHECKPOINT_ROOT`); 8/8 recovered variants pass |

@@ -178,6 +178,18 @@ a specific question resurfaces.
 - Sym-vs-asym insertion designs cleanly separate mechanism from coherence handicap;
   the handicap is now a number (~7% pT-equivalent) rather than a confound.
 
+## Addendum (same session): the narrative notebook
+
+Sid asked for the whole H1 story (claims / evidence / certainty / ruled-out
+alternatives / causal status / plots) as a playable artifact →
+**`experiments/h1_narrative.py`** (jupytext percent format, repo `# %%` convention)
++ **`experiments/h1_narrative.ipynb`** (executed, plots inline). Six claims with a
+confidence scoreboard; live reproductions on the fresh slice matched the archived
+numbers (lockstep 0.9954; W-mask lep-flip 0.771 ≈ round-2c's 77%; lvbb insertion
+claims 0.318 ≈ A4's 34%; wires AUC-vs-truth 0.987/0.97; SB1/SB2/SB4 reproduce).
+Env additions for notebooks: `jupytext`, `ipykernel`, `nbconvert` (in `.venv`;
+not yet in `requirements.txt` — refreeze when convenient).
+
 ## Next steps
 
 - **Universality**: rerun SB1-SB4 on the fresh organism
