@@ -32,6 +32,8 @@ ap.add_argument("--model", default="ent1-d20-2blk")
 ap.add_argument("--batches", type=int, default=6)
 ap.add_argument("--skip", type=int, default=18)
 ap.add_argument("--every", type=int, default=1, help="probe every k-th checkpoint")
+ap.add_argument("--step-range", default=None,
+                help="only probe checkpoints with global step in [lo,hi], e.g. '0,1100'")
 ARGS = ap.parse_args()
 torch.set_num_threads(6)
 from models.registry import load_model
@@ -47,6 +49,9 @@ torch.manual_seed(0)
 
 ckpts = sorted(glob.glob(os.path.join(REPO, ARGS.run, "models", "*", "chkpt*.pth")),
                key=lambda p: int(re.search(r"_(\d+)\.pth", p).group(1)))
+if ARGS.step_range:
+    lo_, hi_ = (int(v) for v in ARGS.step_range.split(","))
+    ckpts = [c for c in ckpts if lo_ <= int(re.search(r"_(\d+)\.pth", c).group(1)) <= hi_]
 ckpts = ckpts[::ARGS.every]
 assert ckpts, f"no checkpoints under {ARGS.run}"
 print(f"{len(ckpts)} checkpoints from {ARGS.run}")
@@ -186,6 +191,8 @@ for ck in ckpts:
           f"xsys(1/1.4/2) {r['xsys1.0']:.2f}/{r['xsys1.4']:.2f}/{r['xsys2.0']:.2f}", flush=True)
 
 stamp = os.path.basename(ARGS.run.rstrip("/")).split("_")[0]
+if ARGS.step_range:
+    stamp += f"_steps{ARGS.step_range.replace(',', '-')}"
 os.makedirs(os.path.join(REPO, "tmp_plots"), exist_ok=True)
 csv_path = os.path.join(REPO, "tmp_plots", f"f1_formation_{stamp}.csv")
 with open(csv_path, "w", newline="") as f:

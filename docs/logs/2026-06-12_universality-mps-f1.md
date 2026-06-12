@@ -108,6 +108,48 @@ On the seed-0 organism (30 checkpoints, 1/epoch):
   0 only would be the clean version (trivial now on MPS).
   → `tmp_plots/f1_formation_20260611-235629.{csv,png}`.
 
+## Addendum 2: LR-schedule audit + sweep — the legacy recipe undertrains
+
+Sid flagged the LR as suspiciously low. Audit of `basic_lr_scheduler` + the
+thesis-era recipe (inherited verbatim by the organism):
+- **Peak 3e-4 is standard; the SCHEDULE is the problem**: exponential decay to
+  5e-7 (×600) per-step ⇒ >half of training runs below LR 1e-5. The F1 freeze at
+  ep~14 coincides with LR crossing ~1e-5 — the plateau was partly schedule-imposed.
+- **The "warmup" is a bug**: `basic_lr_scheduler` returns a CONSTANT 1e-3
+  (3.3× peak!) for the first 100 steps instead of ramping up. The thesis model
+  was trained with this hot-start too. The step-resolved "selectivity crisis"
+  (steps 20-100) coincides exactly with this window — being re-checked under a
+  proper ramp (winner-recipe step-ckpt run in flight).
+
+Trainer upgraded (`--lr/--lr-low/--schedule {log,cosine}/--warmup-mode
+{ramp,legacy}`; legacy preserved exactly for thesis-recipe comparability).
+**8-config sweep** (d20 organism, seed 0, 30 ep, MPS, ramp warmup):
+
+| peak → floor, shape | final val PerfectRecoPct_all |
+|---|---|
+| 3e-4 → 5e-7, log | 0.8066 |
+| 3e-4 → 1e-5, log | 0.8199 |
+| 3e-4 → 5e-7, cosine | 0.8258 |
+| 3e-4 → 1e-5, cosine | 0.8301 |
+| 1e-3 → 5e-7, log | 0.8253 |
+| 1e-3 → 1e-5, log | 0.8363 |
+| **1e-3 → 5e-7, cosine** | **0.8452** |
+| 1e-3 → 1e-5, cosine | 0.8422 |
+| (legacy baseline: 3e-4→5e-7 log + 1e-3 hot-start) | 0.8142 |
+
+Consistent trends across all pairs: 1e-3 > 3e-4; cosine > log; floor immaterial
+under cosine. **Winner: 1e-3 → 5e-7 cosine ramp, +3.1 pts over legacy.** Single
+seed — winner-vs-runner-up gap (0.003) is within seed noise, but the peak/shape
+trends are robust (4/4 pairs each). ⇒ **Suite recipe = 1e-3 cosine ramp**, with
+one legacy-recipe run per cell for thesis-model comparability. Implication for
+Phase 2.2: tradeoff-curve numbers measured under the legacy recipe would be
+biased (constrained models undertrained); also the organism analysed all session
+(0.8142) is ~3 pts below its recipe-fixed potential — universality conclusions
+are structural, so unlikely affected, but worth a spot-check on the 0.8452 model.
+
+Ops note: MPS runtimes were wildly uneven across identical runs (10.8-190 min) —
+throttling/contention; schedule suite runs accordingly.
+
 ## Artifacts
 
 - `experiments/h1/f1_formation_dynamics.py` (new), `a4b` parameterized,
