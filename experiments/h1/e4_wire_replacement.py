@@ -5,16 +5,21 @@ The verdict wires (b2h2, b1h3) at the nu AND lepton positions are overwritten wi
 the symbolic formulas fitted in e4_wire_extraction.py (evaluated from named physics
 features of the event), using the exact override-hook math of wave2_wires.py
 (add (target - s_cur) * w_up at the position; the hook chain applies bottleneck
-first, override second). Everything else in the network stays.
+first, override second). Everything else in the network stays, so this is a
+readout-level behavioral-compression test, not a full symbolic replacement of the
+model.
 
 Conditions: intact | replace b2h2 | replace b1h3 | replace BOTH | mean-control
 (wires set to their train-set means — destroys wire info; the floor).
 
-Metrics (held-out batches 23-24): nu/lep verdict agreement with the intact model,
-channel accuracy vs truth, lockstep P(nu=lep).
+Metrics (default held-out batches 23-24): nu/lep verdict agreement with the intact
+model, channel accuracy vs truth, lockstep P(nu=lep). Override
+--skip/--batches/--train-batches to evaluate on a fresh slice after refitting
+or reusing compatible formulas.
 
 Usage: .venv/bin/python experiments/h1/e4_wire_replacement.py
        [--pick-b2h2 best] [--pick-b1h3 best]   (or an integer complexity)
+       [--skip 18] [--batches 6] [--train-batches 4]
 """
 import os, sys, argparse
 import numpy as np
@@ -26,7 +31,16 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 ap = argparse.ArgumentParser()
 ap.add_argument("--pick-b2h2", default="best")
 ap.add_argument("--pick-b1h3", default="best")
+ap.add_argument("--skip", type=int, default=18,
+                help="number of validation-loader batches to skip before collecting data")
+ap.add_argument("--batches", type=int, default=6,
+                help="number of validation-loader batches to collect")
+ap.add_argument("--train-batches", type=int, default=4,
+                help="first k collected batches define train-set means; remainder is held out")
+ap.add_argument("--nan-policy", choices=["mean", "zero", "keep"], default="mean",
+                help="how to handle non-finite formula outputs before splicing")
 ARGS = ap.parse_args()
+assert 0 < ARGS.train_batches < ARGS.batches, "--train-batches must be in (0, --batches)"
 torch.set_num_threads(6)
 from models.registry import load_model
 from interp.activations import ActivationCache, hook_attention_heads
@@ -44,7 +58,7 @@ dl = ProportionalMemoryMappedDataset(
     max_objs_in_memmap=15, batch_size=2048, device="cpu", is_train=False,
     n_splits=2, validation_split_idx=0, n_targets=3, shuffle=False, shuffle_batch=False,
     means=None, stds=stds, objs_to_output=15, signal_only=True, has_eventNumbers=True)
-for _ in range(18):
+for _ in range(ARGS.skip):
     next(dl)
 
 model, _ = load_model("thesis-ent1-bn1-d152", checkpoint_root=os.path.join(REPO, "tmp_checkpoints"),
@@ -56,7 +70,7 @@ lib_handles = [m.register_forward_hook(fn, with_kwargs=True)
                      SINGLE_ATTENTION=False, bottleneck_attention_output=1)]
 
 Xs, Ts = [], []
-for _ in range(6):
+for _ in range(ARGS.batches):
     b = next(dl)
     t = b["types"]
     ok = ((t == NU).sum(1) == 1) & (((t == 0) | (t == 1)).sum(1) == 1)
@@ -98,8 +112,22 @@ FEATS = {
 }
 names = list(FEATS.keys())
 Xf = {k: v.numpy().astype(np.float64) for k, v in FEATS.items()}
-ntr = int(N * 4 / 6)
-te = np.arange(ntr, N)                       # held-out: batches 23-24
+ntr = int(N * ARGS.train_batches / ARGS.batches)
+te = np.arange(ntr, N)
+print(f"slice protocol: skipped {ARGS.skip}, collected {ARGS.batches} batches, "
+      f"train-mean first {ARGS.train_batches}, test last {ARGS.batches - ARGS.train_batches}")
+
+# ---- true train-set wire means for the information-destroying control ----
+true22, true13 = [], []
+with torch.no_grad():
+    for c in range(0, N, 2048):
+        sl = slice(c, min(c + 2048, N))
+        model(X[sl][..., :5], T[sl])
+        car = torch.arange(sl.stop - sl.start)
+        true13.append(cache["block_1_attention"]["bottleneck_activation"][car, 3, npos[sl], 0])
+        true22.append(cache["block_2_attention"]["bottleneck_activation"][car, 2, npos[sl], 0])
+true_b1h3 = torch.cat(true13)
+true_b2h2 = torch.cat(true22)
 
 # ---- load + evaluate the chosen formulas ----
 def load_formula(tgt, pick):
@@ -166,8 +194,32 @@ pr0 = out0.argmax(-1)
 nu0, lep0 = pr0[ar, npos], pr0[ar, lpos]
 truth_nu = torch.where(lvbb, torch.full_like(nu0, W), torch.zeros_like(nu0))
 
-mean22 = torch.full((N,), f_b2h2[:ntr].mean().item())
-mean13 = torch.full((N,), f_b1h3[:ntr].mean().item())
+mean22 = torch.full((N,), true_b2h2[:ntr].mean().item())
+mean13 = torch.full((N,), true_b1h3[:ntr].mean().item())
+def finite_mean(x):
+    m = torch.isfinite(x)
+    return x[m].mean().item() if m.any() else float("nan")
+
+def sanitize_formula(name, vals, fill):
+    bad = ~torch.isfinite(vals)
+    n_bad = int(bad.sum())
+    if n_bad:
+        te_bad = int(bad[te].sum())
+        print(f"WARNING: {name} formula produced {n_bad}/{len(vals)} non-finite values "
+              f"({te_bad}/{len(te)} held-out); nan-policy={ARGS.nan_policy}")
+        vals = vals.clone()
+        if ARGS.nan_policy == "mean":
+            vals[bad] = fill
+        elif ARGS.nan_policy == "zero":
+            vals[bad] = 0.0
+        elif ARGS.nan_policy == "keep":
+            pass
+    return vals
+
+print(f"true train-set wire means: b2h2={mean22[0].item():.4f}, b1h3={mean13[0].item():.4f} "
+      f"(finite formula means were {finite_mean(f_b2h2[:ntr]):.4f}, {finite_mean(f_b1h3[:ntr]):.4f})")
+f_b2h2 = sanitize_formula("b2h2", f_b2h2, mean22[0])
+f_b1h3 = sanitize_formula("b1h3", f_b1h3, mean13[0])
 CONDS = [
     ("intact", None),
     ("replace b2h2", {(2, 2): f_b2h2}),

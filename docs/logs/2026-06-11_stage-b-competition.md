@@ -11,11 +11,13 @@ Also this session: **full wandb archive pulled** (Phase 0.3 closed) — see §wa
 
 ## Headline
 
-**Weak B-i is dead; B-ii is established and localized.** There is no directed
-jet→jet suppression edge. "Competition" between W-candidates is the same
-context-relative scoring machinery that RT4 found for solo candidacy, applied
-per-jet: each jet scores its own hardness *against the context it can see*. The
-circuit is two-stage, each stage causally necessary:
+**No separate directed-inhibition edge is needed; B-ii is strongly supported and
+localized in this model.** The edge-knockout evidence did not find a winner→loser
+suppression path in the attention-edge framing. "Competition" between W-candidates
+is sufficiently explained by the same context-relative scoring machinery that RT4
+found for solo candidacy, applied per-jet: each jet scores its own hardness
+*against the context it can see*. The circuit is two-stage, and each observed stage
+is causally necessary under the tested interventions:
 
 1. **Blocks 0-1 — silent context absorption**: jets read the event (including each
    other) symmetrically and diffusely. No margin effect visible yet (SB2), but cut
@@ -141,9 +143,12 @@ a specific question resurfaces.
 
 - **B-iii** (independent thresholds): dead since RT3.
 - **B-i strong** (mutual inhibition, forced winner): dead since RT3 (ties → both).
-- **B-i weak** (any directed suppression edge): **dead** — direction-resolved KO
-  shows each jet only suppresses ITSELF via its own reads; no winner→loser path.
-- **B-ii** (context-relative scoring): **established and localized** — b0/b1
+- **B-i weak** (a separate directed winner→loser suppression edge): strongly
+  disfavoured in the tested attention-edge framing — direction-resolved KO shows
+  each jet only suppresses ITSELF via its own reads; no winner→loser path was found.
+  This does not rule out every possible multi-hop or token-state description of
+  suppression, but it removes the need for a distinct directed-inhibition mechanism.
+- **B-ii** (context-relative scoring): **strongly supported and localized** — b0/b1
   context absorption (necessary, silent) + b2h2 comparator (necessary, decisive),
   shared with solo candidacy scoring AND with the lep/ν verdict broadcast (b2h2 is
   the "W found" wire). One mechanism for: exclusivity, tie behavior, winner's

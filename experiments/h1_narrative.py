@@ -433,10 +433,11 @@ plt.show()
 #   coherently takes the W).
 # - SB1: symmetrized design crosses at r=1.00 exactly; the asym design at r~1.07.
 #
-# **Alternatives ruled out**: B-iii independent thresholds (tie -> both claim 74%,
-# far above independence); B-i strong mutual inhibition (same tie result); B-i weak
-# directed suppression edge (direction-resolved KO: cutting the winner's read of
-# the loser changes only the WINNER's claim).
+# **Alternatives ruled out / disfavoured**: B-iii independent thresholds (tie ->
+# both claim 74%, far above independence); B-i strong mutual inhibition (same tie
+# result); a separate directed winner->loser suppression edge in the tested
+# attention-edge framing (direction-resolved KO: cutting a jet's read of its rival
+# changes only that reader's claim).
 #
 # **Causal? Yes** (edge-level knockouts with validation + controls).
 # **Confidence: high** on this model/slice; the knockout state is off-manifold by
@@ -452,8 +453,10 @@ pads = (T[bsel] == PAD).float()
 slot1 = pads.argmax(1)
 pads2 = pads.clone(); pads2[bar2, slot1] = 0
 slot2 = pads2.argmax(1)
-dd1 = X[bsel[rng.integers(NB, size=NB)], wp[rng.integers(NB, size=NB)], :3].clone()
-dd2 = X[bsel[rng.integers(NB, size=NB)], wp[rng.integers(NB, size=NB)], :3].clone()
+didx1 = rng.integers(NB, size=NB)
+didx2 = rng.integers(NB, size=NB)
+dd1 = X[bsel[didx1], wp[didx1], :3].clone()
+dd2 = X[bsel[didx2], wp[didx2], :3].clone()
 
 def insert(X2, T2, pos, direction, pt, m):
     rows = torch.zeros(NB, 7)
@@ -655,14 +658,13 @@ lib_handles = [m.register_forward_hook(fn, with_kwargs=True)
 # | 2. verdict = graded hadronic-vs-leptonic comparison ("weigh the jets") | yes (input surgery both ways, dose-controlled) | sham masks, mediation, donor-composition strat, direction control | yes (+organism) | very high |
 # | 3. candidacy features (rel-hardness, m2-win, tag) | yes per-feature | physically-consistent surgery | yes (RT4/RT6) | high (formula NOT extracted) |
 # | 4. wires b2h2+b1h3 (+12% b2h0/h3), closed set | yes (overwrite/clamp/closure) | placebo, norm-matched kick, non-wire swaps | yes (RT1) | very high |
-# | 5. competition = context scoring via b2h2; no inhibition edge | yes (validated edge KO) | direction-resolved, per-head, no-renorm, b0/b1 | fresh slice (single session) | high |
+# | 5. competition = context scoring via b2h2; no separate winner->loser edge found | yes (validated edge KO) | direction-resolved, per-head, no-renorm, b0/b1 | fresh slice (single session) | high |
 # | 6. cross-scale divergence | observational + factorial | — | both organisms | high (n=2 models) |
 #
 # **What is NOT established yet**: the closed-form candidacy score (E4 PySR
-# planned); Stage-B universality on the organism; when the comparator forms during
-# training (F1); the resolved-channel (2-sjet) story beyond "detection weak +
-# unspecific"; the H-side competition; faithfulness-by-replacement (the Phase-3
-# punchline experiment).
+# planned); a full symbolic reconstruction algorithm beyond readout-level
+# compression; prospective/nested validation of the E4 formulas; the resolved-channel
+# (2-sjet) story beyond "detection weak + unspecific"; the H-side competition.
 #
 # **Where everything lives**: preregs+results `docs/H1_ASK_THE_JETS_TEST_PLAN.md`;
 # chronology `docs/logs/2026-06-10_planning-and-data-recovery.md` (rounds/waves),
