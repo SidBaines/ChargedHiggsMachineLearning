@@ -150,6 +150,30 @@ are structural, so unlikely affected, but worth a spot-check on the 0.8452 model
 Ops note: MPS runtimes were wildly uneven across identical runs (10.8-190 min) —
 throttling/contention; schedule suite runs accordingly.
 
+## Addendum 3: formation under the sane schedule — the crisis is REAL
+
+Winner-recipe run (1e-3 cosine ramp, step-ckpts every 10; final 0.8453 —
+reproduces the sweep) probed with F1 `--step-range 0,1100`:
+- **The selectivity crisis survives proper ramp warmup** — claims collapse to
+  ~0.23 around steps 60-100, tie-both overshoots to 0.15, consolidation by
+  ~step 250. NOT an artifact of the legacy 3.3×-peak hot-start (which only
+  shifted it earlier). "Claim first, learn to compare second" stands.
+- Lockstep transiently BREAKS during the crisis (0.99→0.3 around step 60-80)
+  before locking at ~1 by step 230 — under legacy it rose monotonically; the
+  parallel-reader wiring is briefly disrupted while candidacy reorganizes.
+- **NEW: competition pressure develops in two phases** — SB6 cost deepens to
+  −0.88 by step ~170, RELAXES to −0.17 by ~450, then slowly re-deepens through
+  step 1100+ (→ −0.89). An overshoot-relax-strengthen trajectory invisible in
+  the legacy run. Candidate explanation worth testing later: the early deep cost
+  is crisis collateral; the late deepening is genuine ranking refinement.
+→ `tmp_plots/f1_formation_20260612-092102_steps0-1100.{csv,png}`.
+
+Also launched this session: **Phase-2 suite queue** (`experiments/run_suite.sh`,
+25 runs, winner recipe + 2 legacy comparability, resumable, d20 first; trainer
+gained --d-model/--blocks/--d-mlp/--bottleneck/--entropy-weight; d152b3+bn1 =
+676,587 params = the thesis arch) and the **pysr install** (Julia bootstrap) for
+faithfulness.
+
 ## Artifacts
 
 - `experiments/h1/f1_formation_dynamics.py` (new), `a4b` parameterized,
