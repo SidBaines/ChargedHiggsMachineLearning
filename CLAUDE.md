@@ -14,7 +14,14 @@ folders elsewhere on this machine.
 
 ## START HERE if you're picking this work back up
 
-📄 **Read [`docs/SESSION_FINDINGS_2026-06-08.md`](docs/SESSION_FINDINGS_2026-06-08.md) first.**
+📄 **Read [`docs/HANDOFF_2026-06-12.md`](docs/HANDOFF_2026-06-12.md) first** — current
+state, paused jobs, next-steps queue, and the gotchas. Then `experiments/README.md`
+(conventions + script inventory) and the narrative notebook
+`experiments/h1_narrative.ipynb` (the science, claims + evidence + confidence).
+
+(Historical context from the original 2026-06-08 pickup — repo layout, data
+provenance, the old-Mac/heppc/Seagate situation — is in
+[`docs/SESSION_FINDINGS_2026-06-08.md`](docs/SESSION_FINDINGS_2026-06-08.md).)
 It is a full investigation write-up (2026-06-08) covering: what this repo is and how it's
 laid out, the branch situation (`main` vs `heppc-work` vs `cleaner`), **where the data and
 model weights actually live** (`/data/atlas/baines/…` on the "HEP PC", not on this Mac),
