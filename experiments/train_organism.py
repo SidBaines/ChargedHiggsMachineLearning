@@ -33,6 +33,14 @@ p.add_argument("--schedule", choices=["log", "cosine"], default=None,
 p.add_argument("--warmup-mode", choices=["ramp", "legacy"], default=None,
                help="ramp = linear 0->peak over warmup_steps; legacy = constant 1e-3 "
                     "(the thesis-era behaviour, 3.3x ABOVE peak)")
+p.add_argument("--d-model", type=int, default=None)
+p.add_argument("--blocks", type=int, default=None)
+p.add_argument("--d-mlp", type=int, default=None)
+p.add_argument("--bottleneck", type=int, default=None,
+               help="per-head attention bottleneck dim (applied via hook at train "
+                    "time, thesis-style); omit for none")
+p.add_argument("--entropy-weight", type=float, default=None,
+               help="0 disables the entropy penalty (default: CONFIG 1e-2)")
 ARGS = p.parse_args()
 
 CONFIG = dict(
@@ -71,12 +79,21 @@ if ARGS.lr_low is not None:
     CONFIG["learning_rate_low"] = ARGS.lr_low
 CONFIG["lr_schedule"] = ARGS.schedule or ("log" if CONFIG["learning_rate_log_decay"] else "linear")
 CONFIG["warmup_mode"] = ARGS.warmup_mode or "legacy"   # legacy default = exact thesis-era recipe
+if ARGS.d_model is not None: CONFIG["d_model"] = ARGS.d_model
+if ARGS.blocks is not None: CONFIG["num_blocks"] = ARGS.blocks
+if ARGS.d_mlp is not None: CONFIG["d_mlp"] = ARGS.d_mlp
+if ARGS.bottleneck is not None: CONFIG["bottleneck_attention"] = ARGS.bottleneck
+if ARGS.entropy_weight is not None:
+    CONFIG["entropy_weight"] = ARGS.entropy_weight
+    CONFIG["entropy_loss"] = ARGS.entropy_weight > 0
 
 torch.manual_seed(CONFIG["seed"]); np.random.seed(CONFIG["seed"])
 device = CONFIG["device"] if torch.backends.mps.is_available() else "cpu"
 
 stamp = time.strftime("%Y%m%d-%H%M%S")
-run_name = (f"_{stamp}_LowLevel_ORG2026_d{CONFIG['d_model']}b{CONFIG['num_blocks']}_YesEnt1_NoBn"
+_ent = f"YesEnt{CONFIG['entropy_weight']:g}" if CONFIG["entropy_loss"] else "NoEnt"
+_bn = f"Bn{CONFIG['bottleneck_attention']}" if CONFIG["bottleneck_attention"] else "NoBn"
+run_name = (f"_{stamp}_LowLevel_ORG2026_d{CONFIG['d_model']}b{CONFIG['num_blocks']}_{_ent}_{_bn}"
             f"_lr{CONFIG['learning_rate']:g}-{CONFIG['learning_rate_low']:g}"
             f"_{CONFIG['lr_schedule']}_{CONFIG['warmup_mode']}_s{CONFIG['seed']}")
 OUT = os.path.join(REPO, "output", f"{stamp}_TrainingOutput")
