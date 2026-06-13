@@ -2,8 +2,8 @@
 tmp*
 interp/__init__.py
 output/
+outputs/
 wandb/
 *.png
 *.pdf
 *.dart
-
