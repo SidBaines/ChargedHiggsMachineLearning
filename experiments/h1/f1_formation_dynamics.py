@@ -87,7 +87,13 @@ slot = (T[bsel] == PAD).float().argmax(1)
 real = T[bsel] != PAD
 m2_all = torch.clamp(X[bsel][..., 3] ** 2 - (X[bsel][..., :3] ** 2).sum(-1), min=0)
 rng = np.random.default_rng(0)
-ddir = X[bsel[rng.integers(NB, size=NB)], wp[rng.integers(NB, size=NB)], :3].clone()
+donor_idx = rng.integers(NB, size=NB)
+ddir = X[bsel[donor_idx], wp[donor_idx], :3].clone()
+donor_t = T[bsel[donor_idx], wp[donor_idx]]
+donor_y = TRU[bsel[donor_idx], wp[donor_idx]]
+print(f"boosted donor directions: true-W-ljet fraction "
+      f"{(((donor_t == LJ) & (donor_y == 2)).float().mean()):.4f}; "
+      f"type counts {[int((donor_t == k).sum()) for k in range(6)]}")
 
 # --- lvbb working set (cross-system) ---
 lsel = torch.where(lvbb & ((T == PAD).sum(1) >= 1))[0]

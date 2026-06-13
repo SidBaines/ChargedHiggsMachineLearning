@@ -119,12 +119,13 @@ construction, so this is a clean held-out set). Results + verdict:
 | `redteam_rt4_relpt.py` | absolute vs relative pT gating (complement scaling + per-DSID observational) | candidacy = RELATIVE event hardness, both models |
 
 ### `h1/stageb_*` — Stage B: the competition sub-circuit (2026-06-11, RESOLVED)
-All on the fresh val slice (batches 19-24; `--skip 18`). Verdict: **weak B-i dead,
-B-ii established & localized** — competition is per-jet context-relative scoring:
+All on the fresh val slice (batches 19-24; `--skip 18`). Verdict: **no separate
+directed winner→loser inhibition edge was found; B-ii is strongly supported and
+localized in this model** — competition is per-jet context-relative scoring:
 b0/b1 silent context absorption + the **b2h2 comparator** (the verdict-broadcast
-head), each stage causally necessary; each jet suppresses only ITSELF via its own
-read of the rival. Results: `docs/logs/2026-06-11_stage-b-competition.md` +
-test-plan addendum.
+head), each tested stage causally necessary; each jet suppresses only ITSELF via
+its own read of the rival. Results:
+`docs/logs/2026-06-11_stage-b-competition.md` + test-plan addendum.
 
 | script | experiments | what it established |
 |---|---|---|
@@ -135,8 +136,9 @@ test-plan addendum.
 
 SB5 skipped — superseded by SB2+SB4.
 
-| `a4b_lvbb_insertion_dose.py` | A4b | resolves the A4 "only ~30% flip" puzzle: broadcast is tight (P(lep=W\|ins claims)=0.06 vs 0.96); the average was donor composition; cross-system dose at pT=r×pT(lepW) is a clean sigmoid crossing r≈1.4 ⇒ the verdict is a **graded hadronic-vs-leptonic comparison** (claim-2 sharpened: "ask the jets" → "weigh the jets against the leptonic side") |
+| `a4b_lvbb_insertion_dose.py` | A4b | resolves the A4 "only ~30% flip" puzzle with model-counterfactual insertions: broadcast is tight (P(lep=W\|ins claims)=0.06 vs 0.96); the average was donor composition; cross-system dose at pT=r×pT(lepW) is a clean sigmoid crossing r≈1.4 ⇒ the verdict is a **graded hadronic-vs-leptonic comparison** (claim-2 sharpened: "ask the jets" → "weigh the jets against the leptonic side") |
 | `lw1_leptonic_evidence.py` | LW1 | the leptonic side, localized & characterized: **b1h3 IS the comparator** (per-key value decomposition at ν: lepton −0.73, ν −0.58 vs jets +0.21; b2h2 purely jet-fed); evidence = **magnitudes only, lepton-weighted, best correlate pT(lepW)/HT(jets) ρ=−0.80, mT ρ≈0.00** (φ+180° test rules out W-structure); lepton reads the candidate via b2h2(+b1h3); **multi-hop competition**: KO lep→ins makes the lepton keep W AND the candidate concede (0.90→0.15) via the lepton's changed stream |
+| `dsid_stratified_controls.py` | DSID controls | checks that LW1's `pT(lepW)/HT(jets)` association and RT4's rest×2 relative-hardness suppression survive within DSID/mass point; default thesis slice: ratio-vs-b1h3 ρ remains −0.81→−0.67 across DSIDs, rest×2 drop remains 27-37 pp across boosted DSIDs |
 
 ### What's next
 Universality reruns of Stage B on the freshly trained organism

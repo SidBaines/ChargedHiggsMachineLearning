@@ -456,7 +456,7 @@ Experiments:
 Bookkeeping: same battery on the H-side (two H-ljets, A8-style) would tell us whether
 competition machinery is per-class or shared — park until W-side is mapped.
 
-> **STAGE B RUN 2026-06-11 (evening) — RESOLVED: B-ii established and localized.**
+> **STAGE B RUN 2026-06-11 (evening) — RESOLVED: B-ii strongly supported and localized.**
 > Full results: `logs/2026-06-11_stage-b-competition.md`. Thesis model, fresh val
 > slice (batches 19-24). Scripts `experiments/h1/stageb_sb{1,2,3,4}_*.py`.
 > - **SB3**: only block 2 has a jet↔jet attention asymmetry (loser→winner on
@@ -467,11 +467,14 @@ competition machinery is per-class or shared — park until W-side is mapped.
 >   the "mild one-sided" guess above was wrong).
 > - **SB4**: edge KO restores the tie loser 93% — **b2h2 alone is the comparator**
 >   (h0/h3 nothing, despite b2h3's larger attention). Direction-resolved KO: each
->   jet suppresses only ITSELF via its own read of the rival ⇒ **weak B-i dead**.
+>   jet suppresses only ITSELF via its own read of the rival ⇒ no separate directed
+>   winner→loser inhibition edge was found in the tested attention-edge framing.
 >   The b0+b1 KO "control" ALSO restores ⇒ two-stage circuit (b0/b1 silent context
 >   absorption + b2h2 comparator), each stage necessary. Solo KO: candidacy is
 >   constitutively relational (no context ⇒ no claim; the lepton then takes W).
 > - **SB1**: sym design crosses at r=1.00 exactly; asym at r≈1.07 ⇒ coherence
 >   handicap ≈ 7% pT-equivalent. Both-claim peak: half-suppression at ~10-15% pT
->   gap. Comparator = graded score-ranking with ~10% pT resolution.
+>   gap. Comparator = graded score-ranking with ~10% pT resolution. Codex follow-up
+>   fixed a donor-direction indexing bug and re-ran SB1; these headline numbers were
+>   unchanged within the reported precision.
 > - **SB5 skipped** — superseded by SB2+SB4 (timing + causal carrier both answered).

@@ -8,11 +8,14 @@ HT — LW1/RT4): per-event scalars only, no raw 4-vectors. Round-1 PySR underwhe
 by searching blind; this is the informed retry. Linear ridge on the same features
 is reported as the baseline PySR must beat.
 
-Targets are fit on val batches 19-22 and scored on 23-24 (held out). Part 2
-(e4_wire_replacement.py) splices the fitted formulas back into the network via the
-override hooks and measures verdict agreement + task retention.
+By default, targets are fit on val batches 19-22 and scored on 23-24. Override
+--skip/--batches/--train-batches to move the extraction to a fresh slice; this is
+important because the default feature set was discovered during the H1 programme.
+Part 2 (e4_wire_replacement.py) splices the fitted formulas back into the network
+via the override hooks and measures verdict agreement + task retention.
 
 Usage: .venv/bin/python experiments/h1/e4_wire_extraction.py [--niterations 40]
+       [--skip 18] [--batches 6] [--train-batches 4]
 Writes tmp_pysr/<target>_equations.csv + a summary.
 """
 import os, sys, argparse
@@ -24,7 +27,14 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--niterations", type=int, default=40)
 ap.add_argument("--maxsize", type=int, default=22)
 ap.add_argument("--procs", type=int, default=4)
+ap.add_argument("--skip", type=int, default=18,
+                help="number of validation-loader batches to skip before collecting data")
+ap.add_argument("--batches", type=int, default=6,
+                help="number of validation-loader batches to collect")
+ap.add_argument("--train-batches", type=int, default=4,
+                help="first k collected batches used for fitting; remainder is held out")
 ARGS = ap.parse_args()
+assert 0 < ARGS.train_batches < ARGS.batches, "--train-batches must be in (0, --batches)"
 torch.set_num_threads(4)
 from models.registry import load_model
 from interp.activations import ActivationCache, hook_attention_heads
@@ -41,7 +51,7 @@ dl = ProportionalMemoryMappedDataset(
     max_objs_in_memmap=15, batch_size=2048, device="cpu", is_train=False,
     n_splits=2, validation_split_idx=0, n_targets=3, shuffle=False, shuffle_batch=False,
     means=None, stds=stds, objs_to_output=15, signal_only=True, has_eventNumbers=True)
-for _ in range(18):
+for _ in range(ARGS.skip):
     next(dl)
 
 model, _ = load_model("thesis-ent1-bn1-d152", checkpoint_root=os.path.join(REPO, "tmp_checkpoints"),
@@ -53,7 +63,7 @@ handles = [m.register_forward_hook(fn, with_kwargs=True)
                  SINGLE_ATTENTION=False, bottleneck_attention_output=1)]
 
 Xs, Ts = [], []
-for _ in range(6):
+for _ in range(ARGS.batches):
     b = next(dl)
     t = b["types"]
     ok = ((t == NU).sum(1) == 1) & (((t == 0) | (t == 1)).sum(1) == 1)
@@ -108,8 +118,10 @@ FEATS = {
 Xf = np.stack([v.numpy() for v in FEATS.values()], axis=1).astype(np.float64)
 names = list(FEATS.keys())
 print(f"events {N}, features {len(names)}: {names}")
+print(f"slice protocol: skipped {ARGS.skip}, collected {ARGS.batches} batches, "
+      f"fit first {ARGS.train_batches}, test last {ARGS.batches - ARGS.train_batches}")
 
-ntr = int(N * 4 / 6)                          # batches 19-22 train, 23-24 test
+ntr = int(N * ARGS.train_batches / ARGS.batches)
 idx = np.arange(N)                            # loader order == batch order
 tr, te = idx[:ntr], idx[ntr:]
 

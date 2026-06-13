@@ -88,8 +88,19 @@ slot2 = pads2.argmax(1)
 print(f"fresh-slice batches {ARGS.skip+1}-{ARGS.skip+ARGS.batches}: boosted+2slots n={NB}")
 
 rng = np.random.default_rng(0)
-donor_dir1 = X[bsel[rng.integers(NB, size=NB)], wp[rng.integers(NB, size=NB)], :3].clone()
-donor_dir2 = X[bsel[rng.integers(NB, size=NB)], wp[rng.integers(NB, size=NB)], :3].clone()
+donor_idx1 = rng.integers(NB, size=NB)
+donor_idx2 = rng.integers(NB, size=NB)
+donor_dir1 = X[bsel[donor_idx1], wp[donor_idx1], :3].clone()
+donor_dir2 = X[bsel[donor_idx2], wp[donor_idx2], :3].clone()
+
+def report_donor_guard(name, donor_idx):
+    tt = T[bsel[donor_idx], wp[donor_idx]]
+    yy = TRU[bsel[donor_idx], wp[donor_idx]]
+    print(f"{name}: donor true-W-ljet fraction {(((tt == LJ) & (yy == 2)).float().mean()):.4f}; "
+          f"type counts {[int((tt == k).sum()) for k in range(6)]}")
+
+report_donor_guard("donor_dir1", donor_idx1)
+report_donor_guard("donor_dir2", donor_idx2)
 
 def set_kin(rows3, pt_gev, m_gev):
     pt_now = torch.sqrt(rows3[:, 0] ** 2 + rows3[:, 1] ** 2).clamp(min=1e-6)
