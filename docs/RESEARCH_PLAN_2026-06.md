@@ -115,6 +115,7 @@ event filtering by category, learning from why round 1 underwhelmed.
 
 One line per session; details in `docs/logs/` (convention in `CLAUDE.md`).
 
+- 2026-06-14/15 — **Phase-2 d152 winner-recipe suite DONE** (12 runs; full per-category tables) + **merged the two codex branches** (analysis-fixes, resolved-qqbb). 🔴 **CONFOUND FOUND**: `ent`/`both` arms used `entropy_weight=0.01`, not the thesis `YesEnt1` (~1.0) — so the "constraints nearly free / cost = under-training" comparison is NOT yet valid; only the unconstrained `none` old-vs-new (+2.8 pts, clean recipe effect) holds. **NEXT TO-DO: confirm thesis entropy weight, re-run `ent`/`both` (+legacy) at `--entropy-weight 1`.** Parser/plots: `experiments/suite_tradeoff_plots.py`. → [`logs/2026-06-15_suite-d152-results-and-entropy-mismatch.md`](logs/2026-06-15_suite-d152-results-and-entropy-mismatch.md).
 - 2026-06-08 — Repo/branch/data investigation after long gap → `docs/SESSION_FINDINGS_2026-06-08.md` (predates the logs convention).
 - 2026-06-09/10 — Codebase + thesis ch.7 survey; found live heppc rsync; wrote this plan; agreed interp-first goals → [`logs/2026-06-10_planning-and-data-recovery.md`](logs/2026-06-10_planning-and-data-recovery.md).
 - 2026-06-10 (night) — MPS training crashed the Mac → organism relaunched on CPU (healthy, ~5 min/epoch); **H1 round 2: channel decision reads the jet system** (sjet-system coherence + lepton/MET magnitude; replicates on the 20k organism) → same log, "H1 round 2" section.
