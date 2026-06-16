@@ -57,10 +57,61 @@ So for the write-up / thesis-correction: report the constraint cost as ~1.2 pts
 (≈20% in cats 0–3), and separately note that the absolute numbers improve ~2.8 pts
 under the better LR schedule. Don't conflate the two.
 
-### Still to do (Phase-2.2 figure)
-Draw the tradeoff figure with the old thesis points + the legacy-recipe point
-overlaid on the winner-recipe curve (extend `experiments/suite_tradeoff_plots.py` to
-ingest the legacy logs + the archived `docs/run_configs/*DSSARVTSBN3*` numbers).
+### Phase-2.2 tradeoff figure — DONE (2026-06-16)
+`experiments/suite_tradeoff_plots.py` extended to draw it → `tmp_plots/suite_d152_tradeoff.png`
+(2 panels: all events + hard cats 0–3). Winner-recipe curve (3 seeds, shaded band)
+with thesis-era points (gray, legacy recipe, archived `final_summary` in the
+`docs/run_configs/*DSSARVTSBN3*` JSONs), the thesis model (red ★), and the
+new legacy-on-winner-arch run (orange ◆) overlaid. Reads visually as: **recipe = the
+vertical lift; constraint = the slope.** Noted nuance (single seed; the "legacy" recipe
+only approximates the original thesis LR schedule): the legacy-both run beats the
+thesis overall (0.850 > 0.843) but is slightly worse in cats 0–3 (0.266 vs 0.316) —
+trades hard-cat for easy-cat accuracy; don't over-read the per-category profile.
+Likely-to-revisit design tweaks: no archived bn1-only point (dashed line interpolates
+ent→both); thesis-era points have no error bars (1 seed); could add a real
+"interpretability-pressure" x-axis or a d20 row.
+
+## Next-experiment options (2026-06-16 discussion — Phase-2 closed, deciding Phase-3 focus)
+
+Grounding check done: the **cut-based algorithm's per-object decisions are already in
+the data** as `recoInclusion = x[...,-2]` (next to truth `trueInclusion = x[...,-1]`;
+the model only sees `x[...,:5]`). So the algorithm comparison needs no reimplementation.
+
+State: H1 circuit solved + red-teamed; universality + formation characterized;
+faithfulness HALF done (verdict readout → 2 formulas @95.5%, jet-side candidacy still
+neural); resolved-qqbb mapped except the leading-sjet claim; Phase-2 suite + tradeoff
+closed (24 models in `output/`). Thin spots: the *full* symbolic algorithm, the
+mechanism→*physics-performance* link, and robustness beyond signal-only.
+
+- **Option A — complete the faithfulness arc: extract the jet-side candidacy formula.**
+  PySR the per-jet W-vs-none margin from relative hardness, m²-window, anti-tag, HT,
+  lead/sublead context; splice in-network → a full semi-symbolic reco algorithm
+  (symbolic candidacy → symbolic cross-system comparison → reconstruction). Feasible
+  (no training; candidacy decodable at embedding AUC 0.93). Risk: jet side has no single
+  bottleneck scalar, so replacement is fiddlier than the verdict was (fit the logit
+  directly). The punchline of the interp arc; closes "faithfulness → write-up".
+- **Option B — H4: where/why does the transformer beat the cut-based algorithm?** (now
+  low-setup) Compare model vs `recoInclusion` vs truth, per event & category;
+  characterize the disagreement (transformer-wins) events in terms of the circuit
+  variables (relative hardness, ~1.4× cross-system threshold, m²-window) → explain the
+  2× efficiency gain mechanistically. Highest physics impact; connects mechanism to
+  performance. Risk: low–medium (mostly analysis).
+- **Option C — suite-as-population: does the interpretability constraint CAUSE the
+  dedicated-wire circuit?** Use the 24 models; locate the comparator in each, quantify
+  "wire dedication" (verdict causal-flow concentration) vs constraint; do bn1 cells grow
+  a sharper b2h2-style scalar comparator? Novel angle, uses the fresh asset, bridges
+  Phase 2→3. Risk: medium–high (battery re-pointed per model; implementation diverges
+  across scale → possibly muddy).
+- **Option D — robustness gate: does H1 survive on background / mixed samples?** Re-run
+  key wire/candidacy/census probes off signal-only before any physics claim. Integrity
+  gate, less exciting; medium effort (large bkg data, reco net is OOD there).
+- *(Option E, parked: finish resolved-qqbb leading-sjet claim R10–R12 — incremental,
+  weak minority channel.)*
+
+**Claude's lean:** B and A as co-leads; lean **B** — newly de-risked, highest payoff,
+the natural pivot from "we understand the mechanism" to "here's the physics it buys."
+**A** if we'd rather close the symbolic-algorithm loop first. **D** is the gate to do
+before the write-up regardless. **DECISION PENDING — discuss with Sid next session.**
 
 ---
 

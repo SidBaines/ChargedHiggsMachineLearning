@@ -135,3 +135,68 @@ for ax in axes[:, 0]:
 fig.suptitle(f"{ARGS.size} winner recipe: per-category training curves (cost lives in cats 0-3)")
 p2 = os.path.join(ARGS.outdir, f"suite_{ARGS.size}_by_category.png")
 fig.tight_layout(); fig.savefig(p2, dpi=130); print(f"wrote {p2}")
+
+# ---- (4) the Phase-2.2 tradeoff figure: winner curve + thesis-era + legacy overlay ----
+# Old thesis-era runs (legacy recipe, 1 seed) from the wandb archive. No bn1-only run.
+import json
+OLD_RUNS = {
+    "none": "20250510-123629_DSSARVTSBN3_NoEnt_NoBn",
+    "ent":  "20250512-093602_DSSARVTSBN3_YesEnt1_NoBn",
+    "both": "20250512-093728_DSSARVTSBN3_YesEnt1_YesBn",   # THE THESIS MODEL
+}
+HARD = [f"all_cat{i}" for i in range(4)]                    # cats 0-3 = where cost lives
+
+def _mean_keys(d, keylist):                                 # mean of PerfectRecoPct over keys
+    return float(np.mean([d[f"val/PerfectRecoPct_{k}"] for k in keylist]))
+
+def old_point(tag, keylist):
+    d = json.load(open(os.path.join(REPO, "docs/run_configs", tag + ".json")))
+    return _mean_keys(d["final_summary"], keylist)   # archived metrics live under final_summary
+
+# new legacy-recipe runs trained on the winner architecture (final-epoch dict)
+LEG_LOGS = sorted(glob.glob(os.path.join(ARGS.logdir, f"{ARGS.size}_*_LEGACY.log")))
+legacy = {}                                                 # cond -> final-epoch metric dict
+for f in LEG_LOGS:
+    cond = os.path.basename(f).split("_")[1]                # d152_<cond>_s0_LEGACY
+    ep = parse_log(f)
+    if ep:
+        legacy[cond] = ep[-1]
+
+def winner_point(cond, keylist):                            # mean + seed min/max, final epoch
+    fin = data[cond][:, -1, :]
+    per_seed = np.mean([fin[:, ki[k]] for k in keylist], axis=0)
+    return per_seed.mean(), per_seed.min(), per_seed.max()
+
+order = [c for c in CONDS if c in data]
+xs = np.arange(len(order))
+panels = [("all events", ["all"]), ("hard categories (cat0–3, mean)", HARD)]
+fig, axes = plt.subplots(1, 2, figsize=(13, 5.5))
+for ax, (title, keylist) in zip(axes, panels):
+    # winner-recipe curve (mean +/- seed spread)
+    m = np.array([winner_point(c, keylist)[0] for c in order])
+    lo = np.array([winner_point(c, keylist)[1] for c in order])
+    hi = np.array([winner_point(c, keylist)[2] for c in order])
+    ax.plot(xs, m, "-o", color="#1f77b4", lw=2, ms=8, label="winner recipe (this work, 3 seeds)", zorder=3)
+    ax.fill_between(xs, lo, hi, color="#1f77b4", alpha=0.15, zorder=1)
+    # thesis-era points (legacy recipe, archived single runs)
+    ox = [xs[order.index(c)] for c in OLD_RUNS if c in order]
+    oy = [old_point(t, keylist) for c, t in OLD_RUNS.items() if c in order]
+    ax.plot(ox, oy, "s--", color="#7f7f7f", lw=1.3, ms=7, label="thesis-era (legacy recipe, 1 seed)", zorder=2)
+    # the thesis model itself (both)
+    if "both" in order and "both" in OLD_RUNS:
+        bx = xs[order.index("both")]
+        ax.plot([bx], [old_point(OLD_RUNS["both"], keylist)], "*", color="#d62728",
+                ms=18, label="thesis model", zorder=4)
+    # new legacy-recipe runs on the winner architecture (isolate the recipe effect)
+    lx = [xs[order.index(c)] for c in legacy if c in order]
+    ly = [_mean_keys({f"val/PerfectRecoPct_{k}": legacy[c][k] for k in KEYS}, keylist)
+          for c in legacy if c in order]
+    if lx:
+        ax.plot(lx, ly, "D", color="#ff7f0e", ms=9, label="legacy recipe, winner arch (1 seed)", zorder=4)
+    ax.set_xticks(xs); ax.set_xticklabels([LABELS[c] for c in order], rotation=20, ha="right")
+    ax.set_title(title); ax.set_ylabel("val PerfectRecoPct"); ax.grid(alpha=0.3, axis="y")
+axes[0].legend(fontsize=8, loc="lower left")
+fig.suptitle(f"{ARGS.size} interpretability tradeoff: constraint vs performance "
+             f"(recipe lifts the whole curve ~+2.9 pts; constraint cost ~1.2 pts, recipe-stable)")
+p3 = os.path.join(ARGS.outdir, f"suite_{ARGS.size}_tradeoff.png")
+fig.tight_layout(); fig.savefig(p3, dpi=130); print(f"wrote {p3}")
