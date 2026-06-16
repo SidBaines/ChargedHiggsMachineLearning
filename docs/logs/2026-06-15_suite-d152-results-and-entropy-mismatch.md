@@ -14,15 +14,53 @@ convention (`YesEnt{weight:g}`) to an OLD run name. So:
   thesis training config.
 - **The queued legacy runs need NO change** — entropy 0.01 + legacy LR recipe is the
   correct comparison. They were launched as-is on 2026-06-16.
-- **The legacy run is itself the empirical confirmation:** if `d152_both_s0_LEGACY`
-  lands ≈ 0.843 (the thesis number), that confirms thesis entropy = 1e-2 and proves
-  the winner-vs-legacy `both` gap (0.879 vs 0.843, ~+3.6 pts) is **pure training
-  recipe** → the "interpretability cost was largely under-training" hypothesis holds.
-- Minor residual: the active line is 1e-2 while a commented alternative is 1e-3
-  (`target_entropy=log(2)`); if the legacy run does NOT reproduce ~0.843, revisit
-  whether the thesis used 1e-3. Best evidence is 1e-2.
+- **The legacy run was the empirical confirmation** (see SUITE COMPLETE below):
+  `d152_both_s0_LEGACY` = 0.850, reproducing the thesis `both` (0.843) to within
+  noise → thesis entropy ≈ 1e-2 confirmed. The winner-vs-legacy `both` gap is **+2.9
+  pts of recipe effect** (0.879 vs 0.850), and the constraint cost turns out
+  recipe-stable — see the refined conclusion below.
+- Residual nuance: active line is 1e-2 vs a commented 1e-3 (`target_entropy=log(2)`);
+  the legacy run reproducing 0.843 confirms 1e-2 was right.
 
 The original conclusions (winner recipe lifts hard cats; `none` +2.8 pts) stand.
+
+## SUITE COMPLETE 2026-06-16 — legacy comparability runs + refined conclusion
+
+Both legacy-recipe runs finished:
+
+| run (legacy LR recipe) | all | thesis ref | gap |
+|---|---|---|---|
+| `d152_both_s0_LEGACY` (ent 1e-2 + bn1) | **0.8503** | thesis `YesEnt1_YesBn` 0.8434 | +0.7 |
+| `d20_ent_s0_LEGACY` | 0.8149 | — | — |
+
+`d152_both_s0_LEGACY` (0.850) reproduces the thesis `both` model (0.843) to within
+seed/slice noise → **confirms the thesis entropy weight was ~1e-2 and the config match
+is sound.** The false-alarm reversal is now empirically backed.
+
+**Recipe effect (winner − legacy, same constraints/architecture) is ~+2.9 pts and
+consistent across scales:**
+- d152 `both`: 0.879 (winner) − 0.850 (legacy) = **+2.9**
+- d20 `ent`: 0.844 (winner mean) − 0.815 (legacy) = **+2.9**
+- d152 `none` (archived old vs new): 0.891 − 0.863 = +2.8
+
+**Refined conclusion (supersedes the looser "interpretability was nearly free /
+the cost was under-training"):** there are TWO separable effects, not one.
+1. The training recipe lifts every model ~2.8–2.9 pts (the legacy LR schedule
+   genuinely under-trained — real, large in absolute terms).
+2. The *marginal interpretability cost* (`both` vs `none`) is ~1.2 pts under the
+   winner recipe and ~1.3 pts under the legacy recipe — i.e. **roughly
+   recipe-independent.** The better recipe raises the whole curve; it does NOT make
+   the constraints cheaper. The constraint cost is a genuine, recipe-stable ~1.2 pts
+   overall (≈20% relative, concentrated in cats 0–3; cats 4–5 untouched).
+
+So for the write-up / thesis-correction: report the constraint cost as ~1.2 pts
+(≈20% in cats 0–3), and separately note that the absolute numbers improve ~2.8 pts
+under the better LR schedule. Don't conflate the two.
+
+### Still to do (Phase-2.2 figure)
+Draw the tradeoff figure with the old thesis points + the legacy-recipe point
+overlaid on the winner-recipe curve (extend `experiments/suite_tradeoff_plots.py` to
+ingest the legacy logs + the archived `docs/run_configs/*DSSARVTSBN3*` numbers).
 
 ---
 
