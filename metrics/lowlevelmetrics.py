@@ -236,7 +236,10 @@ class HEPMetrics:
                 # Create binary targets for this class
                 binary_targets = (self.all_targets[self.starts['auc']:self.current_update_point] == target_class)[mH_mask & include_mask]
                 # Get probabilities for this class
-                class_probs = self.all_probs[self.starts['auc']:self.current_update_point, 1][mH_mask & include_mask]
+                # BUGFIX: was hardcoded to column 1 (lvbb prob) for both channels, so the
+                # qqbb ROC-AUC was computed by ranking on the lvbb score -> meaningless
+                # (AUC fell below 0.5). Rank on the target channel's own score.
+                class_probs = self.all_probs[self.starts['auc']:self.current_update_point, target_class][mH_mask & include_mask]
                 # Compute weighted AUC
                 if len(np.unique(binary_targets)) < 2:
                     # return auc_scores
@@ -262,7 +265,8 @@ class HEPMetrics:
                     bkg_dsids = (self.all_dsids[self.starts['auc']:self.current_update_point] < 500000) | (self.all_dsids[self.starts['auc']:self.current_update_point] > 600000)
                     dsid_sel = (self.all_dsids[self.starts['auc']:self.current_update_point] == signal_dsid) | bkg_dsids
                     binary_targets = (self.all_targets[self.starts['auc']:self.current_update_point] == target_class)[dsid_sel&mH_mask&include_mask]
-                    class_probs = self.all_probs[self.starts['auc']:self.current_update_point, 1][dsid_sel&mH_mask&include_mask]
+                    # BUGFIX: was hardcoded to column 1 (lvbb prob); rank on target channel's own score.
+                    class_probs = self.all_probs[self.starts['auc']:self.current_update_point, target_class][dsid_sel&mH_mask&include_mask]
                     if len(np.unique(binary_targets)) < 2:
                         continue
                     sort_idx = np.argsort(class_probs)
