@@ -25,6 +25,13 @@ That doc has context a fresh session cannot otherwise discover (e.g. that the ru
 data + a trained `model.pth` still exist in a scratch folder at
 `/Users/sidbaines/Documents/PhD/Work/20250311_MechInterpTmp/`).
 
+📄 **To run anything on the cluster, read [`docs/CLUSTER_AND_DATA_GUIDE.md`](docs/CLUSTER_AND_DATA_GUIDE.md).**
+Living, verified reference: how to SSH to `heppc402` (non-interactive key), which Python env
+to use (`/data/baines/piienv`, CPU torch), where each dataset lives under `/data/atlas/baines/`
+and which is for which task, where checkpoints are, how to run `CompareAllModels*`/`Train*`,
+and the gotchas (NFS is slow, pkls lack per-event probs, usetex, `/data/baines` full, …).
+Append what you learn.
+
 ## Quick facts
 
 - **Entry points:** `TrainLowLevelReconstruction.py`, `TrainLowLevelClassifier.py`,
