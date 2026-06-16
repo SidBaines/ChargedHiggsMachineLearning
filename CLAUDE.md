@@ -19,6 +19,13 @@ state, paused jobs, next-steps queue, and the gotchas. Then `experiments/README.
 (conventions + script inventory) and the narrative notebook
 `experiments/h1_narrative.ipynb` (the science, claims + evidence + confidence).
 
+📄 **For the expected-limits plot (`fig:TransformerVsOriginalExpectedLimits`) — how it's
+produced, lxplus access, and reco-vs-classifier model provenance — read
+[`docs/LIMITS_PIPELINE_AND_MODEL_PROVENANCE.md`](docs/LIMITS_PIPELINE_AND_MODEL_PROVENANCE.md)**
+(2026-06-16; numbers reproduced end-to-end). Key: the **reconstruction** model (this repo's,
+being retrained) and the **classifier** models (out of this repo's scope) are distinct
+dependencies — both feed the plot.
+
 (Historical context from the original 2026-06-08 pickup — repo layout, data
 provenance, the old-Mac/heppc/Seagate situation — is in
 [`docs/SESSION_FINDINGS_2026-06-08.md`](docs/SESSION_FINDINGS_2026-06-08.md).)
