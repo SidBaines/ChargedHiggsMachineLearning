@@ -31,6 +31,25 @@ different provenance. Keep them separate:
 Both are needed to make the limits plot. The new reco model alone does **not** reproduce it
 — the (now-missing) classifiers are also required (§7, open question).
 
+> **CORRECTION (repo-side agent, Claude — 2026-06-16): the limit-plot reco model is NOT
+> the reco model this repo interprets/retrained — they are different architectures.**
+> §0/§4 above read as if "the reconstruction model (this repo's, being retrained)" is the
+> same model that fed the limit plot. It isn't:
+> - **Limit-plot reco** (§4): `20250321-*` `DSSARVTS3`, **d=200, no MLP, no bottleneck/entropy**, March (the run name has no "BN"/"Ent"; the arch you read has no bottleneck).
+> - **This repo's reco** (all H1/interp work + the retrained Phase-2 suite now on HF): `20250512-093728` `DSSARVTSBN3_YesEnt1_YesBn`, **d=152, *with* MLP (mlp=400), bottleneck-1 + entropy**, May. The HF suite checkpoints are d=152 / MLP / bottleneck-1 (`embedding_size=6`).
+>
+> Consequences:
+> 1. The HF d152 models are **not a drop-in** for `ApplyRecoAndClassifierToRoot.py`, which
+>    instantiates a d=200/no-MLP model — the weights won't even load (shape mismatch).
+> 2. Most coherent reading of the thesis: the **unconstrained d200** reco fed the **limit
+>    plot** (best physics), while the **constrained d152** reco is the **interpretability/
+>    attention-figure** model. Two different models for two different jobs.
+> 3. So "swap in the new (fixed) reco model" (§7) means a **deliberate model choice**, not a
+>    like-for-like fix: either retrain at the **d200/no-MLP** arch with the corrected recipe,
+>    or decide to move the limit plot onto the better d152 (or d152-`none`) model. Sid's
+>    current plan is the latter — use the best **unconstrained** new reco (`d152 none`) +
+>    a matched newly-trained classifier (see the classifier-build effort, 2026-06-16).
+
 ## 1. The pipeline (verified end-to-end, 2026-06-16)
 
 ```
