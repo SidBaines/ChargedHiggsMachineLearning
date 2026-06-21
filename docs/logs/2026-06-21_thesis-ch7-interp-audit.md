@@ -51,7 +51,15 @@ would fail to describe the thesis.
 
 **→ Thesis fix: correct `n_blocks=4 → 3` in the section + the `ZD` appendix
 captions.** Harmless typo, but must be fixed so an examiner doesn't infer the
-interp describes a non-existent model.
+interp describes a non-existent model. **Scope (confirmed 2026-06-21 by a second
+agent on heppc):** the fix applies ONLY to the d152 interp model
+(`tab:RecoTransformerModifications`, the two ch7 attention figures, all of `ZD`).
+The *neighbouring* `tab:RecoTransformerAlternateInputs` (robustness table) caption
+`n_blocks=4, d_m=200` is **genuinely correct** — it is a different, plain 4-block/d200
+model (ckpt `20250705-184750`, verified from its weights via `TestRecoNetwork.py`).
+Ch.7 in fact uses three distinct reco models: 4-blk/d200/MLP (robustness),
+3-blk/d152/MLP+ent+bn (interp/simplification), 3-blk/d200/no-MLP (performance+limits
+figs, L336/L382) — do NOT "fix" the d200 ones.
 
 ### Two provenance sub-findings that correct our docs
 - **The `[0.260,…]` vs `[0.310,…]` "discrepancy" is just two weightings of the SAME

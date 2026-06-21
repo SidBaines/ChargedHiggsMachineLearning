@@ -18,7 +18,9 @@
   **attention-entropy penalty**; cost ~5–10% (bottleneck) to ~25% (both) in categories
   0–3, negligible in the dominant categories 4–5 (Table `RecoTransformerModifications`).
 - **Attention-pattern analysis** (type→type heatmaps, per-category) made it into the
-  thesis; the thesis model is entropy+bottleneck-1, n_blocks=4, d_m=152, n_heads=4.
+  thesis; the thesis model is entropy+bottleneck-1, n_blocks=3, d_m=152, n_heads=4
+  (the original "n_blocks=4" here was the same typo as the thesis caption — see the
+  2026-06-21 audit log).
 - **Robustness studies** gave real mechanistic hints: rotating the *lepton* φ/η destroys
   cats 0–3; rotating the *neutrino* barely matters ⇒ the neutrino's class is inherited
   from the lepton, not from its own angles.
