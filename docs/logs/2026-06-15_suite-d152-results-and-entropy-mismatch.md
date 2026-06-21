@@ -1,5 +1,17 @@
 # 2026-06-15 — d152 suite results (+ a false-alarm entropy-weight scare, RESOLVED 06-16)
 
+> ⚠️ **CORRECTED 2026-06-21 by [`2026-06-21_thesis-ch7-interp-audit.md`](2026-06-21_thesis-ch7-interp-audit.md).**
+> The **"+2.8–2.9 pt recipe lift" headline below is a WEIGHTING-COMPARISON BUG**: the
+> suite logs are MC-weighted (`MC_Wts`) and were compared against the `val`-weighted
+> (proportional `training_Wts`) thesis-era wandb numbers. The w→MC gap is itself
+> ~2.7–2.9 pts. Under matched (`val_MC`) weighting the recipe effect is **≈0 to +0.6 pts**,
+> and `d152_both_s0_LEGACY` (0.850 MC) does **NOT** reproduce the thesis `both` (val_MC
+> **0.8725**, not 0.8434). **What SURVIVES:** the marginal constraint cost (both−none) =
+> **~1.2 pts winner / ~1.7 pts thesis-era**, concentrated in cats 0–3, seed-stable, an
+> upper bound at 30 epochs. Also wrong below: **a legacy bottleneck-only run DOES exist**
+> (`20250707-132308_DSSARVTSBN3`). `suite_tradeoff_plots.py` mixes weighting axes — don't
+> use the figure as drawn. Read the audit log before acting on anything in this file.
+
 ## ✅ RESOLVED 2026-06-16 — the "entropy-weight mismatch" was a false alarm
 
 **The earlier worry below was wrong, caused by a misread run-name label.** The
