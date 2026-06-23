@@ -195,8 +195,11 @@ companion doesn't recover it, S's representation is genuinely worse → favour T
 - 0b. **Smoke-test using signal as pseudo-background** (relabel a held-out signal DSID's
   objects to `none` and flag it `bkg`) — exercises every code path (mixed batches, masking,
   both heads, both losses, both metrics) **without** real background.
-- 0c. Confirm `TrainLowLevelClassifier.py` still runs (smoke) so baseline #2 is ready to fire
-  the moment background lands. Wire/verify the Asimov-Z metric.
+- 0c. Asimov-Z + weighted-AUC metrics implemented, unit-tested, and wired into the harness
+  ✅. Still TODO (Phase 1): run `TrainLowLevelClassifier.py` smoke so baseline #2 is ready to
+  fire the moment background lands.
+
+**Phase 0 status (2026-06-23): BUILT + SMOKE-TESTED signal-only ✅** — see "Results (live)".
 
 ### Phase 1 — get background (Sid) + verify format
 - Copy dominant-background memmaps from Seagate; verify feature layout vs signal (Risk #1).
@@ -228,9 +231,61 @@ companion doesn't recover it, S's representation is genuinely worse → favour T
   RunPod is the escape hatch.
 - **R5 (channel labels):** event head is 3-way `{bkg,qqbb,lvbb}` — confirm the qqbb/lvbb
   split in background events is well-defined (background → `bkg` class only).
+- **R6 (significance weighting — MUST fix before trusting any classification number):** the
+  harness currently feeds `abs(MC_Wts)` to AUC/Asimov-Z (sklearn rejects negative sample
+  weights) and does **not** apply per-DSID luminosity/expected-yield normalization. So the
+  Phase-0 AUC/Z are NOT physical. When background lands: (a) normalize per-DSID to expected
+  yields using the loader's `weight_sums`/`abs_weight_sums`; (b) for the Asimov *yield* sums
+  use **signed** MC weights (negatives are physical); keep abs only where sklearn's AUC
+  forces it (or switch to the manual weighted-AUC in `metrics/lowlevelmetrics.py`).
+- **R7 (event pooling masks padding):** the new dual-head event pooling (and the harness)
+  **mask padding** out of the mean (correct). The *legacy* `is_reconstruction_model=False`
+  classifier path in `models.py` does NOT mask (sums padding features). Left unchanged for
+  baseline reproducibility — but decide, when establishing baseline #2, whether to re-train
+  the standalone classifier with masked pooling for an apples-to-apples comparison.
 
 ## Results (live)
-*(empty — append per run; mirror the reco plan's table style: model | params | mode |
+
+### Phase 0 — harness built + smoke-tested signal-only (2026-06-23)
+Built via codex-driven-development (Codex implementer + Claude spec/quality reviewers). All
+committed on `sid-fable-experiments`.
+
+**What exists now:**
+- `models/models.py` — `TestNetwork` gains optional `add_event_head` / `num_event_classes`
+  (default off → byte-identical; new params init **after** existing modules so seeds +
+  checkpoints are unaffected). Dual-head `forward` returns `{"reco":[B,n_obj,3],
+  "event":[B,n_event]}` with **padding-masked** event pooling.
+- `experiments/joint_primitives.py` — `event_score_from_object_logits` (softor/max readout),
+  `weighted_roc_auc`, `asimov_z`, `best_asimov_z`. 13 unit tests.
+- `experiments/train_joint.py` — the harness: `--mode {single,twohead}`,
+  `--schedule {joint,int,intdetach,seqfull,seqfrozen}`, `--lambda-event`, `--event-classes`,
+  `--pseudo-bkg-dsid`, `--seq-split`, `--readout`, plus all the `train_organism` knobs. Dual
+  loss (background-masked reco + weighted event CE), the five schedules, signal-only reco
+  metrics + classification AUC/Z, config.json + checkpoints.
+- Tests: `tests/test_model_dualhead.py` (5), `tests/test_joint_primitives.py` (13),
+  `tests/test_train_joint_smoke.py` (8 combos, subprocess-runs the real CLI, self-cleans
+  `output/`). All green. (`pytest` isn't in `.venv`; run files directly with
+  `.venv/bin/python tests/<file>.py`.)
+
+**Smoke matrix (CPU, d8/b1/h2/no-mlp, DSID 510124 relabelled pseudo-background):** single,
+single+max-readout, twohead×{joint, joint-binary, int, intdetach, seqfull, seqfrozen} all run
+to completion with finite loss + a metrics line. ⚠ **the numbers are NOT physical** (510124 is
+really signal; metrics are unnormalized — see R6). This phase only proves the plumbing.
+
+**Run examples (real run, once background data is in place):**
+```
+# two-head, interleaved, all-cats, MPS:
+.venv/bin/python experiments/train_joint.py --mode twohead --schedule int --d-model 48 \
+    --blocks 2 --num-heads 4 --event-classes 3 --lambda-event 1.0
+# single-head (background=all-none), softor readout:
+.venv/bin/python experiments/train_joint.py --mode single --readout softor --d-model 48 --blocks 2
+# smoke any config signal-only (pseudo-bkg, CPU):
+.venv/bin/python experiments/train_joint.py --smoke --device cpu --no-wandb --mode twohead \
+    --schedule joint --pseudo-bkg-dsid 510124 --d-model 8 --blocks 1 --num-heads 2 --no-mlp
+```
+
+### Trade-off surface (to fill once background lands)
+*(append per run; mirror the reco plan's table style: model | params | mode | schedule |
 data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
 
 ## Session log
@@ -240,3 +295,12 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   `preprocessLowLevel.py` present for regeneration fallback. Decisions: pre-made memmaps
   from Seagate / local-MPS-subset-first / AUC+Z (limit deferred) / build both S+T in
   parallel. Phase 0 (signal-only plumbing) is unblocked and can start immediately.
+- 2026-06-23 (pm) — **Phase 0 BUILT + smoke-tested** via codex-driven-development (4 tasks:
+  dual-head model, metric primitives, `train_joint.py` harness, integration smoke; each gated
+  by an independent Claude spec+quality review). Dual-head `TestNetwork`, `joint_primitives`
+  (readout/AUC/Asimov-Z), the full mode×schedule harness, and 26 tests (5+13+8) — all green
+  signal-only with a pseudo-background DSID. Review caught + fixed a padding-pooling
+  inconsistency (event head now masks padding, model.forward == harness). Logged R6
+  (significance weighting is unnormalized / abs-weighted — must fix before trusting numbers)
+  and R7 (legacy classifier pooling unmasked) as the key things to resolve when real
+  background arrives. **Next = Phase 1: Sid brings background memmaps; verify format (R1).**
