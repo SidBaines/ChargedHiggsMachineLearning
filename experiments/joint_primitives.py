@@ -2,7 +2,22 @@
 
 import numpy as np
 import torch
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+
+EVENT_SUMMARY_FEATURE_NAMES = [
+    "max_pH",
+    "max_pW",
+    "max_psig",
+    "sum_pH",
+    "sum_pW",
+    "sum_psig",
+    "n_psig_gt0p5",
+    "softor",
+]
 
 
 def event_score_from_object_logits(reco_logits, object_types, padding_token, method="softor"):
@@ -21,6 +36,103 @@ def event_score_from_object_logits(reco_logits, object_types, padding_token, met
     if method == "softor":
         return 1.0 - torch.prod(1.0 - p_sig, dim=1)
     raise ValueError(f"Unknown event-score method: {method!r}")
+
+
+def event_summary_features(reco_logits, object_types, padding_token):
+    """Summarize per-object reconstruction logits into event readout features.
+
+    The fixed soft-or/max readouts conflate H and W object evidence into one
+    signal score. These features keep separate H and W maxima/soft-counts, so a
+    simple logistic readout can exploit headroom where signal needs both a
+    strong H candidate and a strong W candidate. Padding objects contribute zero
+    to sums, maxima, hard counts, and soft-or; all-padding events are zero.
+    """
+    if reco_logits.shape[1] == 0:
+        return reco_logits.new_zeros((reco_logits.shape[0], len(EVENT_SUMMARY_FEATURE_NAMES)))
+
+    probs = torch.softmax(reco_logits, dim=-1)
+    p_h = probs[..., 1]
+    p_w = probs[..., 2]
+    p_sig = p_h + p_w
+
+    non_padding = object_types != padding_token
+    zero_h = torch.zeros_like(p_h)
+    zero_w = torch.zeros_like(p_w)
+    zero_sig = torch.zeros_like(p_sig)
+    p_h = torch.where(non_padding, p_h, zero_h)
+    p_w = torch.where(non_padding, p_w, zero_w)
+    p_sig = torch.where(non_padding, p_sig, zero_sig)
+
+    return torch.stack(
+        [
+            p_h.max(dim=1).values,
+            p_w.max(dim=1).values,
+            p_sig.max(dim=1).values,
+            p_h.sum(dim=1),
+            p_w.sum(dim=1),
+            p_sig.sum(dim=1),
+            (p_sig > 0.5).to(p_sig.dtype).sum(dim=1),
+            1.0 - torch.prod(1.0 - p_sig, dim=1),
+        ],
+        dim=1,
+    )
+
+
+def _to_numpy(array):
+    if torch.is_tensor(array):
+        return array.detach().cpu().numpy()
+    return np.asarray(array)
+
+
+class FairReadout:
+    """Small fitted logistic readout over event summary features."""
+
+    def __init__(self, pipeline):
+        self.pipeline = pipeline
+
+    def score(self, features):
+        """Return P(signal) for each row of ``features`` as a numpy array."""
+        features_np = _to_numpy(features)
+        return self.pipeline.predict_proba(features_np)[:, 1]
+
+    @property
+    def coefficients(self):
+        """Logistic coefficients on the standardized feature scale."""
+        coefs = np.asarray(self.pipeline.named_steps["lr"].coef_).reshape(-1)
+        names = EVENT_SUMMARY_FEATURE_NAMES[: coefs.size]
+        if coefs.size > len(EVENT_SUMMARY_FEATURE_NAMES):
+            names = EVENT_SUMMARY_FEATURE_NAMES + [
+                f"feature_{idx}" for idx in range(len(EVENT_SUMMARY_FEATURE_NAMES), coefs.size)
+            ]
+        return {name: float(coef) for name, coef in zip(names, coefs)}
+
+
+def fit_fair_readout(features, labels, weights=None):
+    """Fit a standardized logistic readout and return ``FairReadout``.
+
+    ``weights`` may be signed MC weights. Scikit-learn rejects negative sample
+    weights, so we pass ``abs(weights)`` here, matching the existing R6
+    abs-weight limitation used for sklearn AUCs in this repository.
+    """
+    features_np = _to_numpy(features)
+    labels_np = np.asarray(_to_numpy(labels)).reshape(-1)
+
+    if np.unique(labels_np).size < 2:
+        return None
+
+    pipeline = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            ("lr", LogisticRegression(max_iter=1000)),
+        ]
+    )
+
+    if weights is None:
+        pipeline.fit(features_np, labels_np)
+    else:
+        weights_np = np.abs(np.asarray(_to_numpy(weights)).reshape(-1))
+        pipeline.fit(features_np, labels_np, lr__sample_weight=weights_np)
+    return FairReadout(pipeline)
 
 
 def weighted_roc_auc(scores, labels, weights=None):

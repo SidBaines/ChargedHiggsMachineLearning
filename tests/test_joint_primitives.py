@@ -2,7 +2,14 @@ import os, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "experiments"))
 
-from joint_primitives import event_score_from_object_logits, weighted_roc_auc, asimov_z, best_asimov_z
+from joint_primitives import (
+    event_score_from_object_logits,
+    event_summary_features,
+    fit_fair_readout,
+    weighted_roc_auc,
+    asimov_z,
+    best_asimov_z,
+)
 
 import math
 import traceback
@@ -72,6 +79,84 @@ def test_event_score_all_padding_is_zero():
     for method in ("max", "softor"):
         scores = event_score_from_object_logits(reco_logits, object_types, padding_token, method=method)
         assert torch.allclose(scores, torch.zeros(1, dtype=torch.float64), atol=0.0)
+
+
+def test_event_summary_features_shape_and_padding():
+    padding_token = 5
+    reco_logits = torch.tensor(
+        [
+            [[-10.0, 10.0, -10.0], [10.0, -10.0, -10.0]],
+            [[10.0, -10.0, -10.0], [-10.0, -10.0, 10.0]],
+        ],
+        dtype=torch.float64,
+    )
+    object_types = torch.tensor([[1, 2], [1, 2]], dtype=torch.long)
+    features = event_summary_features(reco_logits, object_types, padding_token)
+
+    assert features.shape == (2, 8)
+    assert features[0, 0] > 0.999
+    assert features[0, 3] > 0.999
+    assert features[0, 1] < 1.0e-6
+    assert features[0, 4] < 1.0e-6
+
+    padding_logits = torch.tensor(
+        [
+            [[-100.0, 100.0, -100.0], [-100.0, -100.0, 100.0]],
+            [[100.0, -100.0, -100.0], [-100.0, 100.0, -100.0]],
+        ],
+        dtype=torch.float64,
+    )
+    padded_logits = torch.cat([reco_logits, padding_logits], dim=1)
+    padded_types = torch.cat(
+        [object_types, torch.full((2, 2), padding_token, dtype=torch.long)],
+        dim=1,
+    )
+    padded_features = event_summary_features(padded_logits, padded_types, padding_token)
+
+    assert torch.allclose(features, padded_features, atol=1.0e-12)
+    softor = event_score_from_object_logits(reco_logits, object_types, padding_token, method="softor")
+    assert torch.allclose(features[:, 7], softor, atol=1.0e-12)
+
+    all_padding_features = event_summary_features(
+        padding_logits[:1],
+        torch.full((1, 2), padding_token, dtype=torch.long),
+        padding_token,
+    )
+    assert torch.allclose(all_padding_features, torch.zeros((1, 8), dtype=torch.float64), atol=0.0)
+
+
+def test_fair_readout_beats_single_feature_when_combo_helps():
+    train_features = np.array(
+        [[0.9, 0.9]] * 40
+        + [[0.9, 0.1]] * 40
+        + [[0.1, 0.9]] * 40,
+        dtype=float,
+    )
+    train_labels = np.array([1] * 40 + [0] * 80)
+    train_weights = np.ones_like(train_labels, dtype=float)
+    train_weights[::7] = -2.0
+
+    test_features = np.array(
+        [[0.8, 0.8]] * 20
+        + [[0.8, 0.2]] * 20
+        + [[0.2, 0.8]] * 20,
+        dtype=float,
+    )
+    test_labels = np.array([1] * 20 + [0] * 40)
+    test_weights = np.ones_like(test_labels, dtype=float)
+
+    readout = fit_fair_readout(train_features, train_labels, train_weights)
+    assert readout is not None
+
+    fair_auc = weighted_roc_auc(readout.score(test_features), test_labels, test_weights)
+    best_single_auc = max(
+        weighted_roc_auc(test_features[:, 0], test_labels, test_weights),
+        weighted_roc_auc(test_features[:, 1], test_labels, test_weights),
+    )
+
+    assert math.isclose(best_single_auc, 0.75, rel_tol=0.0, abs_tol=1.0e-12)
+    assert fair_auc > best_single_auc + 0.20
+    assert fit_fair_readout(train_features, np.ones_like(train_labels)) is None
 
 
 def test_weighted_roc_auc_perfectly_separated():
