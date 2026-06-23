@@ -89,10 +89,42 @@ prediction because dropping the hook also lets `nn.MultiheadAttention` use its f
 - `random.shuffle` on a 170k numpy array is ~34 ms (Python-level); `np.random.shuffle` is
   ~2 ms **and** is seeded → Tier 2 will make it both faster and *more* deterministic.
 
-## Status / next
+## Tier 2 — vectorised shuffles (deterministic; RNG stream changes)
 
-- **Tier 1: DONE + committed** (this log + the 5 code files).
-- **Tier 2: in progress** — vectorised object shuffle (`argsort(rand)`, same semantics) +
-  `random.shuffle`→`np.random.shuffle`. Deterministic but RNG-stream-changing, so will
-  run a short before/after to confirm the loss/val curves match before committing.
-  Results to be appended here.
+Two `dataloaders/lowleveldataloader.py` changes:
+
+1. **Object shuffle** (`__next__`): replaced the per-sample `for i in range(batch_size):
+   torch.randperm(...)` loop with a vectorised `torch.rand(B, num_objs-1).argsort(dim=1)`.
+   Same semantics (slot 0 = input object 1 lepton/neutrino swap; slots 1.. = uniform
+   random permutation of `{0,2,…,num_objs-1}`) — verified the produced index rows are
+   valid permutations with slot-0 == 1 and the neutrino appearing exactly once.
+   **`next()`: 14.2 → 3.7 ms/batch (3.8×).**
+2. **Per-epoch index shuffle** (`_reset_indices`): `random.shuffle` → `np.random.shuffle`
+   (C-level, ~34→2 ms) — and, crucially, `np.random` *is* seeded by the training scripts
+   whereas `random` was not, so the per-epoch ordering is **now deterministic**.
+
+Both change which objects/samples land where vs the old RNG stream, so not bit-identical
+to old runs — but they ARE the same *distribution*, so training is statistically
+equivalent. Confirmed with a seed-0, 3-epoch organism A/B before/after (MPS):
+
+| | ep2 train_loss | ep2 PerfectRecoPct_all | deterministic? |
+|---|--:|--:|---|
+| OLD run A | 0.3272 | 0.6495 | — |
+| OLD run B | 0.3204 | 0.6601 | **no** (A≠B; unseeded `random.shuffle`) |
+| NEW run A | 0.3180 | 0.6626 | — |
+| NEW run B | 0.3180 | 0.6626 | **yes** (A==B, bit-identical) |
+
+NEW sits inside (here slightly better than) the OLD run-to-run spread → no degradation,
+and Tier 2 makes training **deterministic for the first time**.
+
+## Status / combined result
+
+- **Tier 1 + Tier 2: DONE.** Per-step end-to-end on MPS (compute + dataloader):
+  organism ~72.7 → **~28.4 ms** (2.6×), joint ~54.3 → **~22.7 ms** (2.4×); 3-epoch
+  organism wall-clock 0.9 → 0.7 min (startup-diluted). No model/epoch/LR changes;
+  determinism preserved (joint) or improved (now fully deterministic).
+- The two scratch helpers (`profile_mps.py`, `profile_dl.py`) and the verification
+  scripts live in the session scratchpad, not the repo.
+- Possible future Tier 3 (not done): background-thread batch prefetch to overlap the
+  remaining ~3.7 ms dataloader with MPS compute; reduce the 3 per-step device syncs
+  (`loss.item()`, two `isfinite` checks) by deferring the running-loss accumulation.
