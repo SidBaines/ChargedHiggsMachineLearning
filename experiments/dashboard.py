@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """Local live dashboard for the reco-net training runs.
 
-Parses tmp_suite/*.log (written by train_organism.py via the run_*.sh queues),
+Parses tmp_suite/*.log (written by train_organism.py via the run_*.sh queues)
+and output/joint_first_set_*/logs/*.log (written by train_joint.py queues),
 groups runs by experiment, and serves a self-refreshing web page with progress
 bars + per-category evals + sparklines. Stdlib only (no deps, read-only).
 
@@ -13,7 +14,10 @@ import os, re, json, glob, argparse, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOGDIR = os.path.join(REPO, "tmp_suite")
+LOG_GLOBS = [
+    os.path.join(REPO, "tmp_suite", "*.log"),
+    os.path.join(REPO, "output", "joint_first_set_*", "logs", "*.log"),
+]
 
 # d152 all-cats reference (winner recipe) = the performance targets we compare against.
 TARGET = {"all": 0.891, "cat0": 0.456, "cat1": 0.472, "cat2": 0.410,
@@ -24,6 +28,8 @@ GROUPS = [
     ("g1c",  "G1c · cat5 probe — boosted-only"),
     ("minB", "G1c · initial grid — boosted-only, 30 ep"),
     ("a2",   "A2 · free-lunch probe — d152, all categories"),
+    ("single",  "Joint reco/classifier · single-head pseudo-background"),
+    ("twohead", "Joint reco/classifier · two-head pseudo-background"),
 ]
 GROUP_LABEL = dict(GROUPS)
 GROUP_ORDER = {g: i for i, (g, _) in enumerate(GROUPS)}
@@ -90,7 +96,7 @@ def parse_log(path):
     mtime = os.path.getmtime(path)
     if dn:
         d["status"], d["duration_min"] = "done", float(dn.group(1))
-    elif time.time() - mtime < 180:
+    elif time.time() - mtime < 900:
         d["status"] = "running"
     else:
         d["status"] = "stalled"
@@ -105,14 +111,15 @@ def parse_log(path):
 
 def collect():
     runs = []
-    for p in sorted(glob.glob(os.path.join(LOGDIR, "*.log"))):
-        try:
-            r = parse_log(p)
-        except Exception:
-            continue
-        if r["params"] is None and r["cur_epoch"] == 0:
-            continue  # not a real training log (dashboard.log, driver output, etc.)
-        runs.append(r)
+    for pattern in LOG_GLOBS:
+        for p in sorted(glob.glob(pattern)):
+            try:
+                r = parse_log(p)
+            except Exception:
+                continue
+            if r["params"] is None and r["cur_epoch"] == 0:
+                continue  # not a real training log (dashboard.log, driver output, eval-only logs, etc.)
+            runs.append(r)
     runs.sort(key=lambda r: (GROUP_ORDER.get(r["group"], 99),
                              r.get("d_model") or 0, r.get("blocks") or 0, r["tag"]))
     return {"runs": runs, "target": TARGET, "now": time.time()}
@@ -244,9 +251,13 @@ class H(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+class ReusableThreadingHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = True
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8765)
     args = ap.parse_args()
     print(f"reco-net dashboard → http://localhost:{args.port}   (Ctrl-C to stop)")
-    ThreadingHTTPServer(("127.0.0.1", args.port), H).serve_forever()
+    ReusableThreadingHTTPServer(("127.0.0.1", args.port), H).serve_forever()

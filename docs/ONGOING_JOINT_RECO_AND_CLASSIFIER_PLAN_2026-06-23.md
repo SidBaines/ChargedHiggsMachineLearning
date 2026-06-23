@@ -328,6 +328,25 @@ really signal; metrics are unnormalized — see R6). This phase only proves the 
   validation-bound (~30–50 min before). The first two rows (single, joint) were trained pre-fix
   (correct, just slow); the four two-head schedules were re-run post-fix.
 
+### Reproduce / monitor (local tooling)
+- **Runner scripts:** `experiments/run_joint_first_set_mps.sh` (full set: `single_softor` +
+  fair-readout eval + 5 two-head schedules) and `experiments/run_joint_remaining_mps.sh` (the 4
+  two-head schedules only — the post-fix re-run). Env knobs: `EPOCHS`, `BATCH_SIZE`,
+  `PSEUDO_BKG_DSID`. Sequential, MPS, run under `caffeinate` for long queues; logs +
+  `manifest.log` under `output/joint_first_set_<stamp>/`.
+- **Live dashboard:** `.venv/bin/python experiments/dashboard.py --port 8765`
+  (→ http://localhost:8765) — self-refreshes every 4 s and auto-discovers
+  `output/joint_first_set_*/logs/*.log` (no restart needed when a new queue starts).
+- **W&B:** the pseudo-background runs used `--no-wandb` (diagnostics, not publishable).
+  **Turn W&B back on** (drop `--no-wandb`) for real-background comparison runs.
+- **Checkpoints/configs** for completed runs are under `output/<stamp>_TrainingOutput/`
+  (gitignored, local); e.g. the single-head checkpoint the fair-readout eval used =
+  `output/20260623-155505_TrainingOutput/models/Nplits2_ValIdx0/chkpt9_3430.pth`.
+- **Gotcha:** `train_joint.py` stdout is block-buffered through `tee`, so the log file (and the
+  dashboard) update in chunks and can briefly look "stalled" mid-run — verify with `ps`
+  (CPU% / state `R`) before assuming a hang. (The earlier multi-hour "stall" was the O(N²)
+  `best_asimov_z`, now vectorised.)
+
 ### Trade-off surface (to fill once background lands)
 *(append per run; mirror the reco plan's table style: model | params | mode | schedule |
 data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
