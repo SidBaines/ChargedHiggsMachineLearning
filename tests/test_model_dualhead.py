@@ -69,6 +69,36 @@ def test_dualhead_shapes():
         assert output["event"].shape == (B, num_event_classes)
 
 
+def test_dualhead_event_head_ignores_padding():
+    torch.manual_seed(456)
+    model = TestNetwork(**_model_kwargs(add_event_head=True))
+    model.eval()
+
+    object_features = torch.randn(B, N_OBJ, len(FEATURE_SET))
+    object_types = torch.tensor(
+        [
+            [0, 1, 2, 3, 4, 0, 1, 2, 5, 5, 5, 5, 5, 5, 5],
+            [1, 2, 0, 4, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 5, 5, 5, 5, 5],
+            [4, 0, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+        ],
+        dtype=torch.long,
+    )
+    padding = object_types == (NUM_PARTICLE_TYPES - 1)
+
+    changed_padding = object_features.clone()
+    changed_padding[padding] = torch.tensor(
+        [1000.0, -2000.0, 3000.0, 4500.0, -999.0],
+        dtype=object_features.dtype,
+    )
+
+    with torch.no_grad():
+        event_logits = model(object_features, object_types)["event"]
+        changed_event_logits = model(changed_padding, object_types)["event"]
+
+    assert torch.allclose(event_logits, changed_event_logits, atol=1e-5)
+
+
 def test_reco_head_unperturbed_by_event_head():
     object_features, object_types = _inputs()
 

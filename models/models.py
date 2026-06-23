@@ -202,7 +202,9 @@ class TestNetwork(nn.Module):
         object_features = self._backbone_features(object_features, object_types)
         if self.add_event_head:
             # Dual-head mode always returns both reconstruction and event logits.
-            pooled = torch.sum(object_features, dim=1) / torch.sum(object_types!=(self.num_particle_types-1), dim=-1).unsqueeze(-1)
+            # Mask padding for the event head; legacy classifier pooling below intentionally remains unchanged for baseline reproducibility.
+            nonpad = (object_types != (self.num_particle_types - 1)).unsqueeze(-1)
+            pooled = (object_features * nonpad).sum(dim=1) / nonpad.sum(dim=1).clamp(min=1)
             return {
                 "reco": self.classifier(object_features),
                 "event": self.event_classifier(pooled),
