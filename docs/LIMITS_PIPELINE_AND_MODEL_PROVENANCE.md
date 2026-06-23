@@ -184,6 +184,32 @@ Only the "New" (transformer) side changes; `OldMethodFit` (cut-based baseline) i
 4. Extract `exp_upperlimit` per mass from `…/Limits/Asymptotics/myLimit.root`; re-plot vs
    the unchanged `OldMethodFit` curve.
 
+## 7b. The 2025 fit/plot code lives on EOS in `TRExFitter3/` (found 2026-06-16)
+
+The Stage-3→7 code that the local repos lack is on EOS at
+`/eos/user/l/lubaines/CODE_HplusWh/TRExFitter3/`:
+- `runFitOverAllMassesNewMethod.sh` (and `…NewMethod2.sh`, `runFitOverAllMasses.sh`) — loop
+  TRExFitter over all 10 mass points for the transformer ("New") strategy; `multiRunLoopScript.sh`.
+- `GetLimitValues.py` — read `…/Limits/Asymptotics/myLimit.root` → limit-value tables.
+- `PlotRat.py` — generates the `comparison_and_ratio*.pdf` (the 2-panel limit+ratio plot);
+  `PlotRatXSecLimits_HpWh.py` is a variant. (The local `Work/HplusWh/ExclusionLimitPlottingCode/`
+  is the OLDER 2023 published-analysis version — not these.)
+- Output plots also live here: `comparison_and_ratio{0..4}.pdf`, `…4.v2.pdf`, and named
+  variants (`…_BestOldMethodVsTransformer.pdf`, `…_BestOldMethodVsNew.pdf`, `…_OldVsOldBetter.pdf`).
+
+Note: EOS `comparison_and_ratio4.v2.pdf` (md5 `5f07b6f…`) matches the **Feb-2025 IoP**
+version; the **thesis** copy (`07b48da…`) differs in bytes — i.e. the thesis figure is a
+**re-render of the same limit values** (the extracted `NewMethodFit5`/`OldMethodFit` numbers
+match the thesis curves exactly, §3), not a byte-copy of the EOS file.
+
+**Checkpoints are NOT on EOS** either (searched `/eos/user/l/lubaines` for `chkpt4_27415`
+etc. — no hits). So reco + classifier checkpoints are gone from heppc402, Mac, and EOS;
+only the unmounted Seagate drive remains untested.
+
+⚠️ **These scripts exist only on EOS.** Given the checkpoints were already lost this way,
+consider vendoring `PlotRat.py`, `GetLimitValues.py`, `runFitOverAllMassesNewMethod.sh` (+ a
+representative `Hp1600_all.config`) into this repo so the recreation recipe is reproducible.
+
 ## 8. Open questions
 
 - Was the **warm-start bug** in the **reconstruction** training, the **classifier**
