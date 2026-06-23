@@ -221,22 +221,25 @@ def best_asimov_z(scores, labels, weights):
     labels_np = np.asarray(labels_np).reshape(-1)
     weights_np = np.asarray(weights_np, dtype=float).reshape(-1)
 
-    thresholds = np.unique(scores_np)
-    if thresholds.size == 0:
+    if scores_np.size == 0:
         return float("nan"), float("nan")
 
-    best_z = -np.inf
-    best_threshold = float("nan")
-    signal = labels_np == 1
-    background = labels_np == 0
-
-    for threshold in thresholds:
-        selected = scores_np >= threshold
-        s_yield = weights_np[selected & signal].sum()
-        b_yield = weights_np[selected & background].sum()
-        z_value = float(asimov_z(s_yield, b_yield))
-        if z_value > best_z:
-            best_z = z_value
-            best_threshold = float(threshold)
-
-    return float(best_z), best_threshold
+    # Vectorised equivalent of "for each unique threshold t, select score>=t and
+    # sum signal/background weights": sort by score descending so "score>=t" is a
+    # prefix, then cumulative weight sums give every threshold's yields at once.
+    # O(N log N) instead of the naive O(N^2) python loop (which was ~20 min on the
+    # ~1.4M-event validation set).
+    order = np.argsort(scores_np, kind="mergesort")[::-1]
+    s_desc = scores_np[order]
+    w_desc = weights_np[order]
+    lab_desc = labels_np[order]
+    cum_s = np.cumsum(np.where(lab_desc == 1, w_desc, 0.0))
+    cum_b = np.cumsum(np.where(lab_desc == 0, w_desc, 0.0))
+    # Evaluate at each distinct score value (last index of each equal-score run in
+    # the descending order) so ties at a threshold are fully included.
+    boundary = np.ones(s_desc.size, dtype=bool)
+    boundary[:-1] = s_desc[:-1] != s_desc[1:]
+    z = np.atleast_1d(asimov_z(cum_s[boundary], cum_b[boundary]))
+    thr = s_desc[boundary]
+    best_i = int(np.argmax(z))
+    return float(z[best_i]), float(thr[best_i])

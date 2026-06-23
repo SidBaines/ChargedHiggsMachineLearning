@@ -226,6 +226,52 @@ def test_best_asimov_z_perfect_separation():
     assert math.isclose(best_z, asimov_z(5.0, 0.0), rel_tol=0.0, abs_tol=1.0e-12)
 
 
+def _best_asimov_z_bruteforce(scores, labels, weights):
+    """Naive O(N^2) reference: the original loop, used only to validate the
+    vectorised implementation."""
+    scores = np.asarray(scores, dtype=float).reshape(-1)
+    labels = np.asarray(labels).reshape(-1)
+    weights = np.asarray(weights, dtype=float).reshape(-1)
+    signal = labels == 1
+    background = labels == 0
+    best_z, best_thr = -np.inf, float("nan")
+    for t in np.unique(scores):
+        sel = scores >= t
+        z = float(asimov_z(weights[sel & signal].sum(), weights[sel & background].sum()))
+        if z > best_z:
+            best_z, best_thr = z, float(t)
+    return best_z, best_thr
+
+
+def test_best_asimov_z_matches_bruteforce():
+    rng = np.random.default_rng(0)
+    # Distinct continuous scores -> unique argmax, so tie-break is irrelevant.
+    n = 2000
+    scores = rng.random(n)
+    labels = (rng.random(n) < 0.5).astype(int)
+    weights = np.abs(rng.normal(1.0, 0.3, n))
+    bf_z, bf_thr = _best_asimov_z_bruteforce(scores, labels, weights)
+    vec_z, vec_thr = best_asimov_z(scores, labels, weights)
+    assert math.isclose(vec_z, bf_z, rel_tol=1e-9, abs_tol=1e-9)
+    assert math.isclose(vec_thr, bf_thr, rel_tol=0.0, abs_tol=1e-9)
+
+
+def test_best_asimov_z_scales_to_large_n():
+    # The old O(N^2) loop was ~minutes at this size; the vectorised version must
+    # be sub-second. Guards against reintroducing the quadratic scan.
+    import time
+    rng = np.random.default_rng(1)
+    n = 200_000
+    scores = rng.random(n)
+    labels = (rng.random(n) < 0.5).astype(int)
+    weights = np.abs(rng.normal(1.0, 0.3, n))
+    t0 = time.perf_counter()
+    z, thr = best_asimov_z(scores, labels, weights)
+    elapsed = time.perf_counter() - t0
+    assert math.isfinite(z) and math.isfinite(thr)
+    assert elapsed < 5.0, f"best_asimov_z too slow ({elapsed:.1f}s for N={n}) — quadratic regression?"
+
+
 if __name__ == "__main__":
     failures = 0
     for name, test_fn in sorted(globals().items()):
