@@ -41,6 +41,24 @@ p.add_argument("--bottleneck", type=int, default=None,
                     "time, thesis-style); omit for none")
 p.add_argument("--entropy-weight", type=float, default=None,
                help="0 disables the entropy penalty (default: CONFIG 1e-2)")
+# --- knobs added 2026-06-22 for the minimal/best reco-net search ---
+p.add_argument("--num-heads", type=int, default=None)
+p.add_argument("--dropout", type=float, default=None)
+p.add_argument("--weight-decay", type=float, default=None)
+p.add_argument("--batch-size", type=int, default=None)
+p.add_argument("--embedding-size", type=int, default=None)
+p.add_argument("--no-mlp", action="store_true",
+               help="attention-only (include_mlp=False) — cleanest for interpretability")
+p.add_argument("--warmup-steps", type=int, default=None)
+p.add_argument("--features", type=str, default=None,
+               help="comma list from {phi,eta,pt,m,tag}; default keeps all 5")
+p.add_argument("--object-net-layers", type=int, default=None)
+p.add_argument("--layer-norm", action="store_true",
+               help="LayerNorm in the object_net (NB: not in the attention blocks)")
+p.add_argument("--keep-cats", type=str, default=None,
+               help="comma list of reco categories to TRAIN on; events in other categories "
+                    "get loss weight 0 (e.g. '4,5' = boosted-only organism). Eval still "
+                    "reports every category.")
 ARGS = p.parse_args()
 
 CONFIG = dict(
@@ -86,6 +104,18 @@ if ARGS.bottleneck is not None: CONFIG["bottleneck_attention"] = ARGS.bottleneck
 if ARGS.entropy_weight is not None:
     CONFIG["entropy_weight"] = ARGS.entropy_weight
     CONFIG["entropy_loss"] = ARGS.entropy_weight > 0
+if ARGS.num_heads is not None: CONFIG["num_heads"] = ARGS.num_heads
+if ARGS.dropout is not None: CONFIG["dropout_p"] = ARGS.dropout
+if ARGS.weight_decay is not None: CONFIG["weight_decay"] = ARGS.weight_decay
+if ARGS.batch_size is not None: CONFIG["batch_size"] = ARGS.batch_size
+if ARGS.embedding_size is not None: CONFIG["embedding_size"] = ARGS.embedding_size
+if ARGS.no_mlp: CONFIG["include_mlp"] = False
+if ARGS.warmup_steps is not None: CONFIG["warmup_steps"] = ARGS.warmup_steps
+if ARGS.features is not None:
+    CONFIG["feature_set"] = [f.strip() for f in ARGS.features.split(",") if f.strip()]
+if ARGS.object_net_layers is not None: CONFIG["num_object_net_layers"] = ARGS.object_net_layers
+if ARGS.layer_norm: CONFIG["is_layer_norm"] = True
+CONFIG["keep_cats"] = [int(c) for c in ARGS.keep_cats.split(",")] if ARGS.keep_cats else None
 
 torch.manual_seed(CONFIG["seed"]); np.random.seed(CONFIG["seed"])
 device = CONFIG["device"] if torch.backends.mps.is_available() else "cpu"
@@ -96,6 +126,11 @@ _bn = f"Bn{CONFIG['bottleneck_attention']}" if CONFIG["bottleneck_attention"] el
 run_name = (f"_{stamp}_LowLevel_ORG2026_d{CONFIG['d_model']}b{CONFIG['num_blocks']}_{_ent}_{_bn}"
             f"_lr{CONFIG['learning_rate']:g}-{CONFIG['learning_rate_low']:g}"
             f"_{CONFIG['lr_schedule']}_{CONFIG['warmup_mode']}_s{CONFIG['seed']}")
+run_name += f"_h{CONFIG['num_heads']}"
+if not CONFIG["include_mlp"]:
+    run_name += "_nomlp"
+if CONFIG.get("keep_cats"):
+    run_name += "_keep" + "".join(str(c) for c in CONFIG["keep_cats"])
 OUT = os.path.join(REPO, "output", f"{stamp}_TrainingOutput")
 MODELS_OUT = os.path.join(OUT, "models", f"Nplits{CONFIG['n_splits']}_ValIdx{CONFIG['validation_split_idx']}")
 os.makedirs(MODELS_OUT, exist_ok=True)
@@ -115,7 +150,7 @@ mk = dict(N_Real_Vars_In_File=CONFIG["n_real_vars_in_file"],
           means=None, stds=stds, objs_to_output=CONFIG["max_n_objs"],
           signal_only=True, has_eventNumbers=CONFIG["has_eventNumbers"])
 train_dl = ProportionalMemoryMappedDataset(is_train=True, shuffle=CONFIG["shuffle_objects"], shuffle_batch=True, **mk)
-val_dl = ProportionalMemoryMappedDataset(is_train=False, shuffle=False, shuffle_batch=False, **mk)
+val_dl = ProportionalMemoryMappedDataset(is_train=False, shuffle=False, shuffle_batch=True, **mk)  # shuffle_batch=True: per-epoch val subset is a representative random sample (the final epoch still does full val)
 print(f"train samples: {train_dl.get_total_samples()}  val samples: {val_dl.get_total_samples()}")
 
 model = TestNetwork(
@@ -196,6 +231,18 @@ for epoch in range(CONFIG["num_epochs"]):
         b = next(train_dl)
         x, y, w, types = b["x"], b["y"], b["train_wts"], b["types"]
         x = sanitize_padding(x, types)
+        if CONFIG["keep_cats"] is not None:
+            # Subset organism (e.g. boosted-only cats 4,5): zero the loss weight of events
+            # whose TRUE reco category is not in keep_cats. check_category must run on CPU
+            # (it builds a CPU index tensor), so move the small type/truth tensors over.
+            from utils.utils import check_category
+            catb = check_category(types.cpu(), x[..., -1].cpu(), N_CTX - 1, use_torch=True).to(w.device)
+            keep = torch.zeros_like(w, dtype=torch.bool)
+            for c in CONFIG["keep_cats"]:
+                keep |= (catb == c)
+            w = w * keep.to(w.dtype)
+            if w.sum() == 0:
+                continue
         optimizer.zero_grad()
         out = model(x[..., :CONFIG["model_input_vars"]], types).squeeze()
         loss = criterion(cache, out, x[..., -1], types, N_CTX - 1, MAX_OBJS, w, False, x[..., :4])
@@ -241,7 +288,8 @@ for epoch in range(CONFIG["num_epochs"]):
     if CONFIG["wandb"]:
         wandb.log({f"{k}": float(v) for k, v in rv.items() if hasattr(v, "item") or isinstance(v, (int, float))} |
                   {"train/epoch_loss": ep_loss / max(ep_w, 1e-9)}, step=global_step)
-    torch.save(model.state_dict(), os.path.join(MODELS_OUT, f"chkpt{epoch}_{global_step}.pth"))
+    if (epoch % 25 == 0) or (epoch == CONFIG["num_epochs"] - 1):  # avoid 100s of ckpts on long runs
+        torch.save(model.state_dict(), os.path.join(MODELS_OUT, f"chkpt{epoch}_{global_step}.pth"))
 
 print(f"done in {(time.time()-t0)/60:.1f} min; checkpoints + config.json in {OUT}")
 if CONFIG["wandb"]:

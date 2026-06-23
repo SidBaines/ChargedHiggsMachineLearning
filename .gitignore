@@ -7,3 +7,6 @@ wandb/
 *.png
 *.pdf
 *.dart
+.env
+.DS_Store
+**/.DS_Store

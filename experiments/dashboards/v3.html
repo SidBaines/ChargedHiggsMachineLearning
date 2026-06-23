@@ -1,0 +1,649 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run Leaderboard · training monitor</title>
+<style>
+  /* ============================================================
+     v3 — "gap-to-target" leaderboard. Instrument-panel scoreboard.
+     Self-contained: system fonts + inline SVG only. No external deps.
+     ============================================================ */
+  :root{
+    --ground:#11161F;          /* deep slate-navy frame */
+    --panel:#171E2A;           /* raised surface */
+    --panel-2:#1E2735;         /* row surface */
+    --hair:#2A3545;            /* hairlines */
+    --hair-soft:#222C3A;
+    --text:#E8ECF2;            /* primary text */
+    --muted:#8A98AD;           /* secondary text */
+    --faint:#5C6A7E;           /* tertiary / disabled */
+    --accent:#5BE0C8;          /* calibrated teal — live / on-target */
+    --accent-dim:#2E5C56;
+    --good:#56D6A4;            /* at/above target */
+    --warn:#E7C26B;            /* slightly below */
+    --bad:#FF6B6B;             /* well below target */
+    --gold:#F2C14E;
+    --silver:#C6CFDB;
+    --bronze:#D08B58;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #16202E 0%, rgba(22,32,46,0) 60%),
+      var(--ground);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:64px;
+  }
+  a{color:inherit}
+  .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  /* ---------- top nav ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;gap:18px;
+    padding:14px 26px;
+    background:rgba(17,22,31,.86);
+    backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--hair);
+  }
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.04em}
+  .brand .mark{display:block}
+  .brand .sub{color:var(--muted);font-weight:500;letter-spacing:.16em;font-size:11px;text-transform:uppercase}
+  .navlinks{display:flex;align-items:center;gap:6px;margin-left:6px}
+  .navlinks a{
+    text-decoration:none;color:var(--muted);
+    font-family:var(--mono);font-size:12.5px;
+    padding:5px 11px;border-radius:7px;border:1px solid transparent;
+  }
+  .navlinks a:hover{color:var(--text);background:var(--panel)}
+  .navlinks a.here{color:var(--ground);background:var(--accent);font-weight:700;border-color:var(--accent)}
+  .navlinks .dot{color:var(--faint)}
+  .navright{margin-left:auto;display:flex;align-items:center;gap:18px}
+  .live{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .live .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(91,224,200,.55)}
+  .live.beat .pulse{animation:beat 4s ease-out infinite}
+  @keyframes beat{0%{box-shadow:0 0 0 0 rgba(91,224,200,.5)}40%{box-shadow:0 0 0 8px rgba(91,224,200,0)}100%{box-shadow:0 0 0 0 rgba(91,224,200,0)}}
+  .clock{font-family:var(--mono);font-size:12.5px;color:var(--text)}
+  .clock b{color:var(--muted);font-weight:500}
+
+  /* ---------- page intro ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+  header.intro{padding:30px 0 6px}
+  header.intro h1{
+    margin:0;font-size:30px;line-height:1.05;letter-spacing:-.01em;font-weight:800;
+  }
+  header.intro h1 .em{color:var(--accent)}
+  header.intro p{margin:9px 0 0;color:var(--muted);max-width:760px}
+  .legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .legend .li{display:flex;align-items:center;gap:7px}
+  .legend .sw{width:22px;height:8px;border-radius:3px}
+  .legend .tk{width:2px;height:14px;background:var(--text);display:inline-block}
+
+  /* ---------- group block ---------- */
+  .group{margin-top:30px}
+  .grouphead{
+    display:flex;align-items:baseline;gap:14px;
+    padding:0 4px 10px;border-bottom:1px solid var(--hair);
+  }
+  .grouphead .gname{font-size:16.5px;font-weight:700;letter-spacing:.01em}
+  .grouphead .gcount{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .grouphead .chips{margin-left:auto;display:flex;gap:8px}
+  .chip{font-family:var(--mono);font-size:11.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--hair);color:var(--muted)}
+  .chip.run{color:var(--accent);border-color:var(--accent-dim)}
+  .chip.done{color:var(--silver)}
+  .chip.stall{color:var(--bad);border-color:#5a2c2c}
+
+  .rows{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+
+  /* ---------- leaderboard row ---------- */
+  .row{
+    display:grid;
+    grid-template-columns:58px 200px 1fr 168px;
+    gap:18px;align-items:center;
+    background:linear-gradient(180deg,var(--panel-2),#1A2330);
+    border:1px solid var(--hair-soft);
+    border-radius:14px;
+    padding:16px 20px 16px 14px;
+    position:relative;overflow:hidden;
+  }
+  .row.live{border-color:var(--accent-dim);box-shadow:inset 3px 0 0 var(--accent)}
+  .row.top1{box-shadow:inset 3px 0 0 var(--gold)}
+  .row.top1.live{box-shadow:inset 3px 0 0 var(--gold), inset 0 0 0 1px var(--accent-dim)}
+
+  /* rank cell */
+  .rank{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+  .rank .medal{font-size:24px;line-height:1}
+  .rank .num{font-family:var(--mono);font-size:13px;color:var(--faint)}
+  .rank .num b{color:var(--muted);font-weight:700}
+
+  /* identity cell */
+  .ident .tag{font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:-.01em;word-break:break-all}
+  .ident .arch{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
+  .pill{font-family:var(--mono);font-size:10.5px;color:var(--muted);background:#141B26;border:1px solid var(--hair-soft);border-radius:6px;padding:2px 6px;white-space:nowrap}
+  .pill.kind{color:var(--accent);border-color:var(--accent-dim)}
+  .ident .status{margin-top:8px;display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px}
+  .ident .status .sdot{width:7px;height:7px;border-radius:50%}
+  .s-running .sdot{background:var(--accent)} .s-running{color:var(--accent)}
+  .s-done .sdot{background:var(--silver)} .s-done{color:var(--muted)}
+  .s-stalled .sdot{background:var(--bad)} .s-stalled{color:var(--bad)}
+  .ident .prog{margin-top:8px}
+  .progbar{height:5px;background:#0E141D;border-radius:4px;overflow:hidden;border:1px solid var(--hair-soft)}
+  .progbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));border-radius:4px}
+  .progbar.is-done > i{background:linear-gradient(90deg,#3a4658,var(--silver))}
+  .proglbl{margin-top:5px;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  .proglbl .eta{color:var(--accent)}
+
+  /* gap-meter cell (the hero) */
+  .meter{min-width:0}
+  .meter .mhead{display:flex;align-items:baseline;gap:10px;margin-bottom:9px}
+  .meter .keylabel{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .meter .bignum{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .meter .gaptag{
+    font-family:var(--mono);font-size:13px;font-weight:600;
+    padding:3px 9px;border-radius:7px;white-space:nowrap;
+  }
+  .gap-good{color:var(--good);background:rgba(86,214,164,.10);border:1px solid rgba(86,214,164,.30)}
+  .gap-warn{color:var(--warn);background:rgba(231,194,107,.10);border:1px solid rgba(231,194,107,.30)}
+  .gap-bad{color:var(--bad);background:rgba(255,107,107,.10);border:1px solid rgba(255,107,107,.30)}
+  .gap-na{color:var(--faint);background:#141B26;border:1px solid var(--hair-soft)}
+
+  /* the track: 0..1 with a fixed target gate and a value fill */
+  .track{position:relative;height:24px;border-radius:8px;background:#0D131C;border:1px solid var(--hair-soft);overflow:hidden}
+  .track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px 0 0 7px}
+  .fill-good{background:linear-gradient(90deg,#2E6B57,var(--good))}
+  .fill-warn{background:linear-gradient(90deg,#6b5a2e,var(--warn))}
+  .fill-bad{background:linear-gradient(90deg,#6b2e2e,var(--bad))}
+  .track .gate{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text);box-shadow:0 0 0 1px rgba(17,22,31,.7)}
+  .track .gate::after{content:"";position:absolute;top:-2px;left:-3px;width:8px;height:5px;background:var(--text);clip-path:polygon(0 0,100% 0,50% 100%)}
+  .track .ticks{position:absolute;inset:0;pointer-events:none}
+  .track .ticks i{position:absolute;top:0;bottom:0;width:1px;background:var(--hair-soft)}
+  .meter .scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:4px}
+  .meter .sub{margin-top:9px;display:flex;flex-wrap:wrap;gap:7px 16px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .meter .sub .seval{display:flex;align-items:center;gap:6px}
+  .meter .sub .seval .k{color:var(--faint)}
+  .meter .sub .seval .v.over{color:var(--good)} .meter .sub .seval .v.under{color:var(--warn)}
+  .meter .sub .seval .mini{width:42px;height:5px;border-radius:3px;background:#0D131C;border:1px solid var(--hair-soft);position:relative;overflow:hidden}
+  .meter .sub .seval .mini > i{position:absolute;left:0;top:0;bottom:0}
+  .meter .sub .seval .mini .g{position:absolute;top:-1px;bottom:-1px;width:1px;background:var(--text)}
+
+  /* binding headline — which relevant category is holding the run back */
+  .meter .bindhead{display:flex;align-items:center;gap:9px;margin-bottom:11px;flex-wrap:wrap}
+  .bind-key{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ground);background:var(--silver);border-radius:5px;padding:2px 7px;line-height:1.3}
+  .meter .bindhead .bindcat{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .meter .bindhead .bindcat b{color:var(--text);font-weight:700}
+
+  /* co-equal gauges: 1 (all-cats) or 2 (boosted) side by side, no privilege */
+  .gauges{display:grid;gap:14px}
+  .gauges.dual{grid-template-columns:1fr 1fr}
+  @media (max-width:600px){ .gauges.dual{grid-template-columns:1fr} }
+  .gauge{min-width:0}
+  .gauge .ghead{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+  .gauge .gcat{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .gauge .gval{font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--text)}
+  .gauge .ggap{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap;margin-left:auto}
+  .gauge .gscale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:4px}
+  .gauge .gbest{margin-top:4px;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .gauge .gbest b{color:var(--text);font-weight:700}
+
+  /* spark cell */
+  .sparkcell{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .sparkcell .slabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .sparkcell svg{display:block;width:160px;height:46px}
+  .sparkcell .bestrow{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .sparkcell .bestrow b{color:var(--accent);font-weight:700}
+  .sparkcell .sparkempty{font-family:var(--mono);font-size:11px;color:var(--faint);height:46px;display:flex;align-items:center}
+  .sparkcell .skey{display:flex;gap:11px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .sparkcell .skey .ski{display:flex;align-items:center;gap:5px}
+  .sparkcell .skey .ski i{width:13px;height:2.5px;border-radius:2px;display:inline-block}
+
+  /* ---------- states ---------- */
+  .banner{margin:22px 0;padding:14px 18px;border-radius:12px;font-family:var(--mono);font-size:13px;border:1px solid var(--hair)}
+  .banner.err{color:var(--bad);border-color:#5a2c2c;background:rgba(255,107,107,.06)}
+  .banner.load{color:var(--muted)}
+  .empty{color:var(--faint);font-family:var(--mono);font-size:12px;padding:8px 4px}
+
+  @media (max-width:860px){
+    .row{grid-template-columns:48px 1fr;grid-auto-rows:auto;gap:14px}
+    .meter{grid-column:1 / -1}
+    .sparkcell{grid-column:1 / -1;align-items:stretch}
+    .sparkcell svg{width:100%}
+    .navlinks .dot{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .live.beat .pulse{animation:none}
+    *{transition:none !important}
+  }
+  .fill,.progbar > i{transition:width .5s cubic-bezier(.2,.7,.2,1)}
+</style>
+
+<nav>
+  <div class="brand">
+    <svg class="mark" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+      <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="none" stroke="#5BE0C8" stroke-width="1.6"/>
+      <circle cx="12" cy="12" r="2.4" fill="#5BE0C8"/>
+    </svg>
+    <span>RUN LEADERBOARD<br><span class="sub">gap to target</span></span>
+  </div>
+  <div class="navlinks">
+    <a href="/">v1</a><span class="dot">·</span>
+    <a href="/v2">v2</a><span class="dot">·</span>
+    <a href="/v3" class="here">v3</a>
+  </div>
+  <div class="navright">
+    <div class="live" id="liveWrap"><span class="pulse"></span><span id="liveTxt">— live</span></div>
+    <div class="clock"><b>updated</b> <span id="clock">--:--:--</span></div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Who's closest to <span class="em">target</span>?</h1>
+    <p>Every training run, ranked within its experiment by its <b>binding</b> metric — the worst of its relevant categories. Boosted runs must clear <b>both</b> cat4 and cat5; all-cats runs are judged on <b>all</b>. The white gate on each meter is that category's target; the headline shows how far the binding category still has to go.</p>
+    <div class="legend">
+      <div class="li"><span class="sw" style="background:linear-gradient(90deg,#2E6B57,#56D6A4)"></span>at / above target</div>
+      <div class="li"><span class="sw" style="background:linear-gradient(90deg,#6b5a2e,#E7C26B)"></span>within 5% below</div>
+      <div class="li"><span class="sw" style="background:linear-gradient(90deg,#6b2e2e,#FF6B6B)"></span>more than 5% below</div>
+      <div class="li"><span class="tk"></span>target gate</div>
+      <div class="li"><span class="bind-key">binding</span> worst relevant category</div>
+    </div>
+  </header>
+
+  <div id="content"><div class="banner load">Connecting to /data …</div></div>
+</div>
+
+<script>
+"use strict";
+(function(){
+  const CATS = ["all","cat0","cat1","cat2","cat3","cat4","cat5"];
+  // distinguishable per-category line colours for sparks/legend (co-equal cat4/cat5)
+  const CAT_COLOR = {cat4:"#5BE0C8", cat5:"#C9A0FF", all:"#5BE0C8"};
+  const catColor = c => CAT_COLOR[c] || "#8A98AD";
+
+  // ---------- small helpers (guard everything) ----------
+  const isNum = v => typeof v === "number" && isFinite(v);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const f3 = v => isNum(v) ? v.toFixed(3) : "—";
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+
+  function fmtClock(epoch){
+    const d = isNum(epoch) ? new Date(epoch*1000) : new Date();
+    const p = n => String(n).padStart(2,"0");
+    return p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+  }
+
+  // boosted = keep_cats present & non-empty (cat0..3 are ~0 by construction)
+  function isBoosted(r){ return Array.isArray(r.keep_cats) && r.keep_cats.length > 0; }
+
+  // relevant categories for a run. Prefer server-provided rel_cats; else derive.
+  // boosted -> the kept cats (e.g. ["cat4","cat5"]); all-cats -> ["all"].
+  function relCats(r){
+    if(Array.isArray(r.rel_cats) && r.rel_cats.length) return r.rel_cats.slice();
+    if(isBoosted(r)) return r.keep_cats.map(n=>"cat"+n);
+    return ["all"];
+  }
+
+  // per-category margin = value - target. Prefer server margins; else compute.
+  function marginsOf(r, target){
+    const out = {};
+    const rel = relCats(r);
+    const srv = (r.margins && typeof r.margins === "object") ? r.margins : null;
+    const cats = r.cats || {};
+    for(const c of rel){
+      let m = srv && (c in srv) ? srv[c] : null;
+      if(!isNum(m)){
+        const v = cats[c], t = target ? target[c] : null;
+        m = (isNum(v) && isNum(t)) ? (v - t) : null;
+      }
+      out[c] = isNum(m) ? m : null;
+    }
+    return out;
+  }
+
+  // binding (worst) relevant margin — the single number to rank by. null if none known.
+  function keyMargin(r, target){
+    if(isNum(r.key_margin)) return r.key_margin;
+    const m = marginsOf(r, target);
+    let best = null;
+    for(const c of relCats(r)){ if(isNum(m[c]) && (best === null || m[c] < best)) best = m[c]; }
+    return best;
+  }
+
+  // name of the binding category. Prefer server key_cat; else argmin of margins.
+  function keyCat(r, target){
+    const rel = relCats(r);
+    if(typeof r.key_cat === "string" && rel.includes(r.key_cat)) return r.key_cat;
+    const m = marginsOf(r, target);
+    let kc = null, lo = null;
+    for(const c of rel){ if(isNum(m[c]) && (lo === null || m[c] < lo)){ lo = m[c]; kc = c; } }
+    return kc || rel[0];   // fall back to first relevant cat if no values yet
+  }
+
+  // per-category epoch trends. Prefer sparks{cat:[...]}; fall back to legacy r.spark
+  // (which historically tracked the key category) for the run's binding cat.
+  function sparkFor(r, cat){
+    const s = (r.sparks && typeof r.sparks === "object") ? r.sparks[cat] : null;
+    if(Array.isArray(s)) return s;
+    return null;
+  }
+
+  // gap class from (value - target): >=0 good; within .05 warn; else bad
+  function gapClass(val, tgt){
+    if(!isNum(val) || !isNum(tgt)) return "na";
+    const g = val - tgt;
+    if(g >= -0.0005) return "good";
+    if(g >= -0.05) return "warn";
+    return "bad";
+  }
+  function gapText(val, tgt){
+    if(!isNum(val)) return "no eval yet";
+    if(!isNum(tgt)) return "no target";
+    const g = val - tgt;
+    const s = (g >= 0 ? "+" : "−") + Math.abs(g).toFixed(3);
+    return s + " to target";
+  }
+
+  // build ONE line (path + optional area + end dot) on a shared lo/hi scale.
+  function sparkPath(spark, w, h, lo, hi, stroke, area){
+    const pts = (Array.isArray(spark) ? spark : []).filter(isNum);
+    if(pts.length < 2) return "";
+    const pad = 3;
+    const n = pts.length;
+    const x = i => pad + (w-2*pad) * (i/(n-1));
+    const y = v => pad + (h-2*pad) * (1 - (v-lo)/(hi-lo));
+    let d = "";
+    for(let i=0;i<n;i++){ d += (i?"L":"M") + x(i).toFixed(1)+" "+y(pts[i]).toFixed(1); }
+    const cx = x(n-1).toFixed(1), cy = y(pts[n-1]).toFixed(1);
+    let out = "";
+    if(area){
+      const fillId = "sg"+Math.random().toString(36).slice(2,8);
+      const ap = d + "L"+x(n-1).toFixed(1)+" "+(h-pad)+"L"+x(0).toFixed(1)+" "+(h-pad)+"Z";
+      out += `<defs><linearGradient id="${fillId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${stroke}" stop-opacity="0.20"/>
+        <stop offset="1" stop-color="${stroke}" stop-opacity="0"/></linearGradient></defs>`;
+      out += `<path d="${ap}" fill="url(#${fillId})" stroke="none"/>`;
+    }
+    out += `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+    out += `<circle cx="${cx}" cy="${cy}" r="2.3" fill="${stroke}"/>`;
+    return out;
+  }
+
+  // multi-series sparkline. series = [{spark, stroke, area}], shared y-scale.
+  function sparkSVG(series, w, h){
+    const all = [];
+    for(const s of series){ if(Array.isArray(s.spark)) for(const v of s.spark) if(isNum(v)) all.push(v); }
+    if(all.length < 2) return null;
+    let lo = Math.min(...all), hi = Math.max(...all);
+    if(hi - lo < 1e-6){ hi += 0.01; lo -= 0.01; }
+    let body = "";
+    let drew = 0;
+    for(const s of series){
+      const seg = sparkPath(s.spark, w, h, lo, hi, s.stroke, s.area);
+      if(seg) drew++;
+      body += seg;
+    }
+    if(!drew) return null;
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">${body}</svg>`;
+  }
+
+  // ---------- arch pills ----------
+  function archPills(r){
+    const out = [];
+    out.push(`<span class="pill kind">${isBoosted(r)?"boosted · cat4–5":"all-cats"}</span>`);
+    if(isNum(r.d_model)) out.push(`<span class="pill">d${r.d_model}</span>`);
+    if(isNum(r.blocks))  out.push(`<span class="pill">${r.blocks} blk</span>`);
+    if(isNum(r.heads))   out.push(`<span class="pill">${r.heads} hd</span>`);
+    out.push(`<span class="pill">${r.mlp ? "MLP" : "attn-only"}</span>`);
+    if(isNum(r.params)){
+      const p = r.params >= 1000 ? (r.params/1000).toFixed(r.params>=10000?0:1)+"k" : String(r.params);
+      out.push(`<span class="pill">${p} params</span>`);
+    }
+    return out.join("");
+  }
+
+  // ---------- progress ----------
+  function progressBlock(r){
+    const tot = isNum(r.total_epochs) ? r.total_epochs : null;
+    const cur = isNum(r.cur_epoch) ? r.cur_epoch : null;
+    let pct = 0;
+    if(tot && cur != null) pct = clamp01(cur/tot)*100;
+    else if(r.status === "done") pct = 100;
+    const isDone = r.status === "done";
+    let epoTxt = "epoch ";
+    epoTxt += (cur != null ? cur : "?") + "/" + (tot != null ? tot : "?");
+    if(tot) epoTxt += "  ·  " + pct.toFixed(0) + "%";
+    if(r.status === "running" && isNum(r.cur_step) && isNum(r.tot_steps)){
+      epoTxt += "  ·  step " + r.cur_step + "/" + r.tot_steps;
+    }
+    let tail = "";
+    if(r.status === "running" && isNum(r.eta_min)){
+      tail = ` · <span class="eta">ETA ${r.eta_min.toFixed(1)}m</span>`;
+    } else if(isDone && isNum(r.duration_min)){
+      tail = ` · ${r.duration_min.toFixed(1)}m total`;
+    }
+    return `<div class="prog">
+      <div class="progbar ${isDone?"is-done":""}"><i style="width:${pct.toFixed(1)}%"></i></div>
+      <div class="proglbl">${epoTxt}${tail}</div>
+    </div>`;
+  }
+
+  // one self-contained gauge for a single relevant category (its own target gate)
+  function gaugeBlock(r, cat, target){
+    const cats = r.cats || {};
+    const val = isNum(cats[cat]) ? cats[cat] : null;
+    const tgt = (target && isNum(target[cat])) ? target[cat] : null;
+    const best = r.best && isNum(r.best[cat]) ? r.best[cat] : null;
+
+    const gc = gapClass(val, tgt);
+    const fillW = isNum(val) ? (clamp01(val)*100).toFixed(1) : "0";
+    const gatePos = isNum(tgt) ? (clamp01(tgt)*100).toFixed(1) : null;
+
+    let ticks = "";
+    [25,50,75].forEach(p=>{ ticks += `<i style="left:${p}%"></i>`; });
+    const gate = gatePos != null
+      ? `<div class="gate" style="left:${gatePos}%" title="target ${f3(tgt)}"></div>` : "";
+
+    return `<div class="gauge">
+      <div class="ghead">
+        <span class="gcat" style="color:${catColor(cat)}">${esc(cat)}</span>
+        <span class="gval tnum">${f3(val)}</span>
+        <span class="ggap gap-${gc}">${gapText(val,tgt)}</span>
+      </div>
+      <div class="track">
+        <div class="fill fill-${gc==="na"?"warn":gc}" style="width:${fillW}%"></div>
+        <div class="ticks">${ticks}</div>
+        ${gate}
+      </div>
+      <div class="gscale"><span>0</span><span>target ${f3(tgt)}</span><span>1.0</span></div>
+      <div class="gbest">best <b>${f3(best)}</b></div>
+    </div>`;
+  }
+
+  // ---------- the gap meter (hero): co-equal gauge per relevant category ----------
+  function meterBlock(r, target){
+    const rel = relCats(r);
+    const km = keyMargin(r, target);
+    const kc = keyCat(r, target);
+
+    // headline = binding (worst) relevant category and its margin
+    let bindTxt;
+    if(isNum(km)){
+      const s = (km >= 0 ? "+" : "−") + Math.abs(km).toFixed(3);
+      bindTxt = `<span class="bindcat">binding · <b>${esc(kc)}</b> ${s}</span>`;
+    } else {
+      bindTxt = `<span class="bindcat">binding · <b>${esc(kc)}</b> — no eval yet</span>`;
+    }
+
+    const gauges = rel.map(c => gaugeBlock(r, c, target)).join("");
+    const dual = rel.length > 1 ? " dual" : "";
+
+    return `<div class="meter">
+      <div class="bindhead">
+        <span class="bind-key">binding</span>
+        ${bindTxt}
+      </div>
+      <div class="gauges${dual}">${gauges}</div>
+    </div>`;
+  }
+
+  // ---------- spark cell: one line per relevant category, shared y-scale ----------
+  function sparkCell(r, target){
+    const rel = relCats(r);
+
+    // build a series per relevant cat; fall back to legacy r.spark when a single
+    // cat has no sparks{} entry (legacy JSON tracked the key cat in r.spark).
+    const series = rel.map((c,i) => {
+      let sp = sparkFor(r, c);
+      if(sp == null && rel.length === 1) sp = Array.isArray(r.spark) ? r.spark : null;
+      return { cat:c, spark:sp, stroke:catColor(c), area: rel.length === 1 };
+    });
+
+    const svg = sparkSVG(series, 160, 46);
+    const trend = svg || `<div class="sparkempty">no trend yet</div>`;
+
+    // colour key only when more than one line is shown
+    let key = "";
+    if(rel.length > 1){
+      key = `<div class="skey">` + series.map(s =>
+        `<span class="ski"><i style="background:${s.stroke}"></i>${esc(s.cat)}</span>`
+      ).join("") + `</div>`;
+    }
+
+    const slabel = rel.length > 1
+      ? `${esc(rel.join(" · "))} per epoch`
+      : `${esc(rel[0])} per epoch`;
+
+    return `<div class="sparkcell">
+      <div class="slabel">${slabel}</div>
+      ${trend}
+      ${key}
+    </div>`;
+  }
+
+  // ---------- one row ----------
+  const MEDALS = {1:"🥇",2:"🥈",3:"🥉"};
+  function rowHTML(r, rank, target){
+    const st = ["running","done","stalled"].includes(r.status) ? r.status : "done";
+    const liveCls = st === "running" ? " live" : "";
+    const topCls = rank === 1 ? " top1" : "";
+    const medal = MEDALS[rank] || "";
+    const rankCell = `<div class="rank">
+      ${medal ? `<span class="medal">${medal}</span>` : ""}
+      <span class="num"><b>#${rank}</b></span>
+    </div>`;
+    const ident = `<div class="ident">
+      <div class="tag">${esc(r.tag || "untitled")}</div>
+      <div class="arch">${archPills(r)}</div>
+      <div class="status s-${st}"><span class="sdot"></span>${esc(st)}</div>
+      ${progressBlock(r)}
+    </div>`;
+    return `<div class="row${liveCls}${topCls}">
+      ${rankCell}${ident}${meterBlock(r,target)}${sparkCell(r,target)}
+    </div>`;
+  }
+
+  // ---------- group ----------
+  function groupHTML(label, runs, target){
+    const n = runs.length;
+    const nRun = runs.filter(r=>r.status==="running").length;
+    const nDone = runs.filter(r=>r.status==="done").length;
+    const nStall = runs.filter(r=>r.status==="stalled").length;
+    // rank by binding margin (key_margin) descending; null/missing last.
+    // tiebreak by best value of the binding category (also gates cat4/cat5 equally).
+    const sorted = runs.slice().sort((a,b)=>{
+      const am = keyMargin(a, target), bm = keyMargin(b, target);
+      const an = isNum(am), bn = isNum(bm);
+      if(an && bn){ if(bm!==am) return bm-am; }
+      else if(an !== bn) return an ? -1 : 1;
+      const akc = keyCat(a, target), bkc = keyCat(b, target);
+      const ab = a.best && isNum(a.best[akc]) ? a.best[akc] : -1;
+      const bb = b.best && isNum(b.best[bkc]) ? b.best[bkc] : -1;
+      return bb-ab;
+    });
+    // group's relevant-category label, taken from a representative run
+    const repRel = sorted.length ? relCats(sorted[0]).join(" + ") : "—";
+    let chips = `<span class="chip">${n} run${n===1?"":"s"}</span>`;
+    if(nRun)  chips += `<span class="chip run">${nRun} ▶ live</span>`;
+    if(nDone) chips += `<span class="chip done">${nDone} ✓ done</span>`;
+    if(nStall) chips += `<span class="chip stall">${nStall} ⚠ stalled</span>`;
+    const body = sorted.length
+      ? `<div class="rows">${sorted.map((r,i)=>rowHTML(r,i+1,target)).join("")}</div>`
+      : `<div class="empty">No runs in this experiment.</div>`;
+    return `<section class="group">
+      <div class="grouphead">
+        <span class="gname">${esc(label)}</span>
+        <span class="gcount">ranked by binding margin · ${esc(repRel)}</span>
+        <div class="chips">${chips}</div>
+      </div>
+      ${body}
+    </section>`;
+  }
+
+  // ---------- render ----------
+  function render(data){
+    const content = document.getElementById("content");
+    const runs = Array.isArray(data.runs) ? data.runs : [];
+    const target = (data.target && typeof data.target === "object") ? data.target : {};
+
+    // update nav clock + live indicator
+    document.getElementById("clock").textContent = fmtClock(data.now);
+    const nLive = runs.filter(r=>r.status==="running").length;
+    const liveWrap = document.getElementById("liveWrap");
+    const liveTxt = document.getElementById("liveTxt");
+    if(nLive>0){ liveWrap.classList.add("beat"); liveTxt.textContent = nLive+" live"; liveTxt.style.color="var(--accent)"; }
+    else { liveWrap.classList.remove("beat"); liveTxt.textContent = "idle"; liveTxt.style.color="var(--muted)"; }
+
+    if(!runs.length){
+      content.innerHTML = `<div class="banner load">No runs reported yet.</div>`;
+      return;
+    }
+
+    // group by group_label, preserve first-seen order
+    const order = [];
+    const groups = new Map();
+    for(const r of runs){
+      const lbl = (r.group_label != null && r.group_label !== "") ? String(r.group_label)
+                : (r.group != null ? String(r.group) : "Ungrouped");
+      if(!groups.has(lbl)){ groups.set(lbl, []); order.push(lbl); }
+      groups.get(lbl).push(r);
+    }
+    // groups with any live run float to top; otherwise keep first-seen order
+    order.sort((a,b)=>{
+      const la = groups.get(a).some(r=>r.status==="running");
+      const lb = groups.get(b).some(r=>r.status==="running");
+      if(la!==lb) return la? -1:1;
+      return order.indexOf(a)-order.indexOf(b);
+    });
+
+    content.innerHTML = order.map(lbl => groupHTML(lbl, groups.get(lbl), target)).join("");
+  }
+
+  function showError(msg){
+    const content = document.getElementById("content");
+    // only replace with error if we have nothing rendered yet, else keep last good view
+    if(content.querySelector(".group")) return;
+    content.innerHTML = `<div class="banner err">Can't reach /data — ${esc(msg)}. Retrying…</div>`;
+  }
+
+  // ---------- poll ----------
+  async function tick(){
+    try{
+      const res = await fetch("/data", {cache:"no-store"});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const data = await res.json();
+      render(data);
+    }catch(e){
+      showError(e && e.message ? e.message : "network error");
+    }
+  }
+
+  tick();
+  setInterval(tick, 4000);
+})();
+</script>

@@ -1,0 +1,494 @@
+<meta charset="utf-8">
+<title>reco-net · run matrix</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  --ground:#F5F6F3; --panel:#FFFFFF; --text:#161A1D; --mut:#5C6670;
+  --faint:#8A949C; --line:#D9DDD7; --line2:#E9ECE7;
+  --accent:#1E6FB0; --green:#0E7A4B;
+  /* heatmap tints (soft fills, dark text stays legible) */
+  --hi-bg:#CDEBD6; --hi-tx:#0C5B36;
+  --mid-bg:#FBEACB; --mid-tx:#8A5A00;
+  --lo-bg:#F7D4CE; --lo-tx:#9E2A1E;
+  --na-bg:#EEF0EC; --na-tx:#AFB6AE;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--ground); color:var(--text);
+  font:13px/1.45 var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---- top nav ---- */
+header{
+  position:sticky; top:0; z-index:30;
+  background:var(--ground);
+  border-bottom:1px solid var(--line);
+  padding:9px 16px 8px;
+}
+.nbar{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.brand .sub{color:var(--mut);font-weight:600;letter-spacing:.04em}
+.nav{font:12px var(--mono);color:var(--faint)}
+.nav a{padding:0 1px}
+.nav .here{color:var(--text);font-weight:700;border-bottom:2px solid var(--accent)}
+#updated{margin-left:auto;font:11px var(--mono);color:var(--mut);white-space:nowrap}
+.sub2{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px}
+#summary{font:12px var(--mono);color:var(--mut)}
+#summary b{color:var(--text)}
+.toggle{display:inline-flex;align-items:center;gap:6px;font:11px var(--mono);color:var(--mut);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);margin:0}
+.legend{display:flex;align-items:center;gap:10px;font:11px var(--mono);color:var(--mut);margin-left:auto}
+.lg{display:inline-flex;align-items:center;gap:5px}
+.sw{width:13px;height:13px;border-radius:3px;border:1px solid #0001}
+.sw.hi{background:var(--hi-bg)} .sw.mid{background:var(--mid-bg)}
+.sw.lo{background:var(--lo-bg)} .sw.na{background:var(--na-bg)}
+
+/* ---- table ---- */
+.wrap{padding:0 0 60px}
+table{border-collapse:separate;border-spacing:0;width:100%;background:var(--panel)}
+thead th{
+  position:sticky; top:64px; z-index:20;
+  background:#EFF1EC; color:var(--mut);
+  font:600 10.5px/1.2 var(--sans); letter-spacing:.05em; text-transform:uppercase;
+  text-align:left; padding:8px 10px; white-space:nowrap;
+  border-bottom:1px solid var(--line); border-top:1px solid var(--line);
+  cursor:pointer; user-select:none;
+}
+thead th.metric, thead th.num{text-align:right}
+thead th.spk{text-align:center;cursor:default}
+thead th:hover{color:var(--text);background:#E7EAE3}
+thead th.spk:hover{background:#EFF1EC;color:var(--mut)}
+th .arrow{color:var(--accent);font-size:10px;margin-left:3px}
+th.sorted{color:var(--text)}
+
+tbody td{
+  padding:6px 10px; border-bottom:1px solid var(--line2);
+  vertical-align:middle; white-space:nowrap;
+}
+tbody tr.run:hover td{background:#FAFBF8}
+.c-tag{position:relative}
+.tag{font:600 12.5px var(--mono)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle;background:var(--faint)}
+.dot.running{background:var(--green);box-shadow:0 0 0 3px #0e7a4b22}
+.dot.done{background:var(--accent)}
+.dot.stalled{background:#d98a00}
+.arch{font:11px var(--mono);color:var(--mut)}
+.arch .kc{color:var(--accent)}
+.attn{color:var(--faint)}
+td.num{text-align:right;font:11.5px var(--mono);color:var(--text)}
+td.num .dim{color:var(--faint)}
+
+/* progress */
+td.prog{min-width:128px}
+.pbar{height:6px;border-radius:3px;background:#E4E7E1;overflow:hidden;position:relative}
+.pbar>i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.pbar.run>i{background:var(--green)}
+.pmeta{display:flex;justify-content:space-between;gap:8px;font:10px var(--mono);color:var(--mut);margin-top:2px}
+.pmeta .step{color:var(--green)}
+
+/* status badge */
+td.st{white-space:nowrap}
+.badge{display:inline-block;font:700 9.5px var(--sans);letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:4px;border:1px solid transparent}
+.badge.running{color:var(--green);background:#0e7a4b14;border-color:#0e7a4b40}
+.badge.done{color:var(--accent);background:#1e6fb012;border-color:#1e6fb038}
+.badge.stalled{color:#8A5A00;background:#d98a0018;border-color:#d98a0044}
+
+/* heatmap metric cells */
+td.metric{
+  text-align:right; font:12px var(--mono); padding:5px 10px;
+  border-left:1px solid var(--line2);
+}
+td.metric .v{font-weight:600}
+td.metric .b{display:block;font-size:9.5px;font-weight:400;opacity:.72;margin-top:1px}
+td.metric.hi{background:var(--hi-bg);color:var(--hi-tx)}
+td.metric.mid{background:var(--mid-bg);color:var(--mid-tx)}
+td.metric.lo{background:var(--lo-bg);color:var(--lo-tx)}
+td.metric.na{background:var(--na-bg);color:var(--na-tx)}
+td.metric.na .dash{font-size:13px}
+
+/* sparkline cell */
+td.spk{padding:4px 8px;width:84px}
+.spark{display:block;width:72px;height:22px}
+
+/* group header row */
+tr.grp td{
+  background:var(--ground); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  padding:9px 12px;
+}
+.ghead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.gname{font:700 12px var(--sans);letter-spacing:.02em;color:var(--text)}
+.gsum{font:11px var(--mono);color:var(--mut)}
+.gsum .r{color:var(--green);font-weight:700}
+.gsum .d{color:var(--accent)}
+.gsum .s{color:#8A5A00}
+.flatnote{font:700 11px var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--mut);
+  background:var(--ground);padding:9px 12px;border-bottom:1px solid var(--line);border-top:1px solid var(--line)}
+
+.empty{padding:60px;text-align:center;color:var(--mut);font:13px var(--mono)}
+.offline{color:#9E2A1E}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:720px){
+  thead th{top:84px}
+  .legend{margin-left:0}
+}
+</style>
+
+<header>
+  <div class="nbar">
+    <span class="brand">reco-net <span class="sub">· run matrix</span></span>
+    <span class="nav"><a href="/">v1</a> · <a href="/v2" class="here">v2</a> · <a href="/v3">v3</a></span>
+    <span id="updated">connecting…</span>
+  </div>
+  <div class="sub2">
+    <span id="summary">loading runs…</span>
+    <label class="toggle"><input type="checkbox" id="flat"> flat ranking (ignore groups)</label>
+    <span class="legend">
+      <span class="lg"><span class="sw hi"></span>≥ target</span>
+      <span class="lg"><span class="sw mid"></span>within .02</span>
+      <span class="lg"><span class="sw lo"></span>below</span>
+      <span class="lg"><span class="sw na"></span>n/a</span>
+    </span>
+  </div>
+</header>
+
+<div class="wrap">
+  <table id="tbl">
+    <thead><tr id="head"></tr></thead>
+    <tbody id="body"></tbody>
+  </table>
+</div>
+
+<script>
+"use strict";
+
+// All seven metric columns; boosted runs only fill cat4/cat5 (rest = N/A, not failures).
+var CATS = ["all","cat0","cat1","cat2","cat3","cat4","cat5"];
+
+// Sortable columns. metricKey marks columns whose value comes from r.cats[key].
+var COLS = [
+  {id:"tag",    label:"Experiment / Tag", cls:"c-tag"},
+  {id:"arch",   label:"Arch",             cls:""},
+  {id:"params", label:"Params",           cls:"num"},
+  {id:"prog",   label:"Progress",         cls:""},
+  {id:"status", label:"Status",           cls:"st"},
+  {id:"all",    label:"all",  cls:"metric", metricKey:"all"},
+  {id:"cat0",   label:"c0",   cls:"metric", metricKey:"cat0"},
+  {id:"cat1",   label:"c1",   cls:"metric", metricKey:"cat1"},
+  {id:"cat2",   label:"c2",   cls:"metric", metricKey:"cat2"},
+  {id:"cat3",   label:"c3",   cls:"metric", metricKey:"cat3"},
+  {id:"cat4",   label:"c4",   cls:"metric", metricKey:"cat4"},
+  {id:"cat5",   label:"c5",   cls:"metric", metricKey:"cat5"},
+  {id:"spark",  label:"trend",cls:"spk", nosort:true}
+];
+
+// Persisted UI state (survives the 4s refresh).
+var sortCol = "tag";
+var sortDir = 1; // 1 asc, -1 desc
+var flat = false;
+var TARGET = {};
+
+// ---- helpers (null-safe throughout) ----
+function isBoosted(r){
+  return Array.isArray(r.keep_cats) && r.keep_cats.indexOf(4) >= 0 && r.keep_cats.indexOf(5) >= 0;
+}
+// Which metric keys are meaningful for a run.
+function activeKeys(r){
+  return isBoosted(r) ? ["cat4","cat5"] : CATS.slice();
+}
+function isActive(r, key){
+  return activeKeys(r).indexOf(key) >= 0;
+}
+function num(v){ return (typeof v === "number" && isFinite(v)) ? v : null; }
+function fmt3(v){ v = num(v); return v === null ? "—" : v.toFixed(3); }
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
+  });
+}
+// Heatmap class for a value vs its target.
+function band(v, t){
+  v = num(v); t = num(t);
+  if (v === null) return "na";
+  if (t === null) return v >= 0.5 ? "hi" : "mid"; // no target -> rough fallback
+  if (v >= t) return "hi";
+  if (v >= t - 0.02) return "mid";
+  return "lo";
+}
+
+// ---- sort value extraction ----
+function progFrac(r){
+  var tot = num(r.total_epochs), ep = num(r.cur_epoch);
+  if (!tot || tot <= 0) return 0;
+  return Math.min(1, (ep || 0) / tot);
+}
+// Sort value for non-metric, non-status columns. Returns null when absent (sorts last).
+function sortValue(r, col){
+  if (col === "tag")    return (r.tag || "").toLowerCase();
+  if (col === "arch")   return num(r.d_model);   // rank arch by model width
+  if (col === "params") return num(r.params);
+  if (col === "prog")   return progFrac(r);
+  return null;
+}
+function statusRank(r){
+  var order = {running:0, stalled:1, done:2};
+  return (r.status in order) ? order[r.status] : 3;
+}
+// Comparable scalar for any column, null-safe. Nulls sort last (regardless of dir).
+function key(r, col){
+  if (col === "status") return statusRank(r);
+  var c = colById(col);
+  if (c && c.metricKey){
+    // Inactive (N/A) metrics rank with nulls.
+    if (!isActive(r, c.metricKey)) return null;
+    return num((r.cats || {})[c.metricKey]);
+  }
+  return sortValue(r, col);
+}
+function colById(id){
+  for (var i=0;i<COLS.length;i++) if (COLS[i].id === id) return COLS[i];
+  return null;
+}
+function cmp(a, b){
+  var ka = key(a, sortCol), kb = key(b, sortCol);
+  var na = (ka === null || ka === undefined), nb = (kb === null || kb === undefined);
+  if (na && nb) return tieBreak(a, b);
+  if (na) return 1;   // nulls always last
+  if (nb) return -1;
+  if (typeof ka === "string" || typeof kb === "string"){
+    var r = String(ka).localeCompare(String(kb));
+    return r !== 0 ? r * sortDir : tieBreak(a, b);
+  }
+  if (ka < kb) return -1 * sortDir;
+  if (ka > kb) return  1 * sortDir;
+  return tieBreak(a, b);
+}
+function tieBreak(a, b){ return (a.tag || "").localeCompare(b.tag || ""); }
+
+// ---- sparkline (inline SVG, no deps) ----
+function sparkSVG(vals, status){
+  if (!Array.isArray(vals)) vals = [];
+  vals = vals.filter(function(v){ return num(v) !== null; });
+  var w = 72, h = 22;
+  if (vals.length < 2){
+    return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'
+      + '<line x1="0" y1="'+(h/2)+'" x2="'+w+'" y2="'+(h/2)+'" stroke="#CBD0C9" stroke-width="1"/></svg>';
+  }
+  var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+  var rng = (mx - mn) || 1, n = vals.length;
+  var pts = vals.map(function(v, i){
+    var x = (i / (n - 1)) * (w - 2) + 1;
+    var y = (h - 2) - ((v - mn) / rng) * (h - 4);
+    return x.toFixed(1) + "," + y.toFixed(1);
+  });
+  var stroke = (status === "running") ? "#0E7A4B" : "#1E6FB0";
+  var lastX = (w - 2), lastY = (h - 2) - ((vals[n-1] - mn) / rng) * (h - 4);
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true">'
+    + '<polyline points="'+pts.join(" ")+'" fill="none" stroke="'+stroke+'" stroke-width="1.4" '
+    + 'stroke-linejoin="round" stroke-linecap="round"/>'
+    + '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="1.7" fill="'+stroke+'"/></svg>';
+}
+
+// ---- cell renderers ----
+function archCell(r){
+  var p = [];
+  if (num(r.d_model) !== null) p.push("d"+r.d_model);
+  if (num(r.blocks)  !== null) p.push("b"+r.blocks);
+  if (num(r.heads)   !== null) p.push("h"+r.heads);
+  var attn = (r.mlp === false) ? '<span class="attn">attn</span>' : (r.mlp ? "mlp" : '<span class="attn">?</span>');
+  var s = '<span class="arch">' + esc(p.join(" ")) + " " + attn;
+  if (Array.isArray(r.keep_cats) && r.keep_cats.length)
+    s += ' <span class="kc">keep ' + esc(r.keep_cats.join("/")) + '</span>';
+  return s + "</span>";
+}
+function paramsCell(r){
+  var p = num(r.params);
+  return p === null ? '<span class="dim">—</span>' : p.toLocaleString();
+}
+function progCell(r){
+  var ep = num(r.cur_epoch) || 0, tot = num(r.total_epochs);
+  var f = progFrac(r), pctTxt = (f * 100).toFixed(0) + "%";
+  var totTxt = tot ? tot : "?";
+  var runCls = (r.status === "running") ? " run" : "";
+  var right = pctTxt;
+  if (r.status === "running" && num(r.tot_steps)){
+    right = '<span class="step">' + (num(r.cur_step) || 0) + "/" + r.tot_steps + "</span>";
+  }
+  return '<div class="pbar'+runCls+'"><i style="width:'+(f*100).toFixed(1)+'%"></i></div>'
+    + '<div class="pmeta"><span>ep '+ep+'/'+totTxt+'</span><span>'+right+'</span></div>';
+}
+function statusCell(r){
+  var s = (r.status || "").toLowerCase();
+  var cls = (s==="running"||s==="done"||s==="stalled") ? s : "done";
+  var extra = "";
+  if (s === "running" && num(r.eta_min) !== null) extra = " · ETA "+r.eta_min+"m";
+  else if (s === "done" && num(r.duration_min) !== null) extra = " · "+r.duration_min+"m";
+  return '<span class="badge '+cls+'">'+esc(r.status || "?")+'</span>'
+    + (extra ? '<span class="dim" style="font:10px var(--mono);color:var(--faint)"> '+esc(extra)+'</span>' : "");
+}
+function metricCell(r, mkey){
+  if (!isActive(r, mkey)){
+    return '<td class="metric na"><span class="dash">·</span></td>';
+  }
+  var latest = num((r.cats || {})[mkey]);
+  var best   = num((r.best || {})[mkey]);
+  var t = num(TARGET[mkey]);
+  var cls = band(latest, t);
+  if (latest === null) return '<td class="metric na"><span class="dash">—</span></td>';
+  var bestTxt = (best === null) ? "" : '<span class="b">▸ '+best.toFixed(3)+'</span>';
+  var title = mkey+": latest "+latest.toFixed(4)
+    + (best!==null?", best "+best.toFixed(4):"")
+    + (t!==null?", target "+t.toFixed(3):"");
+  return '<td class="metric '+cls+'" title="'+esc(title)+'">'
+    + '<span class="v">'+latest.toFixed(3)+'</span>'+bestTxt+'</td>';
+}
+
+// ---- header ----
+function renderHead(){
+  var h = "";
+  for (var i=0;i<COLS.length;i++){
+    var c = COLS[i];
+    var cls = c.cls || "";
+    var sorted = (!c.nosort && c.id === sortCol);
+    var arrow = sorted ? '<span class="arrow">'+(sortDir>0?"▲":"▼")+'</span>' : "";
+    var thCls = cls + (sorted ? " sorted" : "");
+    var attr = c.nosort ? "" : ' data-col="'+c.id+'"';
+    h += '<th class="'+thCls+'"'+attr
+       + (c.nosort?"":' title="Sort by '+esc(c.label)+'"')
+       + '>'+esc(c.label)+arrow+'</th>';
+  }
+  document.getElementById("head").innerHTML = h;
+}
+
+// ---- a single run row ----
+function runRow(r){
+  var dotCls = (r.status==="running"||r.status==="done"||r.status==="stalled") ? r.status : "";
+  var cells = ""
+    + '<td class="c-tag"><span class="dot '+dotCls+'"></span><span class="tag">'+esc(r.tag||"(untagged)")+'</span></td>'
+    + '<td>'+archCell(r)+'</td>'
+    + '<td class="num">'+paramsCell(r)+'</td>'
+    + '<td class="prog">'+progCell(r)+'</td>'
+    + '<td class="st">'+statusCell(r)+'</td>';
+  for (var i=0;i<CATS.length;i++) cells += metricCell(r, CATS[i]);
+  cells += '<td class="spk">'+sparkSVG(r.spark, r.status)+'</td>';
+  return '<tr class="run">'+cells+'</tr>';
+}
+
+// ---- group summary line ----
+function groupSummary(runs){
+  var run=0, done=0, stalled=0;
+  for (var i=0;i<runs.length;i++){
+    if (runs[i].status==="running") run++;
+    else if (runs[i].status==="done") done++;
+    else if (runs[i].status==="stalled") stalled++;
+  }
+  var parts = [runs.length+" runs"];
+  if (run)     parts.push('<span class="r">'+run+' running</span>');
+  if (done)    parts.push('<span class="d">'+done+' done</span>');
+  if (stalled) parts.push('<span class="s">'+stalled+' stalled</span>');
+  return parts.join(" · ");
+}
+
+// ---- main render ----
+function render(data){
+  TARGET = (data && data.target) || {};
+  var runs = (data && Array.isArray(data.runs)) ? data.runs.slice() : [];
+  var body = document.getElementById("body");
+  renderHead();
+
+  if (!runs.length){
+    body.innerHTML = '<tr><td colspan="'+COLS.length+'" class="empty">No runs found yet.</td></tr>';
+    setSummary(runs);
+    return;
+  }
+
+  var html = "";
+  if (flat){
+    // Flat ranking: every run sorted together, grouping ignored.
+    runs.sort(cmp);
+    html += '<tr class="grp"><td colspan="'+COLS.length+'">'
+          + '<div class="flatnote">Flat ranking — '+esc(colById(sortCol).label)
+          + ' '+(sortDir>0?"ascending":"descending")+'</div></td></tr>';
+    for (var i=0;i<runs.length;i++) html += runRow(runs[i]);
+  } else {
+    // Grouped: groups keep first-seen order; runs within each group are sorted.
+    var groups = [], byLabel = {};
+    for (var j=0;j<runs.length;j++){
+      var lbl = runs[j].group_label || runs[j].group || "(ungrouped)";
+      if (!(lbl in byLabel)){ byLabel[lbl] = []; groups.push(lbl); }
+      byLabel[lbl].push(runs[j]);
+    }
+    for (var g=0;g<groups.length;g++){
+      var lbl2 = groups[g], gr = byLabel[lbl2];
+      gr.sort(cmp);
+      html += '<tr class="grp"><td colspan="'+COLS.length+'">'
+            + '<div class="ghead"><span class="gname">'+esc(lbl2)+'</span>'
+            + '<span class="gsum">'+groupSummary(gr)+'</span></div></td></tr>';
+      for (var k=0;k<gr.length;k++) html += runRow(gr[k]);
+    }
+  }
+  body.innerHTML = html;
+  setSummary(runs, data);
+}
+
+function setSummary(runs, data){
+  var run=0, done=0, stalled=0;
+  for (var i=0;i<runs.length;i++){
+    if (runs[i].status==="running") run++;
+    else if (runs[i].status==="done") done++;
+    else if (runs[i].status==="stalled") stalled++;
+  }
+  var s = '<b>'+runs.length+'</b> runs · <b>'+run+'</b> running · <b>'+done+'</b> done';
+  if (stalled) s += ' · <b>'+stalled+'</b> stalled';
+  document.getElementById("summary").innerHTML = s;
+}
+
+// ---- events: sort + flat toggle (state persists across refresh) ----
+document.getElementById("head").addEventListener("click", function(e){
+  var th = e.target.closest("th[data-col]");
+  if (!th) return;
+  var col = th.getAttribute("data-col");
+  if (col === sortCol){
+    sortDir = -sortDir;                 // toggle direction
+  } else {
+    sortCol = col;
+    // metrics & params & progress default to descending (best/most first); text ascending
+    var c = colById(col);
+    sortDir = (col === "tag" || col === "arch") ? 1 : -1;
+  }
+  if (lastData) render(lastData);
+});
+document.getElementById("flat").addEventListener("change", function(e){
+  flat = e.target.checked;
+  if (lastData) render(lastData);
+});
+
+// ---- polling ----
+var lastData = null;
+function tick(){
+  fetch("/data", {cache:"no-store"})
+    .then(function(res){ if(!res.ok) throw new Error("HTTP "+res.status); return res.json(); })
+    .then(function(data){
+      lastData = data;
+      render(data);
+      var t = new Date();
+      var stamp = (data && typeof data.now === "number")
+        ? new Date(data.now * 1000) : t;
+      document.getElementById("updated").textContent =
+        "last updated " + stamp.toLocaleTimeString();
+    })
+    .catch(function(err){
+      var u = document.getElementById("updated");
+      u.innerHTML = '<span class="offline">offline — retrying</span> · ' + new Date().toLocaleTimeString();
+    });
+}
+tick();
+setInterval(tick, 4000);
+</script>
