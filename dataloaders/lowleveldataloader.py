@@ -166,32 +166,43 @@ class ProportionalMemoryMappedDataset:
         # Precompute sample indices for each class
         self._reset_indices()
     
+    def _compute_base_indices(self):
+        """Compute, once, the (constant) train/val index split for each class.
+
+        The split assignment depends only on event numbers / position modulo
+        n_splits, which never change across epochs, so reading the memmap column
+        every epoch (~270 ms/loader/epoch) was pure waste. We cache the base
+        index arrays here; _reset_indices() then just copies + reshuffles them.
+        The base arrays are bit-identical to the previous per-epoch computation.
+        """
+        self._base_indices = {}
+        for dsid in self.memmaps.keys():
+            if self.has_eventNumbers:
+                split_key = self.memmaps[dsid][:, 1, 2] % self.n_splits
+            else:
+                split_key = np.arange(self.sample_counts[dsid]) % self.n_splits
+            if self.is_train:
+                mask = split_key != self.validation_split_idx
+            else:
+                mask = split_key == self.validation_split_idx
+            self._base_indices[dsid] = np.arange(self.sample_counts[dsid])[mask]
+
     def _reset_indices(self):
         """
         Reset and initialize indices for sampling
         """
+        if not hasattr(self, "_base_indices"):
+            self._compute_base_indices()
         self.current_indices = {}
         for dsid in self.memmaps.keys():
-            # Randomly shuffle indices for each class
-            if self.has_eventNumbers:
-                # NOTE This isn't done any more: Updating this to take list of indices, so that we can eg. have the splits be [0,2] for validation and [1,3] for training. This fixes the fact that, after reconstruction, we might not have even splits of background across both splits 0/1
-                # if isinstance(self.validation_split_idx, int):
-                    # self.validation_split_idx = [self.validation_split_idx]
-                if self.is_train:
-                    # self.current_indices[dsid] = np.arange(self.sample_counts[dsid])[~(np.isin((self.memmaps[dsid][:,1,2] % self.n_splits), self.validation_split_idx))]
-                    self.current_indices[dsid] = np.arange(self.sample_counts[dsid])[(self.memmaps[dsid][:,1,2] % self.n_splits) != self.validation_split_idx]
-                else:
-                    # self.current_indices[dsid] = np.arange(self.sample_counts[dsid])[(np.isin((self.memmaps[dsid][:,1,2] % self.n_splits), self.validation_split_idx))]
-                    self.current_indices[dsid] = np.arange(self.sample_counts[dsid])[(self.memmaps[dsid][:,1,2] % self.n_splits) == self.validation_split_idx]
-            else:
-                if self.is_train:
-                    self.current_indices[dsid] = np.arange(self.sample_counts[dsid])[(np.arange(self.sample_counts[dsid]) % self.n_splits) != self.validation_split_idx]
-                else:
-                    self.current_indices[dsid] = np.arange(self.sample_counts[dsid])[(np.arange(self.sample_counts[dsid]) % self.n_splits) == self.validation_split_idx]
+            # Fresh copy each epoch: __next__ consumes (slices) current_indices and
+            # random.shuffle mutates in place, so the cached base must stay untouched.
+            idx = self._base_indices[dsid].copy()
             if self.shuffle_batch:
-                random.shuffle(self.current_indices[dsid])
+                random.shuffle(idx)
+            self.current_indices[dsid] = idx
         self.total_samples = sum([len(self.current_indices[dsid]) for dsid in self.current_indices.keys()])
-    
+
     def get_total_samples(self):
         return self.total_samples
     

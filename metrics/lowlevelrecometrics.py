@@ -561,7 +561,12 @@ class HEPLossWithEntropy(torch.nn.Module):
         self.entropy_weight = entropy_weight
         self.target_entropy = target_entropy
         
-    def forward(self, cache, inputs, targets, types, padding_token, n_objs, weights, log, x_inputs=None):
+    def forward(self, cache, inputs, targets, types, padding_token, n_objs, weights, log, x_inputs=None, build_loss_dict=True):
+        # `build_loss_dict=False` (training fast path): skip everything whose only consumer
+        # is the discarded loss_dict and whose penalty flag is off. The returned total_loss
+        # is bit-identical to the build_loss_dict=True path (verified): isvalid/correlation
+        # are only added when apply_*_penalty is set, and the entropy term only when
+        # entropy_loss is set. Default True preserves the legacy API for all other callers.
         # if self.weight_by_mH:
         #     weights *= self.scale_loss_by_mH(mHs)
         
@@ -580,7 +585,12 @@ class HEPLossWithEntropy(torch.nn.Module):
                 num_nonempty_objs = (types!=padding_token).sum(dim=-1)
                 ce_loss = self.bce(inputs.flatten(), (targets!=0).to(float).flatten()) * (einops.repeat((weights/num_nonempty_objs), 'batch -> batch max_n_objects',max_n_objects=n_objs)*(types!=padding_token)).flatten()
         
-        isvalid_loss = 1 - (check_valid(types, inputs, padding_token, self.is_categorical) * weights).sum() / weights.sum()
+        need_valid = self.apply_valid_penalty or build_loss_dict
+        need_corr = self.apply_correlation_penalty or build_loss_dict
+        need_entropy = self.entropy_loss or build_loss_dict
+        isvalid_loss = None
+        if need_valid:
+            isvalid_loss = 1 - (check_valid(types, inputs, padding_token, self.is_categorical) * weights).sum() / weights.sum()
         
         
         
@@ -588,7 +598,7 @@ class HEPLossWithEntropy(torch.nn.Module):
         total_heads = 0
         eps=1e-8
         entropy_losses = {}
-        for layer in range(len([k for k in cache.store.keys() if (('attention' in k) and (not ('post' in k)))])):
+        for layer in (range(len([k for k in cache.store.keys() if (('attention' in k) and (not ('post' in k)))])) if need_entropy else []):
             entropy_losses[layer] = {}
             for head in range(cache.store[f'block_{layer}_attention']['attn_weights_per_head'].shape[1]):
                 attn_wts = (cache[f'block_{layer}_attention']['attn_weights_per_head'][:,head,...]) # Shape [batch object_query object_key]
@@ -601,7 +611,8 @@ class HEPLossWithEntropy(torch.nn.Module):
                 total_heads += 1
         
         
-        if self.is_categorical:
+        correlation_loss = None
+        if self.is_categorical and need_corr:
             assert(x_inputs is not None)
             unflattened_ce = (einops.rearrange(flattened_ce, '(batch object) -> batch object', batch=len(targets))*(types!=padding_token)).sum(dim=-1)
             pred_inclusions = torch.argmax(inputs, dim=-1)
@@ -630,6 +641,9 @@ class HEPLossWithEntropy(torch.nn.Module):
         if self.entropy_loss:
             total_loss += self.entropy_weight * (total_entropy_loss/total_heads)
         
+        if not build_loss_dict:
+            return total_loss
+
         # Log individual loss components
         if log:
             wandb.log({

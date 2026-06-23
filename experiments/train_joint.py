@@ -17,7 +17,7 @@ from joint_primitives import event_score_from_object_logits, weighted_roc_auc, b
 
 REPO = os.path.dirname(EXPERIMENTS); sys.path.insert(0, REPO)
 from models.models import TestNetwork
-from interp.activations import ActivationCache, hook_attention_heads
+from interp.activations import ActivationCache, hook_attention_heads, hook_attention_weights_only
 from dataloaders.lowleveldataloader import ProportionalMemoryMappedDataset
 from metrics.lowlevelrecometrics import HEPLossWithEntropy, HEPMetrics
 from utils.utils import basic_lr_scheduler
@@ -189,11 +189,22 @@ model = TestNetwork(
 ).to(device)
 print(f"parameters: {sum(p.numel() for p in model.parameters()):,}")
 
-# grad-attached attention cache for the entropy loss
+# grad-attached attention cache for the entropy loss.
+# Only needed when the entropy penalty is on or an attention bottleneck is applied
+# via the hook (the joint default uses neither). When neither holds, skip the hook
+# entirely -> model output is bit-identical without it. With a bottleneck the hook
+# must rewrite the forward, so use the full hook_attention_heads; otherwise the
+# lightweight weights-only hook suffices for the entropy term.
 cache = ActivationCache()
-hook_pairs = hook_attention_heads(model, cache, detach=False, SINGLE_ATTENTION=False,
-                                  bottleneck_attention_output=CONFIG["bottleneck_attention"])
-handles = [m.register_forward_hook(fn, with_kwargs=True) for m, fn in hook_pairs]
+handles = []
+_need_hook = CONFIG["entropy_loss"] or (CONFIG["bottleneck_attention"] is not None)
+if _need_hook:
+    if CONFIG["bottleneck_attention"] is not None:
+        hook_pairs = hook_attention_heads(model, cache, detach=False, SINGLE_ATTENTION=False,
+                                          bottleneck_attention_output=CONFIG["bottleneck_attention"])
+    else:
+        hook_pairs = hook_attention_weights_only(model, cache)
+    handles = [m.register_forward_hook(fn, with_kwargs=True) for m, fn in hook_pairs]
 
 optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG["learning_rate"], weight_decay=CONFIG["weight_decay"])
 criterion = HEPLossWithEntropy(entropy_loss=CONFIG["entropy_loss"], entropy_weight=CONFIG["entropy_weight"],
@@ -248,7 +259,7 @@ def forward_heads(x, types, detach_event):
 
 def reco_loss_value(reco_logits, reco_target, types, reco_weight, x):
     loss = criterion(cache, reco_logits, reco_target, types, N_CTX - 1, MAX_OBJS,
-                     reco_weight, False, x[..., :4])
+                     reco_weight, False, x[..., :4], build_loss_dict=False)
     if isinstance(loss, tuple):
         loss, _ = loss
     return loss
