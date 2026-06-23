@@ -128,3 +128,22 @@ and Tier 2 makes training **deterministic for the first time**.
 - Possible future Tier 3 (not done): background-thread batch prefetch to overlap the
   remaining ~3.7 ms dataloader with MPS compute; reduce the 3 per-step device syncs
   (`loss.item()`, two `isfinite` checks) by deferring the running-loss accumulation.
+
+## Validation — full 300-epoch end-to-end check (2026-06-23, reco-organism workstream)
+
+Satisfies the "Tier-2 needs one before/after metric-curve check" item above. Re-ran the
+`d16b2h4` boosted-only config (entropy-off → the no-hook path our reco sweeps use) for the
+full 300 epochs on the new code and compared to its old-code reference
+(`tmp_suite/cvg_d16b2h4.log`):
+
+| | new code | old (ref) | |
+|---|--:|--:|---|
+| wall-clock (300 ep) | **42.5 min** | 86.4 min | **2.03×** (8.5 vs 17.3 s/ep) |
+| converged cat4 (full-val) | 0.9727 | 0.9731 | Δ −0.0004 |
+| converged cat5 (full-val) | 0.9240 | 0.9254 | Δ −0.0014 |
+
+Per-epoch `train_loss` tracks the reference within ~0.001 throughout; converged cat4/cat5
+are within seed/subset noise (±~0.005). **→ ~2× end-to-end wall-clock with statistically
+identical training on a real config, confirmed.** (Caveat: the ref ran overnight/hot with
+wandb-on, this ran `--no-wandb`, so the pure code ratio is a hair under 2.03×, consistent
+with the controlled ~2.4× per-step measured above.)
