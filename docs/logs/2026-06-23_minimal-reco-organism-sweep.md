@@ -4,7 +4,7 @@
 > transformers — NO entropy penalty, NO attention bottleneck — toward (G1a) a minimal
 > full-parity organism, (G1b) a simplest-viable organism, (G1c) a **boosted-only (cats 4,5)**
 > organism, and (Goal 2) best-possible performance. Plan doc:
-> [`RECO_TRAINING_PLAN_2026-06-22.md`](../RECO_TRAINING_PLAN_2026-06-22.md).
+> [`ONGOING_RECO_TRAINING_PLAN_2026-06-22.md`](../ONGOING_RECO_TRAINING_PLAN_2026-06-22.md).
 > Reference bar = the **d152 `none`** baseline (671k, all-cats, winner recipe):
 > all 0.891, per-cat cat4 0.960 / cat5 0.936 (the rest 0.46/0.47/0.41/0.60).
 

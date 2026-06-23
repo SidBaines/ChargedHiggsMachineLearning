@@ -71,6 +71,22 @@ Every working session gets a research log, tracked in git:
 5. Commit the docs (`CLAUDE.md`, `docs/`) at session end — docs-only commits are
    pre-authorized; everything else still needs explicit say-so (below).
 
+## Ongoing-workstream doc flag (agreed 2026-06-23)
+
+A per-workstream **plan doc** — a living doc that tracks one experimental or code-dev
+workstream over time (e.g. `docs/ONGOING_RECO_TRAINING_PLAN_2026-06-22.md`) — carries an
+**`ONGOING_` filename prefix while the workstream is active**, and the prefix is **removed
+once it's wrapped up** (its dated name then stands as the archived record). This makes
+in-flight workstreams easy to spot at a glance (`ls docs/` clusters them) and to tell apart
+from finished ones — useful when several run in parallel or span weeks, where the date
+alone isn't enough.
+
+- Applies to individual workstream/plan docs (any other active one — e.g. the joint
+  reco+classifier plan — should get the same prefix) — **not** the master
+  `RESEARCH_PLAN_2026-06.md` / `HANDOFF_…` hubs, nor the point-in-time `docs/logs/` entries.
+- Promote/retire with `git mv` (add/remove the prefix); fix the handful of inbound links
+  when you do (e.g. from `RESEARCH_PLAN_2026-06.md`'s session log).
+
 ## Conventions / cautions
 
 - Don't commit or push without the user's explicit say-so (exception: docs-only commits

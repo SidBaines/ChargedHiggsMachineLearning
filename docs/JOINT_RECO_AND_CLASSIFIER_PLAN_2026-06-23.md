@@ -7,7 +7,7 @@
 >
 > This doc is the **living plan AND the running progress log**: append to "Results (live)"
 > and "Session log" as we go; edit the plan sections when we pivot. Sister docs:
-> [`RECO_TRAINING_PLAN_2026-06-22.md`](RECO_TRAINING_PLAN_2026-06-22.md) (the parallel
+> [`ONGOING_RECO_TRAINING_PLAN_2026-06-22.md`](ONGOING_RECO_TRAINING_PLAN_2026-06-22.md) (the parallel
 > minimal/best reco-net workstream — shares the harness and baselines) and
 > [`RESEARCH_PLAN_2026-06.md`](RESEARCH_PLAN_2026-06.md) (the umbrella plan).
 
@@ -106,7 +106,7 @@ single-task baselines.
 
 1. **Standalone reco net** — the existing reco organisms / d152 `none` (winner recipe):
    d152 b3 h4 = **0.891 overall** (cat0–5: 0.456/0.472/0.410/0.602/0.960/0.936);
-   d20 b2 h4 = 0.847. (From `RECO_TRAINING_PLAN_2026-06-22.md`.) Joint models must be read
+   d20 b2 h4 = 0.847. (From `ONGOING_RECO_TRAINING_PLAN_2026-06-22.md`.) Joint models must be read
    against the **same-size** reco baseline.
 2. **Standalone low-level classifier** — `TrainLowLevelClassifier.py` retrained on the same
    signal+background. **Number not yet established on this data** → produce it as a baseline
