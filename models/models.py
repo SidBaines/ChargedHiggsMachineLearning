@@ -100,7 +100,7 @@ class TestNetwork(nn.Module):
     Finally, project the residual stream onto classes per-object, to predict presence in different intermediate
     states in our event (eg. is this object a decay product of a W boson?)
     '''
-    def __init__(self, use_lorentz_invariant_features=True, bottleneck_attention=None, feature_set=['pt', 'eta', 'phi', 'm', 'tag'], num_classes=3, hidden_dim=256, num_heads=4, dropout_p=0.0, embedding_size=32, num_attention_blocks=3, include_mlp=True, hidden_dim_mlp=None, hidden_dim_attn=None, num_particle_types=5, num_object_net_layers=1, is_layer_norm=False, is_reconstruction_model=True):
+    def __init__(self, use_lorentz_invariant_features=True, bottleneck_attention=None, feature_set=['pt', 'eta', 'phi', 'm', 'tag'], num_classes=3, hidden_dim=256, num_heads=4, dropout_p=0.0, embedding_size=32, num_attention_blocks=3, include_mlp=True, hidden_dim_mlp=None, hidden_dim_attn=None, num_particle_types=5, num_object_net_layers=1, is_layer_norm=False, is_reconstruction_model=True, add_event_head=False, num_event_classes=3):
         super().__init__()
         self.bottleneck_attention = bottleneck_attention
         self.num_attention_blocks = num_attention_blocks
@@ -111,6 +111,7 @@ class TestNetwork(nn.Module):
             hidden_dim_mlp = hidden_dim
         self.hidden_dim_attn = hidden_dim_attn
         self.is_reconstruction_model = is_reconstruction_model
+        self.add_event_head = add_event_head
 
         if self.use_lorentz_invariant_features:
             self.invariant_features = LorentzInvariantFeatures(feature_set=feature_set)
@@ -155,8 +156,12 @@ class TestNetwork(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(hidden_dim, num_classes)
         )
+        if self.add_event_head:
+            self.event_classifier = nn.Sequential(
+                nn.Linear(hidden_dim, num_event_classes)
+            )
 
-    def forward(self, object_features, object_types):
+    def _backbone_features(self, object_features, object_types):
         # Get type embeddings and combine with features
         type_emb = self.type_embedding(object_types)
         if self.use_lorentz_invariant_features:
@@ -191,6 +196,17 @@ class TestNetwork(nn.Module):
                 object_features = identity + mlp_output
             else:
                 object_features = identity + attention_output
+        return object_features
+
+    def forward(self, object_features, object_types):
+        object_features = self._backbone_features(object_features, object_types)
+        if self.add_event_head:
+            # Dual-head mode always returns both reconstruction and event logits.
+            pooled = torch.sum(object_features, dim=1) / torch.sum(object_types!=(self.num_particle_types-1), dim=-1).unsqueeze(-1)
+            return {
+                "reco": self.classifier(object_features),
+                "event": self.event_classifier(pooled),
+            }
         if not self.is_reconstruction_model:
             # This is a classificaiton model, so we need to pool the object features to get a single vector per event (ie the event background, signal1, signal2, etc?)
             # Pool by taking mean of non-padding to ensure permutation invariance and invariance to number of objects.
