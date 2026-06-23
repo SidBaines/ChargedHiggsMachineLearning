@@ -292,6 +292,42 @@ really signal; metrics are unnormalized — see R6). This phase only proves the 
     --schedule joint --pseudo-bkg-dsid 510124 --d-model 8 --blocks 1 --num-heads 2 --no-mlp
 ```
 
+### First local queue — d20/b2/h4, 10 ep, MPS, PSEUDO-background (2026-06-23)
+> ⚠️ **PSEUDO-BACKGROUND (DSID 510124 relabelled as bkg). The reco PerfectRecoPct numbers
+> are real; every classification AUC/Z below is DIAGNOSTIC ONLY — not physics** (no real
+> background; weights unnormalised + abs-weighted — see R6). This queue's purpose was to
+> exercise the harness end-to-end at real scale and sanity-check the schedule semantics.
+
+| run | reco all | cat0 | cat1 | cat2 | cat3 | cat4 | cat5 | AUC* | Z* | train_loss |
+|---|---|---|---|---|---|---|---|---|---|---|
+| single (softor) | 0.788 | 0.103 | 0.164 | 0.072 | 0.241 | 0.909 | 0.858 | 0.946 | — | 0.212 |
+| twohead joint | 0.805 | 0.070 | 0.106 | 0.036 | 0.220 | 0.935 | 0.884 | 0.968 | — | 0.443 |
+| twohead int | 0.803 | 0.035 | 0.100 | 0.019 | 0.185 | 0.937 | 0.883 | 0.950 | — | 0.241 |
+| twohead intdetach | 0.805 | 0.077 | 0.099 | 0.036 | 0.181 | 0.937 | 0.885 | 0.880 | — | 0.397 |
+| twohead seqfull | **0.075** | 0.000 | 0.004 | 0.000 | 0.001 | 0.121 | 0.003 | 0.956 | — | 0.274 |
+| twohead seqfrozen | 0.812 | 0.112 | 0.161 | 0.065 | 0.238 | 0.938 | 0.883 | 0.855 | — | 0.574 |
+
+(* AUC = pseudo signal/bkg; Z values ~1600–2100, omitted as meaningless under pseudo-bkg + R6.)
+
+**Reco baselines for context** (reco-only, 30 ep winner recipe): d20 b2h4 = **0.847**, d152 = 0.891.
+
+**Takeaways (plumbing + schedule-semantics validation; NOT physics):**
+- **Reco ≈ 0.79–0.81 at d20/10 ep** — undertrained vs the 0.847 30-ep d20 baseline (expected: 10 vs
+  30 ep). Cats 4/5 strong (~0.88–0.94); cats 0–3 weak (undertrained). Two-head variants slightly
+  edge single-head on reco; differences are within undertraining noise — **don't rank yet**.
+- **`seqfull` catastrophically forgot reconstruction (reco 0.075).** Exactly the failure mode this
+  schedule probes: phase-2 full-backprop on the event loss reshaped the backbone and destroyed the
+  reco head. **`seqfrozen` (freeze backbone in phase 2) preserved reco best (0.812).** The schedules
+  behave as designed — and this previews a real **forgetting risk** to watch for `seqfull`/`seqfull`-like
+  setups once background is real.
+- **Fair vs lower-bound readout (single-head, eval on its checkpoint):** softor AUC 0.945, max 0.943,
+  **fair-readout logistic 0.944** — on this pseudo task the fitted readout ≈ the parameter-free one, i.e.
+  the crude readout is *not* the bottleneck here. (Coefficients lean on max/sum p_H & p_W as intended.)
+  We'll re-judge on real background — the tooling now reports both per model.
+- **Perf:** after the `best_asimov_z` vectorisation, each run is training-bound (~2 min) not
+  validation-bound (~30–50 min before). The first two rows (single, joint) were trained pre-fix
+  (correct, just slow); the four two-head schedules were re-run post-fix.
+
 ### Trade-off surface (to fill once background lands)
 *(append per run; mirror the reco plan's table style: model | params | mode | schedule |
 data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
@@ -318,3 +354,14 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   summaries (upper bound), so the single-head S-vs-T comparison is about representation, not
   readout crudeness (resolves R3 tooling). Unit + train→eval integration smoke, green
   signal-only. Both readouts will be reported per S model once real background lands.
+- 2026-06-23 (eve) — **First local pseudo-background queue** (another agent kicked it off;
+  handover in `HANDOVER_JOINT_RECO_CLASSIFIER_2026-06-23.md`): d20/b2/h4, 10 ep, single +
+  5 two-head schedules. **Found + fixed an O(N²) `best_asimov_z`** (looped `np.unique(scores)`
+  in python → ~20 min on the 1.4M-event val, which dominated each run's wall-time and looked
+  like a stall); vectorised to O(N log N) (sort + cumulative weight sums), identical result
+  (brute-force regression test), 1.4M events 20 min → 0.16 s; re-ran the 4 two-head schedules
+  fast (~2 min each). Results table above (PSEUDO-bkg = diagnostic only). Key validation:
+  **`seqfull` catastrophically forgot reco (0.075)** while **`seqfrozen` preserved it (0.812)** —
+  the schedules behave as designed; fair-readout ≈ parameter-free on this pseudo task. Helper
+  scripts (`run_joint_first_set_mps.sh`, `run_joint_remaining_mps.sh`, `dashboard.py` patch)
+  still uncommitted pending Sid's call. **Next still = Phase 1 (real background; R1 format check).**
