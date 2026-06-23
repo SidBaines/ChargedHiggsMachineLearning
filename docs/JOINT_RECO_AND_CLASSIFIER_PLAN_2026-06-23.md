@@ -227,6 +227,8 @@ companion doesn't recover it, S's representation is genuinely worse → favour T
   sig/bkg weighting + tune S's reco-vs-`none` balance and T's `λ`.
 - **R3 (readout fairness):** S's fixed readout vs T's learned head — always report S's
   frozen-logistic companion alongside, so S-vs-T compares representations not readouts.
+  **Tooling done** (`experiments/eval_single_readout.py`): report both the parameter-free
+  softor/max (lower bound) and the fitted fair readout (upper bound) for every S model.
 - **R4 (MPS scale):** signal+background ≈ doubles data; the subset-first plan mitigates;
   RunPod is the escape hatch.
 - **R5 (channel labels):** event head is 3-way `{bkg,qqbb,lvbb}` — confirm the qqbb/lvbb
@@ -256,16 +258,22 @@ committed on `sid-fable-experiments`.
   checkpoints are unaffected). Dual-head `forward` returns `{"reco":[B,n_obj,3],
   "event":[B,n_event]}` with **padding-masked** event pooling.
 - `experiments/joint_primitives.py` — `event_score_from_object_logits` (softor/max readout),
-  `weighted_roc_auc`, `asimov_z`, `best_asimov_z`. 13 unit tests.
+  `weighted_roc_auc`, `asimov_z`, `best_asimov_z`, plus the **fair-readout** pieces
+  (`event_summary_features` → 8 per-event object-score summaries that keep H and W separate;
+  `FairReadout`/`fit_fair_readout` = StandardScaler + logistic). 15 unit tests.
+- `experiments/eval_single_readout.py` — post-hoc evaluator for a trained single-head (or
+  reco) checkpoint: fits the fair readout on train, reports **parameter-free softor/max
+  (lower bound)** vs **fair-readout logistic (upper bound)** as AUC + Asimov Z + coefficients.
+  `--ckpt <path>`; `--pseudo-bkg-dsid` for signal-only. (= the S-companion / baseline-#3 probe.)
 - `experiments/train_joint.py` — the harness: `--mode {single,twohead}`,
   `--schedule {joint,int,intdetach,seqfull,seqfrozen}`, `--lambda-event`, `--event-classes`,
   `--pseudo-bkg-dsid`, `--seq-split`, `--readout`, plus all the `train_organism` knobs. Dual
   loss (background-masked reco + weighted event CE), the five schedules, signal-only reco
   metrics + classification AUC/Z, config.json + checkpoints.
-- Tests: `tests/test_model_dualhead.py` (5), `tests/test_joint_primitives.py` (13),
-  `tests/test_train_joint_smoke.py` (8 combos, subprocess-runs the real CLI, self-cleans
-  `output/`). All green. (`pytest` isn't in `.venv`; run files directly with
-  `.venv/bin/python tests/<file>.py`.)
+- Tests: `tests/test_model_dualhead.py` (5), `tests/test_joint_primitives.py` (15),
+  `tests/test_train_joint_smoke.py` (8 combos), `tests/test_eval_single_readout_smoke.py`
+  (train→eval integration). All subprocess-runs self-clean `output/`. All green. (`pytest`
+  isn't in `.venv`; run files directly with `.venv/bin/python tests/<file>.py`.)
 
 **Smoke matrix (CPU, d8/b1/h2/no-mlp, DSID 510124 relabelled pseudo-background):** single,
 single+max-readout, twohead×{joint, joint-binary, int, intdetach, seqfull, seqfrozen} all run
@@ -304,3 +312,9 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   (significance weighting is unnormalized / abs-weighted — must fix before trusting numbers)
   and R7 (legacy classifier pooling unmasked) as the key things to resolve when real
   background arrives. **Next = Phase 1: Sid brings background memmaps; verify format (R1).**
+- 2026-06-23 (pm) — Added the **single-head fair-readout** companion (`event_summary_features`
+  + `FairReadout` in `joint_primitives.py`; `experiments/eval_single_readout.py`): reports the
+  parameter-free softor/max readout (lower bound) vs a fitted logistic on object-score
+  summaries (upper bound), so the single-head S-vs-T comparison is about representation, not
+  readout crudeness (resolves R3 tooling). Unit + train→eval integration smoke, green
+  signal-only. Both readouts will be reported per S model once real background lands.
