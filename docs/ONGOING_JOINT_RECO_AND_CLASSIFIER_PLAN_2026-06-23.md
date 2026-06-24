@@ -328,7 +328,92 @@ really signal; metrics are unnormalized — see R6). This phase only proves the 
   validation-bound (~30–50 min before). The first two rows (single, joint) were trained pre-fix
   (correct, just slow); the four two-head schedules were re-run post-fix.
 
+### First REAL-background queue — d20/b2/h4, 8 ep, MPS (2026-06-24) ✅ COMPLETE (8/8 + fair-readout)
+> **First real background.** Signal 510115–124 + the full background cocktail (ttbar
+> 410470/41xxxx, W/Z+jets 700xxx, diboson 363xxx; ~20.5M bkg events) copied locally to
+> `tmp_data_20250321v1_all/` and verified. d20 b2 h4, 8 epochs, 3-class event head, λ=1,
+> `--real-bkg --position-split`. Run concurrently with another agent's MPS job (≈3× slower
+> wall-clock; results unaffected).
+>
+> ⚠️ **Caveats:** (1) **AUC is the comparative metric; absolute Asimov Z is UNCALIBRATED**
+> (abs MC weights, no per-DSID luminosity normalization — R6). (2) **Position split** (not
+> eventNumber): the background memmaps have systematically *even* eventNumbers, so the
+> eventNumber split dumped ~91% of background (incl. all ttbar) into val — position split
+> gives a balanced 50/50 per-DSID split. Signal is statistically equivalent either way, so
+> reco is ~comparable to the eventNumber-split reco baselines. (3) W&B off (unattended).
+
+**Data + harness changes this session:**
+- `train_joint.py` gains `--data-dir`, `--real-bkg` (include all `dsid_*.memmap`,
+  `signal_only=False`), `--position-split`, a complete greppable `JOINTSUMMARY` per-epoch
+  line, and a metrics-buffer sized to the signal val count (avoids ~4 GB waste / OOM with the
+  12M-event val). `eval_single_readout.py` gained the same real-bkg flags. New:
+  `experiments/run_joint_real_bkg_mps.sh` (the 8-run queue), `parse_joint_results.py`
+  (logs→table), `verify_real_bkg_data.py` (R1 live check). **All uncommitted — pending Sid.**
+- **Bug found + fixed** (`metrics/lowlevelrecometrics.py`): the per-object CE built its target
+  with `one_hot(...)` **without `num_classes`**, so an all-background / all-`none` batch (which
+  occurs in single-head mode once signal indices deplete near an epoch end) produced a
+  1-column target vs 3-class logits → `cross_entropy` crash. Pinned `num_classes` to the logit
+  count — a **no-op for every signal-containing batch** (so it can't change the reco baseline
+  or the two-head runs). Two-head mode never hit it (it skips reco when signal-weight is 0).
+
+**Results** (all 8 runs complete; table auto-built by `parse_joint_results.py`). Grouped:
+baselines, two-head schedules, single-head.
+
+| run | role | reco all | lvbb | qqbb | cat0 | cat1 | cat2 | cat3 | cat4 | cat5 | AUC | loss |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pure_reco (λ=0) | base #1 reco | **0.856** | 0.903 | 0.761 | 0.212 | 0.308 | 0.206 | 0.404 | 0.953 | 0.919 | 0.500† | 0.147 |
+| standalone classifier | base #2 clf | 0.000 | — | — | — | — | — | — | — | — | **0.9842** | 0.218 |
+| twohead joint (λ=1) | T-JOINT | 0.841 | 0.895 | 0.731 | 0.156 | 0.227 | 0.128 | 0.280 | 0.951 | 0.912 | **0.9839** | 0.371 |
+| twohead int | T-INT | 0.839 | 0.893 | 0.728 | 0.146 | 0.218 | 0.116 | 0.282 | 0.950 | 0.909 | 0.9832 | 0.201 |
+| twohead intdetach | T-INT-detach | 0.840 | 0.891 | 0.738 | 0.153 | 0.218 | 0.126 | 0.356 | 0.947 | 0.907 | 0.9591 | 0.284 |
+| twohead seqfrozen | T-SEQ-frozen | 0.852 | 0.904 | 0.747 | 0.181 | 0.275 | 0.186 | 0.380 | 0.957 | 0.909 | 0.9688 | 0.308 |
+| twohead seqfull | T-SEQ-full | 0.462 | 0.630 | 0.123 | 0.004 | 0.151 | 0.019 | 0.030 | 0.670 | 0.160 | 0.9833 | 0.223 |
+| single-head softor | S | 0.797 | 0.849 | 0.691 | 0.129 | 0.234 | 0.142 | 0.250 | 0.901 | 0.866 | 0.9822 | 0.135 |
+
+† pure_reco AUC 0.500 is correct — its event head is never trained at λ=0. (Uncalibrated
+Asimov Z ~0.9k–2.0k omitted as meaningless in absolute terms — R6.)
+
+**Single-head readout (S, `eval_single_readout` on its ckpt, 246k fit / 246k eval events):**
+parameter-free softor **0.9816**, parameter-free max **0.9823**, fair-readout logistic
+**0.9818** — i.e. the fitted readout ≈ the parameter-free one. The crude soft-OR is **not** the
+bottleneck; the readout already extracts ~all the object-score discrimination.
+
+**Reco anchors:** same-pipeline reco-only (λ=0) d20 b2h4 8ep = **0.856** (best); separate reco
+workstream d20 b2h4 30ep = 0.847.
+
+**Headline findings (real background):**
+- **Near-free positive transfer at d20 (H-A).** One `twohead joint` transformer does both at
+  once: reco **0.841** + AUC **0.9839**. Vs the *same-pipeline* single-task anchors (pure_reco
+  0.856; standalone 0.9842) it costs a **small reco tax (−0.015)** for **~zero classification
+  cost (−0.0003)**. Clear *yes* to "one network does both" at this scale — full classification
+  rides ~free on top of reco for a slight reco dip. `int` matches `joint` (0.839/0.9832) —
+  interleave-vs-joint barely matters.
+- **S vs T (H-B): T ≥ S, and the readout is not the limiter.** Single-head S matches T on
+  classification (0.982 vs 0.984; and its fair-readout = parameter-free, so *not* readout-bound)
+  but pays a **bigger reco tax** (S reco 0.797 vs T 0.841) — forcing the shared reco head to emit
+  all-`none` on background degrades signal reco more than T's background-masked reco loss. So at
+  d20 two-head is the better structure: same discrimination, better reco.
+- **Free discrimination is real but partial (H-C).** A reco-only representation already separates
+  sig/bkg well: `seqfrozen` (freeze reco backbone, train only event head) **0.969**;
+  `intdetach` (event head reads detached backbone) **0.959**. Letting classification *reshape*
+  the backbone adds **+0.015–0.025** to reach 0.984. So the channel decision largely lives in the
+  reco representation, with a modest gain from dedicated backbone adaptation.
+- **Sequential full-backprop forgets reco (forgetting risk).** `seqfull` (reco → then full-backprop
+  event) **collapsed reco to 0.462** (from the ~0.85 phase-1 level) while keeping AUC 0.983;
+  `seqfrozen` (freeze in phase 2) preserved reco at **0.852**. Milder than the pseudo-bkg run's
+  near-total 0.075, but the same catastrophic-forgetting mechanism — avoid unfrozen sequential
+  fine-tuning if reco must survive.
+- Reco per-category pattern matches the reco workstream: cat4/cat5 strong (~0.90–0.96), cat0–3
+  weak (the hard categories); lvbb (0.85–0.90) > qqbb (0.69–0.76).
+- **Next:** scale axis (d48/d96 — does the −0.015 reco tax shrink/flip with capacity? H-A) and
+  the dataset-size axis; fix **R6** (signed-weight, per-DSID luminosity-normalized Z) before any
+  physics/significance claim; W&B on for the publishable sweep; H-D interp (joint vs reco-only).
+
 ### Reproduce / monitor (local tooling)
+- **Real-bkg runner:** `experiments/run_joint_real_bkg_mps.sh` (env `EPOCHS`/`D_MODEL`/…) →
+  `output/joint_real_bkg_<stamp>/{manifest.log,logs/*.log}`; parse with
+  `experiments/parse_joint_results.py <run_root>`. The dashboard now also auto-discovers
+  `output/joint_real_bkg_*/logs/*.log`.
 - **Runner scripts:** `experiments/run_joint_first_set_mps.sh` (full set: `single_softor` +
   fair-readout eval + 5 two-head schedules) and `experiments/run_joint_remaining_mps.sh` (the 4
   two-head schedules only — the post-fix re-run). Env knobs: `EPOCHS`, `BATCH_SIZE`,
@@ -384,3 +469,21 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   the schedules behave as designed; fair-readout ≈ parameter-free on this pseudo task. Helper
   scripts (`run_joint_first_set_mps.sh`, `run_joint_remaining_mps.sh`, `dashboard.py` patch)
   still uncommitted pending Sid's call. **Next still = Phase 1 (real background; R1 format check).**
+- 2026-06-24 (overnight) — **Phase 1+2+4 done on REAL background.** Sid's bulk copy had missed
+  the memmaps (`heppc_recovered/data/` empty); copied the 12 GB `20250321v1` subdir locally
+  (`tmp_data_20250321v1_all/`, signal symlinked + 40 bkg memmaps), byte-verified vs a size
+  snapshot. **R1 confirmed** (background layout matches signal; loader maps bkg→label 0).
+  Found the background eventNumbers are systematically **even** → eventNumber split dumped ~91%
+  of bkg (all ttbar) into val → added **`--position-split`** (balanced 50/50). Adapted
+  `train_joint.py` (`--data-dir/--real-bkg/--position-split`, JOINTSUMMARY line, signal-sized
+  metrics buffer) + `eval_single_readout.py`; new `run_joint_real_bkg_mps.sh` /
+  `parse_joint_results.py` / `verify_real_bkg_data.py`. Ran an **8-run d20/b2/h4 8-ep queue**
+  (concurrent with another agent's MPS job, coordinated via `~/Documents/tmp.20260624.md`).
+  **Fixed a real bug** in `metrics/lowlevelrecometrics.py` (one_hot lacked `num_classes` → crash
+  on all-`none` batches in single-head mode; no-op for signal batches). **Headline: near-free
+  positive transfer at d20** — joint matches both single-task anchors (reco 0.841 vs 0.856;
+  AUC 0.984 vs 0.984) for a −0.015 reco tax; T≥S (S not readout-bound but pays more reco tax);
+  frozen reco-rep gives 0.96–0.97 "free" discrimination (+0.02 from backbone reshaping);
+  seqfull forgets reco (0.46) vs seqfrozen (0.85). All AUC comparative; **Z uncalibrated (R6)**.
+  Results table + findings above. **Code + metrics fix uncommitted — pending Sid's review.**
+  **Next:** scale (d48/d96) + dataset-size axes; fix R6; W&B on; H-D interp.
