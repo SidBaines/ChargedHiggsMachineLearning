@@ -499,8 +499,63 @@ everywhere** (esp. low mass) → motivates scale-up + the dataset-size axis. (MA
 because all signals are normalized to σ×BR=1 pb; the rising "kept" curves reflect easier separation
 at high mass.)
 
+### Scale-up: d152 best-method run + Sʙ₂₀₀ (2026-06-25) ✅
+> **Best method, trained to completion at the reco-winner scale.** two-head **joint** (λ=1),
+> **d152 b3 h4 mlp400** (672k params), real bkg + position split, **winner recipe** (lr 1e-3→5e-7
+> cosine, ramp warmup 100, wd 1e-6, batch 4096), **30 epochs**, W&B run `hor26ayx`, ckpt
+> `output/20260624-163646_TrainingOutput/models/Nplits2_ValIdx0/chkpt29_85320.pth`.
+
+**Training result (epoch 29, full val):** AUC **0.989**, reco_all **0.884** (lvbb 0.917, qqbb 0.816),
+cats: cat0 0.385 · cat1 0.624 · cat2 0.649 · cat3 0.670 · cat4 0.989 · cat5 0.947; train_loss 0.195.
+- **Near-free transfer *tightens* with scale (H-A):** joint reco 0.884 vs reco-only d152 ≈ 0.891
+  → ~0.007 tax (vs ~0.015 at d20). AUC 0.989 > d20 joint / standalone (0.984).
+- **The hard reco categories (the bottleneck) jumped ~2–4×** vs d20 joint (cat0 0.16→0.39,
+  cat1 0.23→0.62, cat2 0.13→0.65, cat3 0.28→0.67) — exactly the regime tied to low-mass Sʙ₂₀₀.
+
+**Sʙ₂₀₀ scale-up (signal kept @ 200 bkg, per H⁺ mass [TeV], native set each):**
+
+qqbb:
+| model | 0.8 | 1.0 | 1.4 | 2.0 | 3.0 |
+|---|---|---|---|---|---|
+| MAX available | 11068 | 11851 | 12359 | 12133 | 11431 |
+| OLD High-level Joint | 114 | 956 | 2584 | 3246 | 3260 |
+| OLD High-level Parametrised | 287 | 811 | 2480 | 3727 | 4200 |
+| *ref* Low-level transformer-reco (thesis d200) | 745 | 1983 | 4426 | 7296 | 8662 |
+| NEW ours **d20** joint | 407 | 1635 | 3958 | 6859 | 8500 |
+| NEW ours **d152** joint | **1369** | **2501** | **4707** | 7267 | 8658 |
+
+lvbb:
+| model | 0.8 | 1.0 | 1.4 | 2.0 | 3.0 |
+|---|---|---|---|---|---|
+| MAX available | 20705 | 23432 | 24821 | 25168 | 25145 |
+| OLD High-level Joint | 121 | 728 | 4020 | 6622 | 7220 |
+| OLD High-level Parametrised | 205 | 1071 | 4025 | 7171 | 7879 |
+| *ref* Low-level transformer-reco (thesis d200) | 2317 | 5651 | 11156 | 17392 | 21402 |
+| NEW ours **d20** joint | 518 | 2991 | 8800 | 15911 | 21055 |
+| NEW ours **d152** joint | **3108** | **6219** | **11223** | 17126 | 21706 |
+
+Plot: `output/joint_real_bkg_20260624-010237/sb200_oldvsnew_scaleup.png`. reco-valid frac:
+d152 0.596 ≈ d20 0.594 (≈ thesis "59% bkg remains") — validity selection unchanged; the gain is
+pure reco+classification quality.
+
+**Findings:**
+- **Scale-up closes the low-mass gap.** d20→d152 at 0.8 TeV: qqbb 407→**1369** (3.4×), lvbb
+  518→**3108** (6×); at high mass d152≈d20 (both saturate near the references). So the d20
+  shortfall really was capacity in the hard low-mass regime, as hypothesized.
+- **d152 matches-or-beats the thesis d200 transformer-reco reference:** ties at high mass (qqbb
+  3 TeV 8658 vs 8662; lvbb 21706 vs 21402) and **exceeds at low mass** (qqbb 0.8 TeV 1369 vs 745;
+  lvbb 3108 vs 2317). ⚠ The thesis ref was computed on a *different* data version (30-object,
+  reco-applied/split sample) and pipeline, so treat it as a sanity reference, not a strict
+  apples-to-apples — the encouraging read is our 15-object joint d152 is in that model's league
+  or better.
+- **Dominates the OLD hand-cut + high-level-NN method everywhere**, hugely at low mass (qqbb
+  0.8 TeV ~5–12×; lvbb ~15–26×).
+- **Fraction of available signal kept** (vs MAX): d152 ~**12% qqbb / ~15% lvbb at 0.8 TeV**
+  (d20 ~3%, OLD ~1%) and ~**76% / ~86% at 3 TeV** — big low-mass gain, headroom still remains
+  → further scale / data-fraction and the R6-calibrated significance are the next levers.
+
 ### Reproduce / monitor (local tooling)
-- **Sʙ₂₀₀ old-vs-new:** `experiments/sb200_oldvsnew.py [run_root] --models … --device mps --plot p.png`
+- **Sʙ₂₀₀ old-vs-new:** `experiments/sb200_oldvsnew.py [run_root] --models … [--extra label=<TrainingOutputDir>] --device mps --plot p.png`
   (reads `sig_rems_{qqbb,lvbb}.pkl` for OLD + thesis-ref; computes ours). Also
   `experiments/signal_at_fixed_bkg.py` (combined-signal Sʙ_N, no channel split / no reco-validity —
   a simpler diagnostic).
@@ -602,3 +657,12 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   (target==2 qqbb / ==1 lvbb, truth set pre-reco). Two-head keeps ~74%/84% (qqbb/lvbb) of available
   at 3 TeV, ~3–4% at 0.8 TeV (OLD ~1%) → headroom everywhere, biggest relative gain at low mass.
   Table/plot updated above.
+- 2026-06-25 — **Scale-up: best-method d152 run to completion.** two-head joint, d152/b3/h4/mlp400,
+  winner recipe, 30 ep (~3.5 h compute; resumed cleanly through a lid-close suspend), W&B `hor26ayx`.
+  **AUC 0.989, reco_all 0.884** (near reco-only d152 0.891 → transfer tax shrinks 0.015→0.007 with
+  scale), **hard reco cats cat0–3 jumped ~2–4×** vs d20. Added `--extra` to `sb200_oldvsnew.py` to
+  score models outside a run_root; ran the Sʙ₂₀₀ scale-up. **d152 closes the low-mass gap** (0.8 TeV
+  qqbb 407→1369, lvbb 518→3108), **matches/beats the thesis d200 ref** (ties high mass, exceeds low
+  mass — caveat: ref is a different 30-obj data version), dominates OLD everywhere. Plot
+  `sb200_oldvsnew_scaleup.png`. Next: further scale / data-fraction; **R6** calibrated significance
+  before any limit-level claim.

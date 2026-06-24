@@ -46,6 +46,8 @@ def parse_args():
     p.add_argument("run_root", nargs="?", default=None)
     p.add_argument("--data-dir", default=DATA_DEFAULT)
     p.add_argument("--models", default="twohead_joint,twohead_int,single_softor,twohead_seqfrozen,twohead_seqfull,twohead_intdetach")
+    p.add_argument("--extra", default="", help="extra models as 'label=<TrainingOutputDir>' comma-list "
+                                               "(reads {dir}/config.json + highest chkpt); for models outside the run_root")
     p.add_argument("--device", choices=["cpu", "mps"], default="mps")
     p.add_argument("--eval-batches", type=int, default=0, help="0 = full val")
     p.add_argument("--bkg-level", type=float, default=200.0)
@@ -76,6 +78,24 @@ def discover(run_root, wanted):
                      key=lambda p: int(os.path.basename(p).split("_")[1].split(".")[0]))
         if os.path.exists(cfg) and cks:
             out[name] = (cfg, cks[-1])
+    return out
+
+
+def resolve_extra(spec):
+    """Parse 'label=<TrainingOutputDir>' comma-list -> {label: (config.json, highest_chkpt)}."""
+    out = {}
+    for item in spec.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        label, d = item.split("=", 1)
+        cfg = os.path.join(d, "config.json")
+        cks = sorted(glob.glob(os.path.join(d, "models", "*", "chkpt*.pth")),
+                     key=lambda p: int(os.path.basename(p).split("_")[1].split(".")[0]))
+        if os.path.exists(cfg) and cks:
+            out[label.strip()] = (cfg, cks[-1])
+        else:
+            print(f"WARN: extra model '{label}' not found in {d}")
     return out
 
 
@@ -188,7 +208,7 @@ def main():
     rr = a.run_root or newest_run_root()
     device = a.device if (a.device == "cpu" or torch.backends.mps.is_available()) else "cpu"
     wanted = [m.strip() for m in a.models.split(",") if m.strip()]
-    runs = discover(rr, wanted)
+    runs = {**discover(rr, wanted), **resolve_extra(a.extra)}
     qq_old = pickle.load(open(os.path.join(REPO, "sig_rems_qqbb.pkl"), "rb"))
     lv_old = pickle.load(open(os.path.join(REPO, "sig_rems_lvbb.pkl"), "rb"))
     print(f"run_root: {os.path.basename(rr)}  our models: {list(runs)}  device: {device}  bkg={int(a.bkg_level)}\n")
