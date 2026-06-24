@@ -30,6 +30,7 @@ from dataloaders.lowleveldataloader import ProportionalMemoryMappedDataset
 from models.models import TestNetwork
 from metrics import lowlevelmetrics
 from utils.utils import check_valid
+from joint_primitives import event_score_from_object_logits
 
 DSID_MASS_TEV = {510115: 0.8, 510116: 0.9, 510117: 1.0, 510118: 1.2, 510119: 1.4,
                  510120: 1.6, 510121: 1.8, 510122: 2.0, 510123: 2.5, 510124: 3.0}
@@ -44,7 +45,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("run_root", nargs="?", default=None)
     p.add_argument("--data-dir", default=DATA_DEFAULT)
-    p.add_argument("--models", default="twohead_joint,twohead_int,twohead_seqfrozen,twohead_seqfull,twohead_intdetach")
+    p.add_argument("--models", default="twohead_joint,twohead_int,single_softor,twohead_seqfrozen,twohead_seqfull,twohead_intdetach")
     p.add_argument("--device", choices=["cpu", "mps"], default="mps")
     p.add_argument("--eval-batches", type=int, default=0, help="0 = full val")
     p.add_argument("--bkg-level", type=float, default=200.0)
@@ -118,6 +119,10 @@ def compute_new_model(cfg, ckpt, val_dl, n_batches, device, bkg_level):
     diagnostics (validity fractions)."""
     model = build_model(cfg, device); model.load_state_dict(torch.load(ckpt, map_location=device)); model.eval()
     pad = cfg["num_particle_types"] - 1; nin = cfg["model_input_vars"]
+    # single-head ("background = all-none"): no event head -> channel comes from the RECO
+    # (check_valid valid_qqbb/valid_lvbb) and the discriminant is the softor readout, P(bkg)=1-softor.
+    # two-head: channel from the event classifier (metric-internal); reco only gates validity.
+    single = (cfg.get("mode") == "single") or (not cfg.get("add_event_head", False))
     val_dl._reset_indices()
     nb = n_batches if n_batches > 0 else len(val_dl)
     met = lowlevelmetrics.HEPMetrics(num_classes=3, max_buffer_len=int(val_dl.get_total_samples()) + cfg["batch_size"],
@@ -130,18 +135,23 @@ def compute_new_model(cfg, ckpt, val_dl, n_batches, device, bkg_level):
             x = sanitize_padding(b["x"], b["types"], pad); types = b["types"]
             out = model(x[..., :nin], types)
             reco = out["reco"] if isinstance(out, dict) else out
-            if isinstance(out, dict) and "event" in out:
-                probs = torch.softmax(out["event"], dim=-1)  # [bkg, lvbb, qqbb]
+            valid, chan = check_valid(types, reco, pad, categorical=True, returnTypes=True)
+            chan = chan.to(reco.device)  # 0=reco-invalid, 1=lvbb, 2=qqbb
+            if single:
+                s = event_score_from_object_logits(reco, types, pad, "softor").to(reco.device).clamp(0, 1)
+                probs = torch.zeros((len(s), 3), device=reco.device, dtype=s.dtype)
+                probs[:, 0] = 1.0  # default pure-bkg (covers reco-invalid chan==0)
+                ql = (chan == 2); ll = (chan == 1)
+                probs[ql, 0] = 1.0 - s[ql]; probs[ql, 2] = s[ql]
+                probs[ll, 0] = 1.0 - s[ll]; probs[ll, 1] = s[ll]
             else:
-                raise SystemExit("model has no event head; not usable for this comparison")
-            valid, _chan = check_valid(types, reco, pad, categorical=True, returnTypes=True)
-            valid = valid.to(probs.device)
-            # reco-INVALID events -> pure background so the classifier WP rejects them
-            invalid = ~valid
-            if invalid.any():
-                probs = probs.clone()
-                probs[invalid] = torch.tensor([1.0, 0.0, 0.0], device=probs.device, dtype=probs.dtype)
-            n_valid += int(valid.sum()); n_tot += len(valid)
+                if not (isinstance(out, dict) and "event" in out):
+                    raise SystemExit("two-head model expected an event head")
+                probs = torch.softmax(out["event"], dim=-1).clone()  # [bkg, lvbb, qqbb]
+                invalid = (chan == 0)
+                if invalid.any():
+                    probs[invalid] = torch.tensor([1.0, 0.0, 0.0], device=probs.device, dtype=probs.dtype)
+            n_valid += int((chan > 0).sum()); n_tot += len(chan)
             met.update(probs, b["y"].argmax(-1), b["MC_Wts"], b["mWh_qqbb"], b["mWh_lvbb"], b["dsids"], b["mH"])
     rv = met.compute_and_log(0, "val_MC", log_level=2, save=False, verbose=False, calc_all=True)
     res = {}
@@ -154,7 +164,23 @@ def compute_new_model(cfg, ckpt, val_dl, n_batches, device, bkg_level):
         kl = next((k for k in rv if k.startswith(lpref)), None)
         res[m] = {"qqbb": float(rv[kq]) if kq else float("nan"),
                   "lvbb": float(rv[kl]) if kl else float("nan")}
-    return res, (n_valid / max(n_tot, 1))
+    return res, (n_valid / max(n_tot, 1)), met
+
+
+def compute_max_available(met):
+    """Max possible signal = full truth-channel yield (NO reco/selection), per mass, using the
+    metric's own per-DSID expected-yield normalization (total/processed). Truth-channel = the
+    true decay mode (target==2 qqbb, ==1 lvbb), set before any reco. Model-independent."""
+    n = met.current_update_point
+    t = met.all_targets[:n]; w = met.all_weights[:n]; d = met.all_dsids[:n].astype(int)
+    res = {}
+    for dsid in SIG_DSIDS:
+        proc = met.processed_weight_sums_per_dsid.get(dsid, 0.0)
+        mult = (met.total_weights_per_dsid[dsid] / proc) if proc else 0.0
+        sel = (d == dsid)
+        res[DSID_MASS_TEV[dsid]] = {"qqbb": float(w[sel & (t == 2)].sum() * mult),
+                                    "lvbb": float(w[sel & (t == 1)].sum() * mult)}
+    return res
 
 
 def main():
@@ -170,32 +196,42 @@ def main():
     # OUR models
     new_qq, new_lv = {}, {}
     val_dl = None
+    max_avail = None
     for name, (cfgp, ckpt) in runs.items():
         cfg = json.load(open(cfgp))
         if val_dl is None:
             val_dl = make_val_dl(cfg, a.data_dir, device)
-        res, vfrac = compute_new_model(cfg, ckpt, val_dl, a.eval_batches, device, a.bkg_level)
+        res, vfrac, met = compute_new_model(cfg, ckpt, val_dl, a.eval_batches, device, a.bkg_level)
         new_qq[name] = [res[m]["qqbb"] for m in MASSES]
         new_lv[name] = [res[m]["lvbb"] for m in MASSES]
+        if max_avail is None:  # truth-channel totals are model-independent; compute once
+            max_avail = compute_max_available(met)
         print(f"{name:22s} reco-valid frac={vfrac:.3f}")
+    max_qq = [max_avail[m]["qqbb"] for m in MASSES]
+    max_lv = [max_avail[m]["lvbb"] for m in MASSES]
 
-    def table(title, old_d, new_d):
+    def table(title, old_d, new_d, max_vals):
         print(f"\n=== {title}: signal kept @ {int(a.bkg_level)} bkg, per H+ mass [TeV] (native set each) ===")
         hdr = "model".ljust(34) + " | " + " | ".join(f"{m:>5.1f}" for m in MASSES)
         print(hdr); print("-" * len(hdr))
+        print("MAX available (truth channel)".ljust(34) + " | " + " | ".join(f"{x:5.0f}" for x in max_vals))
         for k in OLD_KEYS:
             if k in old_d:
                 print(("OLD " + k).ljust(34) + " | " + " | ".join(f"{float(x):5.0f}" for x in old_d[k]))
         for k, v in new_d.items():
             print(("NEW(ours) " + k).ljust(34) + " | " + " | ".join(f"{x:5.0f}" for x in v))
-    table("QQBB", qq_old, new_qq)
-    table("LVBB", lv_old, new_lv)
+    table("QQBB", qq_old, new_qq, max_qq)
+    table("LVBB", lv_old, new_lv, max_lv)
 
     if a.plot:
         try:
             import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
             fig, axes = plt.subplots(1, 2, figsize=(16, 6.5))
-            for ax, ch, old_d, new_d in [(axes[0], "qqbb", qq_old, new_qq), (axes[1], "lvbb", lv_old, new_lv)]:
+            for ax, ch, old_d, new_d, mx in [(axes[0], "qqbb", qq_old, new_qq, max_qq),
+                                             (axes[1], "lvbb", lv_old, new_lv, max_lv)]:
+                ax.plot(MASSES, mx, color="k", lw=2.6, ls="-", marker=None,
+                        label="MAX available (all truth-channel signal)")
+                ax.fill_between(MASSES, mx, alpha=0.05, color="k")
                 for k in OLD_KEYS:
                     if k in old_d:
                         sty = dict(ls="--", marker="s") if k.startswith("High-level") else dict(ls=":", marker="^")
@@ -205,8 +241,8 @@ def main():
                 ax.set_xlabel("H+ mass [TeV]"); ax.set_ylabel(f"signal kept @ {int(a.bkg_level)} bkg")
                 ax.set_title(f"{ch}  (each method on its native event set)")
                 ax.grid(True, alpha=0.3); ax.legend(fontsize=7)
-            fig.suptitle(f"Sb{int(a.bkg_level)}: OLD (hand-cut reco + high-level NN) vs NEW (transformer reco+classifier). "
-                         f"Yields per-DSID expected-yield normalized; reco-validity = native selection.")
+            fig.suptitle(f"Sb{int(a.bkg_level)}: OLD (hand-cut reco + high-level NN) vs NEW (transformer reco+classifier) "
+                         f"vs MAX available. Per-DSID expected-yield normalized; reco-validity = native selection.")
             fig.tight_layout(); fig.savefig(a.plot, dpi=130); print(f"\nplot saved: {a.plot}")
         except Exception as e:
             print(f"plot failed: {e}")

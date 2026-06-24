@@ -441,11 +441,13 @@ convention as the stored numbers, so directly comparable).
 
 | model | 0.8 | 1.0 | 1.4 | 2.0 | 3.0 |
 |---|---|---|---|---|---|
+| **MAX available** (all truth-qqbb signal, no reco) | 11068 | 11851 | 12359 | 12133 | 11431 |
 | OLD High-level Joint | 114 | 956 | 2584 | 3246 | 3260 |
 | OLD High-level Parametrised | 287 | 811 | 2480 | 3727 | 4200 |
 | *ref* Low-level transformer-reco (thesis, d200) | 745 | 1983 | 4426 | 7296 | 8662 |
 | **NEW ours twohead_joint (d20)** | **407** | **1635** | 3958 | 6859 | **8500** |
 | NEW ours twohead_int (d20) | 359 | 1525 | 3934 | 6712 | 8435 |
+| NEW ours single_softor (S, d20) | 208 | 1175 | 3599 | 6291 | 8066 |
 | NEW ours twohead_seqfrozen | 7 | 80 | 1672 | 5324 | 8410 |
 | NEW ours twohead_intdetach | 4 | 67 | 971 | 3611 | 7169 |
 | NEW ours twohead_seqfull | 259 | 679 | 1266 | 1203 | 740 |
@@ -454,11 +456,13 @@ convention as the stored numbers, so directly comparable).
 
 | model | 0.8 | 1.0 | 1.4 | 2.0 | 3.0 |
 |---|---|---|---|---|---|
+| **MAX available** (all truth-lvbb signal, no reco) | 20705 | 23432 | 24821 | 25168 | 25145 |
 | OLD High-level Joint | 121 | 728 | 4020 | 6622 | 7220 |
 | OLD High-level Parametrised | 205 | 1071 | 4025 | 7171 | 7879 |
 | *ref* Low-level transformer-reco (thesis, d200) | 2317 | 5651 | 11156 | 17392 | 21402 |
 | **NEW ours twohead_joint (d20)** | 518 | 2991 | 8800 | 15911 | 21055 |
 | NEW ours twohead_int (d20) | 409 | 2612 | 8833 | 16019 | 21105 |
+| NEW ours single_softor (S, d20) | 427 | 2578 | 8510 | 15718 | 20666 |
 
 Plot: `output/joint_real_bkg_20260624-010237/sb200_oldvsnew.png` (2 panels qqbb/lvbb; old dashed,
 thesis-ref dotted, ours solid). reco-valid frac: joint 0.594, int 0.593, intdetach 0.627,
@@ -476,14 +480,24 @@ seqfrozen 0.646, **seqfull 0.261**.
   representation can't make a pure low-mass selection. So a good shared reco is what makes the
   unified model's event selection work — direct support for the "one network does both" thesis.
 
-**⚠ NOT yet included — the single-head S ("background = all-none"):** `single_softor` was trained
-but is **excluded from this Sʙ₂₀₀ table**, because it has **no 3-class {bkg,lvbb,qqbb} event head** —
-its only event score is the parameter-free **softor** readout (one binary signal-vs-bkg score, no
-channel split), so it doesn't fit the per-channel metric the stored old/thesis numbers use. It
-*can* be added by taking its **channel from the reco** (`check_valid` valid_qqbb/valid_lvbb) and
-**softor as the discriminant** — a slightly different (reco-channel, not classifier-argmax)
-construction. **TODO:** add the single-head this way (it's the zero-extra-parameter S variant; worth
-knowing if it also beats OLD).
+**Single-head S ("background = all-none") — now included.** `single_softor` has no 3-class event
+head, so its **channel comes from its reco** (`check_valid` → valid_qqbb/valid_lvbb) and its
+**discriminant is the parameter-free softor readout** (P(bkg)=1−softor); fed through the *same*
+metric (reco-channel rather than classifier-argmax — a documented difference). Result: the
+**zero-extra-parameter single-head also beats the OLD method** (qqbb 0.8 TeV 208 vs old 114/287;
+lvbb 0.8 TeV 427 vs old 121/205) and is **close to the two-head at high mass** (qqbb 3 TeV 8066 vs
+8500) — despite only **~23% of its events being reco-valid** (vs ~59% for two-head): its reco head,
+trained on background-as-all-none, reconstructs far fewer valid topologies, shrinking its native
+set. So most of the discrimination is in the shared representation, not a dedicated readout (echoes
+the AUC-level H-B finding).
+
+**MAX-available reference (the ceiling).** The black line = full **truth-channel** signal yield per
+mass (no reco/selection), per-DSID expected-yield normalized. Fractions kept at 200 bkg: two-head
+**~74% qqbb / ~84% lvbb at 3 TeV**, but only **~3–4% at 0.8 TeV** — vs the OLD method's ~1% at
+0.8 TeV. So the new method's biggest *relative* gain is at low mass, yet **large headroom remains
+everywhere** (esp. low mass) → motivates scale-up + the dataset-size axis. (MAX is ~flat in mass
+because all signals are normalized to σ×BR=1 pb; the rising "kept" curves reflect easier separation
+at high mass.)
 
 ### Reproduce / monitor (local tooling)
 - **Sʙ₂₀₀ old-vs-new:** `experiments/sb200_oldvsnew.py [run_root] --models … --device mps --plot p.png`
@@ -580,3 +594,11 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   Reco quality drives the selection (seqfull's forgotten reco → valid frac 0.26 → collapses).
   Single-head S excluded (no 3-class head; needs reco-channel+softor) — TODO. Needed `np.trapz`→
   `np.trapezoid` shim (numpy upgrade). **Committing the joint real-bkg + comparison code now.**
+- 2026-06-24 (pm, follow-up) — Added to `sb200_oldvsnew.py`: (1) the **single-head S** (channel from
+  its reco via `check_valid`, softor discriminant → pseudo-3-class probs into the same metric) — it
+  **also beats OLD** and tracks the two-head at high mass despite only ~23% reco-valid (vs ~59%);
+  (2) a **MAX-available** reference line = full truth-channel yield (no reco), per-DSID
+  expected-yield normalized. Confirmed the metric counts **only correct-truth-channel** signal
+  (target==2 qqbb / ==1 lvbb, truth set pre-reco). Two-head keeps ~74%/84% (qqbb/lvbb) of available
+  at 3 TeV, ~3–4% at 0.8 TeV (OLD ~1%) → headroom everywhere, biggest relative gain at low mass.
+  Table/plot updated above.
