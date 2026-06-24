@@ -38,6 +38,13 @@ def parse_args():
     parser.add_argument("--fit-batches", type=int, default=20)
     parser.add_argument("--eval-batches", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=None)
+    parser.add_argument("--data-dir", default=None,
+                        help="dir of dsid_*.memmap files (default: tmp_data_20250321v1_signal/)")
+    parser.add_argument("--real-bkg", action="store_true",
+                        help="include ALL dsid_*.memmap in --data-dir (signal+real background); "
+                             "signal_only=False. Mutually exclusive with --pseudo-bkg-dsid.")
+    parser.add_argument("--position-split", action="store_true",
+                        help="split by row position not eventNumber (required with real bkg — see train_joint.py)")
     return parser.parse_args()
 
 
@@ -85,13 +92,24 @@ def build_model(config, device):
     return model.to(device)
 
 
-def make_dataloaders(config, batch_size, device):
+def make_dataloaders(config, batch_size, device, data_dir=None, real_bkg=False, position_split=False):
+    import glob as _glob
+    data = data_dir if data_dir else DATA
+    if not data.endswith("/"):
+        data += "/"
+    if real_bkg:
+        dsids = sorted(int(os.path.basename(p)[5:11]) for p in _glob.glob(f"{data}dsid_*.memmap"))
+        signal_only = False
+    else:
+        dsids = DSIDS
+        signal_only = True
+    has_ev = config["has_eventNumbers"] and not position_split
     stds = np.ones(config["n_real_vars_in_file"])
     stds[:4] = config.get("scale_data_std", 1.0e5)
     mk = dict(
         N_Real_Vars_In_File=config["n_real_vars_in_file"],
         N_Real_Vars_To_Return=config["n_real_vars_in_file"],
-        memmap_paths={dsid: f"{DATA}dsid_{dsid}.memmap" for dsid in DSIDS},
+        memmap_paths={dsid: f"{data}dsid_{dsid}.memmap" for dsid in dsids},
         max_objs_in_memmap=config["max_n_objs"],
         batch_size=batch_size,
         device=device,
@@ -101,8 +119,8 @@ def make_dataloaders(config, batch_size, device):
         means=None,
         stds=stds,
         objs_to_output=config["max_n_objs"],
-        signal_only=True,
-        has_eventNumbers=config["has_eventNumbers"],
+        signal_only=signal_only,
+        has_eventNumbers=has_ev,
     )
     train_dl = ProportionalMemoryMappedDataset(
         is_train=True,
@@ -219,11 +237,16 @@ def main():
     torch.manual_seed(config.get("seed", 0))
     np.random.seed(config.get("seed", 0))
 
+    if args.real_bkg and args.pseudo_bkg_dsid is not None:
+        raise SystemExit("--real-bkg and --pseudo-bkg-dsid are mutually exclusive")
+
     model = build_model(config, device)
     model.load_state_dict(torch.load(ckpt_path, map_location=device))
     model.eval()
 
-    train_dl, val_dl = make_dataloaders(config, batch_size, device)
+    train_dl, val_dl = make_dataloaders(config, batch_size, device,
+                                        data_dir=args.data_dir, real_bkg=args.real_bkg,
+                                        position_split=args.position_split)
     train_dl._reset_indices()
     val_dl._reset_indices()
 
@@ -232,7 +255,7 @@ def main():
     print(f"config: {config_path}")
     print(f"device: {device}")
     print(f"batch_size: {batch_size}")
-    print(f"pseudo_bkg_dsid: {args.pseudo_bkg_dsid}")
+    print(f"real_bkg: {args.real_bkg}  position_split: {args.position_split}  pseudo_bkg_dsid: {args.pseudo_bkg_dsid}")
 
     with torch.no_grad():
         fit_features, fit_labels, fit_weights = collect_fit_inputs(

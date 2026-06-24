@@ -17,6 +17,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_GLOBS = [
     os.path.join(REPO, "tmp_suite", "*.log"),
     os.path.join(REPO, "output", "joint_first_set_*", "logs", "*.log"),
+    os.path.join(REPO, "output", "joint_real_bkg_*", "logs", "*.log"),
 ]
 
 # d152 all-cats reference (winner recipe) = the performance targets we compare against.

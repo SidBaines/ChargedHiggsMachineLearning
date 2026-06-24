@@ -69,6 +69,18 @@ p.add_argument("--seq-split", type=float, default=0.5,
                help="fraction of epochs in reco phase for seqfull/seqfrozen")
 p.add_argument("--readout", choices=["softor", "max"], default="softor",
                help="single-mode event-score readout for metrics")
+p.add_argument("--data-dir", type=str, default=None,
+               help="dir holding dsid_*.memmap files (default: repo tmp_data_20250321v1_signal/)")
+p.add_argument("--real-bkg", action="store_true",
+               help="include ALL dsid_*.memmap present in --data-dir (signal+real background); "
+                    "sets the loader's signal_only=False so it computes real bkg weight sums. "
+                    "Mutually exclusive with --pseudo-bkg-dsid.")
+p.add_argument("--position-split", action="store_true",
+               help="split train/val by row position (arange(n)%%n_splits) instead of by "
+                    "eventNumber. REQUIRED with real background: the background memmaps have "
+                    "systematically even eventNumbers, so the eventNumber split dumps ~91%% of "
+                    "background (incl. all ttbar) into val. Position split gives a balanced "
+                    "50/50 per-DSID split. (Signal is statistically equivalent either way.)")
 ARGS = p.parse_args()
 
 CONFIG = dict(
@@ -133,6 +145,8 @@ if ARGS.layer_norm: CONFIG["is_layer_norm"] = True
 CONFIG["keep_cats"] = [int(c) for c in ARGS.keep_cats.split(",")] if ARGS.keep_cats else None
 CONFIG["add_event_head"] = CONFIG["mode"] == "twohead"
 CONFIG["num_event_classes"] = CONFIG["event_classes"]
+if ARGS.position_split:
+    CONFIG["has_eventNumbers"] = False  # row-position split (see --position-split help)
 
 torch.manual_seed(CONFIG["seed"]); np.random.seed(CONFIG["seed"])
 device = CONFIG["device"] if torch.backends.mps.is_available() else "cpu"
@@ -160,8 +174,24 @@ with open(os.path.join(OUT, "config.json"), "w") as f:
     json.dump(CONFIG, f, indent=1)
 print(f"run: {run_name}\nout: {OUT}\ndevice: {device}")
 
-DATA = os.path.join(REPO, "tmp_data_20250321v1_signal/")
-DSIDS = list(range(510115, 510125))
+import glob as _glob
+DATA = ARGS.data_dir if ARGS.data_dir else os.path.join(REPO, "tmp_data_20250321v1_signal/")
+if not DATA.endswith("/"):
+    DATA += "/"
+if ARGS.real_bkg:
+    # Include EVERY dsid_*.memmap present in the data dir (signal + real background).
+    # signal_only=False so the loader computes real background weight sums (not the
+    # signal-only ~170k guess). Real labels drive is_bkg (pseudo_bkg_dsid must be None).
+    assert CONFIG["pseudo_bkg_dsid"] is None, "--real-bkg and --pseudo-bkg-dsid are mutually exclusive"
+    DSIDS = sorted(int(os.path.basename(p)[5:11]) for p in _glob.glob(f"{DATA}dsid_*.memmap"))
+    loader_signal_only = False
+else:
+    DSIDS = list(range(510115, 510125))
+    loader_signal_only = True
+_sig_dsids = [d for d in DSIDS if 510000 < d < 600000]
+_bkg_dsids = [d for d in DSIDS if not (510000 < d < 600000)]
+print(f"data dir: {DATA}")
+print(f"DSIDs ({len(DSIDS)}): {len(_sig_dsids)} signal + {len(_bkg_dsids)} background; signal_only={loader_signal_only}")
 stds = np.ones(CONFIG["n_real_vars_in_file"]); stds[:4] = CONFIG["scale_data_std"]
 mk = dict(N_Real_Vars_In_File=CONFIG["n_real_vars_in_file"],
           N_Real_Vars_To_Return=CONFIG["n_real_vars_in_file"],
@@ -170,7 +200,7 @@ mk = dict(N_Real_Vars_In_File=CONFIG["n_real_vars_in_file"],
           device=device, n_splits=CONFIG["n_splits"],
           validation_split_idx=CONFIG["validation_split_idx"], n_targets=3,
           means=None, stds=stds, objs_to_output=CONFIG["max_n_objs"],
-          signal_only=True, has_eventNumbers=CONFIG["has_eventNumbers"])
+          signal_only=loader_signal_only, has_eventNumbers=CONFIG["has_eventNumbers"])
 train_dl = ProportionalMemoryMappedDataset(is_train=True, shuffle=CONFIG["shuffle_objects"], shuffle_batch=True, **mk)
 val_dl = ProportionalMemoryMappedDataset(is_train=False, shuffle=False, shuffle_batch=True, **mk)
 print(f"train samples: {train_dl.get_total_samples()}  val samples: {val_dl.get_total_samples()}")
@@ -217,8 +247,14 @@ if CONFIG["wandb"]:
     wandb.init(project=CONFIG["wandb_project"], name=run_name, config=CONFIG)
 
 N_CTX, MAX_OBJS = CONFIG["num_particle_types"], CONFIG["max_n_objs"]
+# HEPMetrics only ever buffers SIGNAL events (reco metrics are signal-only — see the
+# signal_mask gate in the val loop). Size the preallocated [M, n_obj, 3] buffers to the
+# signal val count, NOT the full val total: with real background the latter is ~12M events
+# and would waste several GB (and risk OOM) for buffers that only ever hold ~1.4M signal.
+_sig_val = sum(len(val_dl._base_indices[d]) for d in val_dl._base_indices if 510000 < d < 600000)
+_buf_len = int(_sig_val) + CONFIG["batch_size"] if _sig_val > 0 else int(val_dl.get_total_samples())
 val_metrics = HEPMetrics(N_CTX - 1, MAX_OBJS, is_categorical=True, num_categories=3,
-                         max_bkg_levels=[100, 200], max_buffer_len=int(val_dl.get_total_samples()),
+                         max_bkg_levels=[100, 200], max_buffer_len=_buf_len,
                          total_weights_per_dsid=val_dl.weight_sums,
                          signal_acceptance_levels=[100, 500, 1000, 5000])
 
@@ -446,6 +482,17 @@ for epoch in range(CONFIG["num_epochs"]):
     print(f"epoch {epoch}: train_loss={ep_loss/max(ep_w,1e-9):.4f}  "
           f"val={ {k: round(v,4) for k,v in list(pr.items())[:4]} }")
     print(f"epoch {epoch}: class_auc={auc:.4f}  best_asimov_z={best_z:.4f}  thr={best_thr:.4f}")
+    # Complete, single-line, greppable per-epoch summary (ALL reco categories + AUC/Z)
+    # so the overnight logs can be parsed into the results table without losing cats
+    # (the human-readable print above only shows the first 4 PerfectRecoPct keys).
+    _reco_all = {k: round(float(v), 4) for k, v in rv.items() if "PerfectRecoPct" in k}
+    print("JOINTSUMMARY " + json.dumps({
+        "run": run_name, "mode": CONFIG["mode"], "schedule": CONFIG["schedule"],
+        "lambda_event": CONFIG["lambda_event"], "epoch": epoch,
+        "train_loss": round(ep_loss / max(ep_w, 1e-9), 5),
+        "reco": _reco_all, "auc": round(float(auc), 4),
+        "asimov_z_uncalibrated": round(float(best_z), 4), "thr": round(float(best_thr), 6),
+    }))
     if CONFIG["wandb"]:
         wandb.log({f"{k}": float(v) for k, v in rv.items() if hasattr(v, "item") or isinstance(v, (int, float))} |
                   {"train/epoch_loss": ep_loss / max(ep_w, 1e-9),

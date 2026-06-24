@@ -409,7 +409,87 @@ workstream d20 b2h4 30ep = 0.847.
   the dataset-size axis; fix **R6** (signed-weight, per-DSID luminosity-normalized Z) before any
   physics/significance claim; W&B on for the publishable sweep; H-D interp (joint vs reco-only).
 
+### Old-vs-new Sʙ₂₀₀ comparison — reco+classification, native event set each (2026-06-24)
+> **The headline thesis comparison (Ch 7 Fig-4 style):** signal yield retained when **200
+> background events survive** (Sʙ₂₀₀), per H⁺ mass, **qqbb and lvbb separately**, with each
+> method evaluated on **its own native event set**. This is the fair cross-method metric (ROC-AUC
+> is *not* comparable across methods that admit different event sets — Ch 7).
+
+**The two methods (corrected understanding — thesis Ch 5/6 = OLD, Ch 7 = NEW):**
+- **OLD** = hand-cut, heuristic **C++ reconstruction** (ν from MET+W-mass; large/small-R jets →
+  H/W by mass windows + Xbb-tag; keep only categories 0 & 3; split into reco-lvbb/reco-qqbb) →
+  **per-channel high-level DNN** on ~7 engineered variables. Throws away most events; reco
+  efficiency <60%. Numbers = the stored `sig_rems_{qqbb,lvbb}.pkl` ("High-level Joint/Parametrised
+  NN") — already computed, on the OLD method's cut-based native sample.
+- **NEW** = one transformer on **low-level objects**, reco (per-object none/H/W → 6 topologies)
+  + event classification, on **all** preselected events; events are kept if the reco produces a
+  valid topology (`utils.check_valid`) — that validity *is* the native selection (it removes
+  ~41% of background; the thesis quotes "59% of background remains", which our `check_valid`
+  reproduces: reco-valid frac ≈ **0.59** for joint/int). The thesis's own NEW number is stored as
+  `"Low-level NN (transformer-reco inputs)"` (a **d200** transformer) — used here as a reference.
+
+**How OUR (tonight's d20) numbers are computed** (`experiments/sb200_oldvsnew.py`): each model's
+**own reco head → `check_valid` → valid events = native set**; reco-**invalid** events are set to
+pure-background `[1,0,0]` so they're rejected by the working point rather than yield-scaled away
+(keeps the per-DSID expected-yield normalization correct); then **Sʙ₂₀₀ via the identical
+`lowlevelmetrics.HEPMetrics.compute_signal_selection_metrics`** that produced the stored numbers
+(channel = argmax P(qqbb)/P(lvbb); threshold on P(bkg) for 200 expected bkg; signal of the true
+channel retained). Full val, per-DSID expected-yield normalized (signal at ref σ×BR=1 pb — same
+convention as the stored numbers, so directly comparable).
+
+**Sʙ₂₀₀ — qqbb (signal kept @ 200 bkg), per H⁺ mass [TeV]:**
+
+| model | 0.8 | 1.0 | 1.4 | 2.0 | 3.0 |
+|---|---|---|---|---|---|
+| OLD High-level Joint | 114 | 956 | 2584 | 3246 | 3260 |
+| OLD High-level Parametrised | 287 | 811 | 2480 | 3727 | 4200 |
+| *ref* Low-level transformer-reco (thesis, d200) | 745 | 1983 | 4426 | 7296 | 8662 |
+| **NEW ours twohead_joint (d20)** | **407** | **1635** | 3958 | 6859 | **8500** |
+| NEW ours twohead_int (d20) | 359 | 1525 | 3934 | 6712 | 8435 |
+| NEW ours twohead_seqfrozen | 7 | 80 | 1672 | 5324 | 8410 |
+| NEW ours twohead_intdetach | 4 | 67 | 971 | 3611 | 7169 |
+| NEW ours twohead_seqfull | 259 | 679 | 1266 | 1203 | 740 |
+
+**Sʙ₂₀₀ — lvbb:**
+
+| model | 0.8 | 1.0 | 1.4 | 2.0 | 3.0 |
+|---|---|---|---|---|---|
+| OLD High-level Joint | 121 | 728 | 4020 | 6622 | 7220 |
+| OLD High-level Parametrised | 205 | 1071 | 4025 | 7171 | 7879 |
+| *ref* Low-level transformer-reco (thesis, d200) | 2317 | 5651 | 11156 | 17392 | 21402 |
+| **NEW ours twohead_joint (d20)** | 518 | 2991 | 8800 | 15911 | 21055 |
+| NEW ours twohead_int (d20) | 409 | 2612 | 8833 | 16019 | 21105 |
+
+Plot: `output/joint_real_bkg_20260624-010237/sb200_oldvsnew.png` (2 panels qqbb/lvbb; old dashed,
+thesis-ref dotted, ours solid). reco-valid frac: joint 0.594, int 0.593, intdetach 0.627,
+seqfrozen 0.646, **seqfull 0.261**.
+
+**Findings:**
+- **Our NEW method beats the OLD high-level method at *every* mass**, biggest at low mass where the
+  hand-cut reco is weakest (lvbb 0.8 TeV: old ~120–205 → ours ~520; qqbb 0.8 TeV: old 114–287 → 407).
+- **At high mass our tiny d20 model ≈ the thesis d200 reference** (qqbb 3 TeV 8500 vs 8662; lvbb
+  21055 vs 21402). The low-mass shortfall vs d200 is the expected cost of a much smaller, 8-epoch
+  model on the hard regime → **scale-up (d48/d96) is the clear lever** to close it.
+- **Reco quality drives the NEW method's selection.** `seqfull` (forgot reco; reco-valid frac only
+  **0.26**) collapses (qqbb plateaus ~1200, *drops* to 740 at 3 TeV). `seqfrozen`/`intdetach` are
+  fine at high mass but fall apart at low mass (qqbb 0.8 TeV: 7 / 4) — a frozen/detached
+  representation can't make a pure low-mass selection. So a good shared reco is what makes the
+  unified model's event selection work — direct support for the "one network does both" thesis.
+
+**⚠ NOT yet included — the single-head S ("background = all-none"):** `single_softor` was trained
+but is **excluded from this Sʙ₂₀₀ table**, because it has **no 3-class {bkg,lvbb,qqbb} event head** —
+its only event score is the parameter-free **softor** readout (one binary signal-vs-bkg score, no
+channel split), so it doesn't fit the per-channel metric the stored old/thesis numbers use. It
+*can* be added by taking its **channel from the reco** (`check_valid` valid_qqbb/valid_lvbb) and
+**softor as the discriminant** — a slightly different (reco-channel, not classifier-argmax)
+construction. **TODO:** add the single-head this way (it's the zero-extra-parameter S variant; worth
+knowing if it also beats OLD).
+
 ### Reproduce / monitor (local tooling)
+- **Sʙ₂₀₀ old-vs-new:** `experiments/sb200_oldvsnew.py [run_root] --models … --device mps --plot p.png`
+  (reads `sig_rems_{qqbb,lvbb}.pkl` for OLD + thesis-ref; computes ours). Also
+  `experiments/signal_at_fixed_bkg.py` (combined-signal Sʙ_N, no channel split / no reco-validity —
+  a simpler diagnostic).
 - **Real-bkg runner:** `experiments/run_joint_real_bkg_mps.sh` (env `EPOCHS`/`D_MODEL`/…) →
   `output/joint_real_bkg_<stamp>/{manifest.log,logs/*.log}`; parse with
   `experiments/parse_joint_results.py <run_root>`. The dashboard now also auto-discovers
@@ -487,3 +567,16 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   seqfull forgets reco (0.46) vs seqfrozen (0.85). All AUC comparative; **Z uncalibrated (R6)**.
   Results table + findings above. **Code + metrics fix uncommitted — pending Sid's review.**
   **Next:** scale (d48/d96) + dataset-size axes; fix R6; W&B on; H-D interp.
+- 2026-06-24 (pm) — **Old-vs-new Sʙ₂₀₀ comparison** (the thesis Ch-7 Fig-4 metric). Read the
+  thesis (Ch 5/6 = OLD hand-cut C++ reco + per-channel high-level DNN; Ch 7 = NEW low-level
+  transformer = ours) and the comparison code to correct my model-of-the-methods. The OLD method's
+  Sʙ₂₀₀ is already stored in `sig_rems_{qqbb,lvbb}.pkl` (incl. the thesis's own NEW d200 number,
+  `"Low-level NN (transformer-reco inputs)"`). Built `experiments/sb200_oldvsnew.py`: scores our
+  models with their own reco→`check_valid` (native set; reco-invalid→pure-bkg) + the *identical*
+  `lowlevelmetrics.HEPMetrics` Sʙ₂₀₀ → directly comparable to the stored numbers. **Validated**
+  (our twohead_joint ≈ thesis d200 at high mass; reco-valid frac 0.59 ≈ thesis "59% bkg remains").
+  **Result: our NEW d20 model beats the OLD high-level method at every mass** (biggest at low mass),
+  **matches the thesis d200 at high mass**, low-mass shortfall = small-model cost → scale-up next.
+  Reco quality drives the selection (seqfull's forgotten reco → valid frac 0.26 → collapses).
+  Single-head S excluded (no 3-class head; needs reco-channel+softor) — TODO. Needed `np.trapz`→
+  `np.trapezoid` shim (numpy upgrade). **Committing the joint real-bkg + comparison code now.**

@@ -478,7 +478,10 @@ class HEPLoss(torch.nn.Module):
         else: # Loss per object
             if self.is_categorical:
                 simplified_true_inclusion = ((targets==1)*1 + (targets>1)*2) # 1 is Higgs, 2/3 is W for qqbb/lvbb cases
-                one_hot_true_inclusion = torch.nn.functional.one_hot(simplified_true_inclusion.to(torch.long))
+                # num_classes pinned to logit class count (3=none/H/W); else one_hot infers it
+                # from the batch max and an all-`none` batch (single-head mode, signal depleted
+                # near epoch end) yields <3 cols -> cross_entropy crash. No-op for signal-only.
+                one_hot_true_inclusion = torch.nn.functional.one_hot(simplified_true_inclusion.to(torch.long), num_classes=inputs.shape[-1])
                 flattened_ce = self.ce(einops.rearrange(inputs, 'batch object cls -> (batch object) cls'),
                                        einops.rearrange(one_hot_true_inclusion.float(), 'batch object cls -> (batch object) cls'),
                                        )
@@ -575,7 +578,10 @@ class HEPLossWithEntropy(torch.nn.Module):
         else: # Loss per object
             if self.is_categorical:
                 simplified_true_inclusion = ((targets==1)*1 + (targets>1)*2) # 1 is Higgs, 2/3 is W for qqbb/lvbb cases
-                one_hot_true_inclusion = torch.nn.functional.one_hot(simplified_true_inclusion.to(torch.long))
+                # num_classes pinned to logit class count (3=none/H/W); else one_hot infers it
+                # from the batch max and an all-`none` batch (single-head mode, signal depleted
+                # near epoch end) yields <3 cols -> cross_entropy crash. No-op for signal-only.
+                one_hot_true_inclusion = torch.nn.functional.one_hot(simplified_true_inclusion.to(torch.long), num_classes=inputs.shape[-1])
                 flattened_ce = self.ce(einops.rearrange(inputs, 'batch object cls -> (batch object) cls'),
                                        einops.rearrange(one_hot_true_inclusion.float(), 'batch object cls -> (batch object) cls'),
                                        )
