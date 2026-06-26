@@ -170,10 +170,14 @@ Reuse the reco candidate ladder for comparability. Two axes + dataset size:
   readout not representation.
 - H-C (free discrimination): a reco-only backbone already separates sig/bkg well
   (frozen-probe AUC ≫ 0.5), because the channel decision lives in the reco head. *Evidence:*
-  T-SEQ-frozen / S-companion AUC.
+  T-SEQ-frozen / S-companion AUC. **✅ Confirmed + localized (2026-06-26, H-D interp):** reco-only
+  d152 (never saw bkg) separates sig/bkg at weighted-AUC 0.95 (emb) → 0.978 (b2).
 - H-D (interp): joint training makes the channel / W-candidacy circuit *more* explicit
   (cleaner attention, stronger probes) — or measurably muddier. *Evidence:* re-run the H1
   probes/attention summaries on a joint model vs the reco-only model at matched size.
+  **✅ First read (2026-06-26):** *neither* — channel decodability is **unchanged** at every
+  layer/locus; joint training instead adds **late, additive** sig/bkg structure (gap grows with
+  depth) without disturbing the reco circuit. "Clarify-not-muddy / compatible in rep-space."
 
 **Continue down a path if:** the joint model **matches or beats both** single-task
 baselines at some scale (free or positive transfer), OR trades a small reco cost for a
@@ -554,7 +558,77 @@ pure reco+classification quality.
   (d20 ~3%, OLD ~1%) and ~**76% / ~86% at 3 TeV** — big low-mass gain, headroom still remains
   → further scale / data-fraction and the R6-calibrated significance are the next levers.
 
+### H-D interp: does joint training clarify or muddy the reco circuit? (2026-06-26) ✅
+> **First read on goal #1 (interpretability), no new training.** Per-layer **linear-probe
+> decodability** sweep on the residual stream of two **matched d152/b3/h4/mlp400** models
+> (30-ep winner recipe, seed 0, no bottleneck): the **joint** two-head model
+> (`20260624-163646`, the scale-up above) vs the **reco-only** d152
+> (`20260613-234627`). Tool: `experiments/hd_interp.py` (mirrors `_backbone_features` to grab
+> the residual after the object-embedding `emb` and after each block `b0/b1/b2`; probe =
+> StandardScaler + logistic, clean internal 60/40 split, test **ROC-AUC**).
+> ⚠ **Confounds (documented):** the two differ in train/val split (reco=eventNumber,
+> joint=position) → minor event-level leakage one side (negligible at 677k params / 2.8M ev,
+> and it can only *inflate* the leaked side — see per-finding notes); "joint" bundles event
+> head + event loss + real-background training (= the model as deployed); a legacy
+> `log_decay` flag differs (both `lr_schedule=cosine`, likely a no-op).
+
+**(A) Channel decodability** — lvbb-vs-qqbb on **28,672 signal 1-lepton+1-neutrino events**
+(qqbb frac 0.329), probed at the lepton / neutrino / mean-pool loci. Test ROC-AUC:
+
+| locus | model | emb | b0 | b1 | b2 |
+|---|---|---|---|---|---|
+| lepton | reco-only | 0.882 | 0.986 | 0.991 | 0.995 |
+| lepton | **joint** | 0.882 | 0.985 | 0.989 | 0.996 |
+| neutrino | reco-only | 0.812 | 0.983 | 0.990 | 0.994 |
+| neutrino | **joint** | 0.818 | 0.985 | 0.985 | 0.996 |
+| mean-pool | reco-only | 0.982 | 0.986 | 0.991 | 0.994 |
+| mean-pool | **joint** | 0.983 | 0.987 | 0.992 | 0.996 |
+
+joint−reco gap is **~0 at every layer & locus** (|Δ| ≤ 0.006, no monotone trend).
+
+**(B) Sig-vs-bkg decodability** — mean-pool per layer, **40,960 signal+bkg events** (bkg frac
+0.877). Test ROC-AUC (weighted by |MC_Wt| in parens):
+
+| model | emb | b0 | b1 | b2 |
+|---|---|---|---|---|
+| reco-only | 0.914 (0.951) | 0.932 (0.962) | 0.943 (0.972) | 0.952 (0.978) |
+| **joint** | 0.919 (0.954) | 0.939 (0.969) | 0.954 (0.979) | **0.964 (0.986)** |
+
+joint−reco gap **grows monotonically with depth**: +0.005 / +0.007 / +0.011 / +0.012.
+
+**Findings:**
+- **H-D = "clarify, not muddy" — and more precisely, *don't touch*.** Joint training leaves the
+  **channel circuit unchanged**: identical lvbb/qqbb decodability at every layer and every locus
+  (lepton/neutrino/pool). It's not a ceiling artifact — the *unsaturated* early layers (lepton
+  emb 0.88, neutrino emb 0.81, and the lepton/nu emb→b0 jump where attention does its work) are
+  also identical. The channel decision IS the reco task's core (lep "W vs none"), so the event
+  head reads it off the existing representation without reshaping it. (Leakage can't manufacture
+  this equality: joint-side leakage would *raise* joint, yet they're equal.)
+- **H-C confirmed and localized — strong free discrimination.** The **reco-only** backbone, which
+  **never saw a background event**, already separates sig/bkg at weighted AUC **0.951 at the
+  object embedding → 0.978 by b2** (0.914→0.952 unweighted). The channel/W-candidacy structure the
+  reco task builds is intrinsically sig/bkg-discriminative — direct interp-level support for the
+  AUC-level "free discrimination" result and the H1 claim that the channel verdict lives in the
+  reco head.
+- **The classification objective adds *late*, additive structure.** The joint model is more
+  sig/bkg-separable, and the gain is **monotone in depth** (≈0 at emb → +0.012 / +0.008-wt at b2):
+  the event loss reshapes the **late layers** (where pooling feeds the event head) while leaving
+  the early channel-building layers untouched. That late-and-additive shape is exactly why reco is
+  preserved (channel decodability flat) — the two objectives are **compatible in representation
+  space**, dovetailing with the performance result (near-free transfer that *tightens* with scale).
+  The reco-only-side signal leakage would only *shrink* this gap, so the true joint advantage is ≥
+  what's shown.
+
+Plot: `output/hd_interp.png` (4 panels: channel @ lepton/neutrino/pool + sig-vs-bkg @ pool, joint
+red vs reco-only blue). Data: `output/hd_interp.json`. **Natural deeper follow-up** (not yet run):
+head-level attention summaries + causal patching to *localize which late-layer heads* carry the
+added sig/bkg structure, and the matched-split control (train a reco-only d152 on the position
+split) to remove the leakage caveat entirely.
+
 ### Reproduce / monitor (local tooling)
+- **H-D interp probe sweep:** `experiments/hd_interp.py --joint <TrainingOutputDir> --reco
+  <TrainingOutputDir> --device mps [--channel-batches N --sigbkg-batches N] --out output/hd_interp`
+  → per-layer channel + sig/bkg decodability tables, `hd_interp.{json,png}`. ~2 min on MPS.
 - **Sʙ₂₀₀ old-vs-new:** `experiments/sb200_oldvsnew.py [run_root] --models … [--extra label=<TrainingOutputDir>] --device mps --plot p.png`
   (reads `sig_rems_{qqbb,lvbb}.pkl` for OLD + thesis-ref; computes ours). Also
   `experiments/signal_at_fixed_bkg.py` (combined-signal Sʙ_N, no channel split / no reco-validity —
@@ -666,3 +740,20 @@ data-frac | reco all + cat0–5 | AUC | Z | vs-baseline.)*
   mass — caveat: ref is a different 30-obj data version), dominates OLD everywhere. Plot
   `sb200_oldvsnew_scaleup.png`. Next: further scale / data-fraction; **R6** calibrated significance
   before any limit-level claim.
+- 2026-06-26 — **H-D interp (goal #1), no new training.** Built `experiments/hd_interp.py`:
+  per-layer linear-probe decodability sweep on the residual stream (mirrors `_backbone_features`
+  to capture emb/b0/b1/b2 — the `ResidualStreamExtractor` block-hook can't fire on this arch's
+  manually-applied `ModuleDict` blocks) of the matched **joint d152** (`20260624-163646`) vs
+  **reco-only d152** (`20260613-234627`). Two probes: (A) channel lvbb-vs-qqbb at lepton/neutrino/
+  pool on 28.7k signal 1lep+1nu events; (B) sig-vs-bkg at the pool on 41k signal+bkg events.
+  **Result: joint training is "clarify-not-muddy / compatible in rep-space."** Channel decodability
+  is **identical** at every layer & locus (joint−reco |Δ|≤0.006, no trend — and not a ceiling
+  artifact: unsaturated early layers match too) → the reco circuit is untouched. The reco-only
+  backbone (never saw bkg) **already** separates sig/bkg at weighted-AUC 0.95→0.978 (emb→b2)
+  = **H-C confirmed + localized**. Joint adds **late, additive** sig/bkg structure (gap grows
+  monotonically with depth, ≈0 at emb → +0.012/+0.008-wt at b2): the event loss reshapes late
+  layers (pooling site) without disturbing early channel-building — the interp-level twin of the
+  "near-free transfer tightening with scale" perf result. Caveats documented (split-mismatch
+  leakage can only *shrink* the gap; "joint" bundles head+loss+real-bkg). Plot `output/hd_interp.png`,
+  data `output/hd_interp.json`. **Committing `hd_interp.py` + this doc.** Deeper follow-up (not run):
+  head-level attention/causal localization of the added structure + a matched-split reco-only control.
