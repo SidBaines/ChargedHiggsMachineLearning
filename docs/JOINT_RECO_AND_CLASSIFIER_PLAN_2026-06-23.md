@@ -1,12 +1,23 @@
 # Joint reconstruction + signal/background classification — plan & progress log (2026-06-23)
 
+> ## 📌 WRAPPED UP (2026-06-27) — this is now the ARCHIVED record of the joint
+> > reco+classifier *investigation*: the plan, the settled decisions, the d20 head-to-head,
+> > the d152 scale-up + Sʙ₂₀₀, and the first H-D interp read. **Active work has split into two
+> > living docs:**
+> > - **Training / scaling surface** → [`ONGOING_JOINT_TRAINING_AND_SCALING_2026-06-27.md`](ONGOING_JOINT_TRAINING_AND_SCALING_2026-06-27.md)
+> >   (the queue, the size/depth/data-fraction ladder, baselines to fill).
+> > - **Interpretability** → [`ONGOING_JOINT_INTERP_2026-06-27.md`](ONGOING_JOINT_INTERP_2026-06-27.md)
+> >   (H-D, mechanistic localization, H1-generality).
+> >
+> > Everything below is the frozen history those two docs build on — don't append here; append
+> > there. (Filename de-`ONGOING_`'d per the workstream-doc convention in `CLAUDE.md`.)
+>
 > New workstream (Sid + Claude). **Question:** can a *single* transformer do both
 > (a) object-level **reconstruction** (per-object `none/H/W`) and (b) event-level
 > **signal-vs-background classification** — and how does the reco↔classification
 > performance trade off with scale (width/depth) and dataset size?
 >
-> This doc is the **living plan AND the running progress log**: append to "Results (live)"
-> and "Session log" as we go; edit the plan sections when we pivot. Sister docs:
+> This doc *was* the **living plan AND the running progress log**. Sister docs:
 > [`ONGOING_RECO_TRAINING_PLAN_2026-06-22.md`](ONGOING_RECO_TRAINING_PLAN_2026-06-22.md) (the parallel
 > minimal/best reco-net workstream — shares the harness and baselines) and
 > [`RESEARCH_PLAN_2026-06.md`](RESEARCH_PLAN_2026-06.md) (the umbrella plan).
