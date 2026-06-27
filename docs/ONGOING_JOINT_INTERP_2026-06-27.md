@@ -198,6 +198,35 @@ cross-DSID R²≈0.78 was mostly mass-grid/energy-scale, not event-by-event mass
   component-localized, classification is distributed. (Event-DLA *signs* from Round 2 remain
   un-trustworthy until class-split — treat magnitudes only.)
 
+### Round 5 — the ΔR(H,W) circuit, localized + corroborated (2026-06-27) ⭐
+Tool: **`experiments/joint_mech_round5.py`**. ΔR(H,W) is the one quantity attention genuinely
+*builds* (Round 4). To localize: fit a fixed Ridge probe for ΔR on the *baseline* block-1 pooled
+residual (R²=0.33), then mean-ablate each block-0/1 component (only those can affect b1), reapply
+the fixed probe, and measure the R² drop. Raw: `output/joint_mech_round5.json`.
+
+**ΔR-decodability drop when ablated:** `mlp0` **0.187**, **`b1h0` 0.183**, b0h2 0.097, b0h0 0.086,
+b0h3 0.049, mlp1 0.045 (rest <0.04). So ΔR is built by **mlp0 + b1h0**, with block-0 heads
+b0h0/b0h2 supplying cross-system mixing.
+
+**Independent corroboration — cross-system attention.** Summed H-truth-object→W-truth-object
+attention mass per head ranks **b1h0 highest** (8312 H→W, 15695 W→H), then b0h0, b0h2 — the *same*
+heads the ablation flags. And **b1h0 is exactly the "lep/ν→large-R jet" head from Round 1**: the
+head that bridges the leptonic and hadronic systems is the one that computes the angle between
+them. A clean, two-method-corroborated mini-circuit:
+> **block-0 heads (b0h0/b0h2) mix the two decay systems → b1h0 bridges lep/ν↔hadronic jet →
+> mlp0/mlp1 write the ΔR(H,W) representation.**
+This is the cleanest "the network computes a physics quantity" result of the night — a relational
+geometric observable that cannot be read off the (pooled) inputs, with a localized, corroborated
+circuit. (Reco/channel/mass, by contrast, are mostly input-featurization — Round 4.)
+
+### Deliverable — narrative notebook
+**`experiments/joint_interp_narrative.ipynb`** (authored as `joint_interp_narrative.py`, jupytext;
+executed, 5 embedded figures): collates Rounds 1–5 into one story — head-role map, what's
+represented vs computed (with baselines), the mass confound shown transparently, attention's
+routing role, where decisions are written (mean-ablation), and the ΔR circuit. **Tooling note:**
+registered an `ipykernel` spec (`heppc-venv`) for this `.venv` to execute notebooks (no new pip
+package — `ipykernel` 7.3.0 was already installed; just `python -m ipykernel install --user`).
+
 ## Planned (next, foreground)
 
 1. **Mechanistic localization of the late sig/bkg structure** — **head + MLP ablation** on the
