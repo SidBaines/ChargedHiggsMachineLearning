@@ -108,9 +108,13 @@ Each split provides 384 matched intervention events with at least two large-R je
 
 The best scalar fit was for distilled seed 2703. The formula preserved 94.57% of full assignments and signed truth accuracy was 0.48 percentage points higher. Its scalar stayed flat under every mass dose. At 150 GeV the intact scalar rose by 0.099 on lepton or missing-momentum tokens, 0.052 on large jets and 0.078 on small jets. The candidate W-probability drop was about 0.09 even under constant-mean replacement. In the labels-only confirmation seed the 40 GeV edit produced a substantially overstated scalar change, +0.322 versus +0.083. The distilled discovery formula retained some mass variation, with substantial errors by query type. The tag response varied by seed and query type. These discrepancies rule out these expressions as faithful accounts of the chosen scalars under the tested changes, even where the wider network’s response survived.
 
+## Publication verification
+
+The evaluation was rerun in a fresh output directory. Both splits contained 370,999 events. For all six students and the teacher, the saved scores, reconstructed channels, and whole-event correctness flags matched the original arrays exactly on both splits. Direct teacher inference on 8,192 events per split also reproduced the archived scores. All reported per-model working points and yields matched.
+
 ## Commands
 
-Run from the worktree with the pinned Python environment. Set `DATA` to the full memmap directory and `JOINT` to the original width-152 training output directory. The large-tail command reuses the readout cache for the frozen teacher and verifies its sampled IDs and weights before scoring students. Student checkpoints and per-event arrays are generated locally under `output/physics_interp/students/` and `output/physics_interp/students_sb200/`.
+Run from the worktree with the pinned Python environment. Set `DATA` to the full memmap directory and `JOINT` to the original width-152 training output directory. Before the large-tail command, run the [full CPU readout command](2026-11-27_physics-readout-results.md#reproduction) on the same checkpoint and memmaps with inference batch 1,024. The student evaluation selects the matching teacher feature cache and checks event IDs and weights. Cached student predictions are keyed to the student checkpoint, dataset, row split, and inference batch. Student checkpoints and per-event arrays are generated locally under `output/physics_interp/students/` and `output/physics_interp/students_sb200/`.
 
 ```sh
 MPLCONFIGDIR=output/physics_interp/mpl_cache tmp_physics_env/bin/python -u experiments/physics_students.py --data "$DATA" --teacher "$JOINT" \

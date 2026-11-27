@@ -2,11 +2,12 @@
 import argparse
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import torch
 
-from experiments.physics_readouts import fit_readout
+from experiments.physics_readouts import cache_id, fit_readout
 from experiments.physics_samples import operating_points, yield_summary
 
 
@@ -67,7 +68,7 @@ def students(directory, removed, direct_training):
         predictions = {}
         for r in (2, 6):
             with np.load(directory / f"{name}_r{r}.npz") as data:
-                predictions[r] = dict(data)
+                predictions[r] = {key: data[key] for key in ("score", "channel", "perfect")}
         excluded = {r: filter_rows(events[r], masks[r]) for r in events}
         excluded_predictions = {r: filter_rows(predictions[r], masks[r]) for r in events}
         kept = {r: filter_rows(events[r], ~masks[r]) for r in events}
@@ -87,13 +88,25 @@ def students(directory, removed, direct_training):
 def readouts(cache, reports, removed, source_pairs):
     splits = {"fit": (0, 20000, 55000), "calibration": (2, 16000, 355000),
               "evaluation": (4, 16000, 355000), "confirmation": (6, 16000, 355000)}
-    groups, features = {}, {}
+    settings = [load_json(p) for p in reports]
+    fingerprints = set()
+    for report in settings:
+        cfg = report["config"]
+        key = cfg.get("cache_id") or cache_id(SimpleNamespace(
+            ckpt=Path(cfg["ckpt"]), data_dir=Path(cfg["data"]),
+            device=cfg["device"], inference_batch=cfg["inference_batch"]))
+        fingerprints.add((key, cfg["sample_seed"]))
+    if len(fingerprints) != 1:
+        raise ValueError("The audited readouts must use the same frozen features and sampling seed")
+    fingerprint, seed = fingerprints.pop()
+    groups, features, samples = {}, {}, {}
     fit_ids = None
     for name, (residue, ns, nb) in splits.items():
-        pattern = f"readouts_*_{residue}_{ns}_{nb}_2701.npz"
-        with np.load(next(cache.glob(pattern))) as data:
+        path = cache / f"readouts_{fingerprint}_{residue}_{ns}_{nb}_{seed}.npz"
+        with np.load(path) as data:
             keys = ("dsid", "row", "label", "weight", "train_weight")
             sample = {key: data[f"ev_{key}"] for key in keys}
+            samples[name] = sample
             if name == "fit":
                 fit_ids = set(zip(sample["dsid"], sample["row"]))
             masks = np.ones(len(sample["row"]), dtype=bool) if name == "fit" else group_ids(sample, removed)
@@ -102,12 +115,9 @@ def readouts(cache, reports, removed, source_pairs):
                               for key in ("native", "channel", "pooled", "physics")}
     fit_overlap = duplicates_of_fitted_inputs(source_pairs, fit_ids)
     cohorts = {}
-    for name, (residue, ns, nb) in splits.items():
-        with np.load(next(cache.glob(f"readouts_*_{residue}_{ns}_{nb}_2701.npz"))) as data:
-            sample = {key: data[f"ev_{key}"] for key in ("dsid", "row", "label", "weight")}
-            cohorts[name] = {"removed": scope(sample, removed),
-                             "direct_fit_input_duplicate": scope(sample, fit_overlap)}
-    settings = [load_json(p) for p in reports]
+    for name, sample in samples.items():
+        cohorts[name] = {"removed": scope(sample, removed),
+                         "direct_fit_input_duplicate": scope(sample, fit_overlap)}
     scored = {s: {"score": features[s]["native"], "channel": features[s]["channel"]}
               for s in splits if s != "fit"}
     to_report = {}

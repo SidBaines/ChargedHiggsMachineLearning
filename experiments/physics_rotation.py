@@ -55,6 +55,7 @@ def evaluate(model, cal, test, angles, device):
     baseline, ch, scores = predictions(model, test, 0, device)
     base_wp = operating_points(cal, test, cs, scores, cc, ch)
     def passes(channel, score):
+        score = np.asarray(score, dtype=float)
         return ((channel == 1) & (score >= base_wp["lvbb"]["threshold"])) | (
                 (channel == 2) & (score >= base_wp["qqbb"]["threshold"]))
     keep = passes(ch, scores)

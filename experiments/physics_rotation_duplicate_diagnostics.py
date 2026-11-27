@@ -12,6 +12,7 @@ from physics_samples import operating_points, sample_events, yield_summary
 
 
 def selected(channel, scores, point, name):
+    scores = np.asarray(scores, dtype=float)
     return (channel == (1 if name == "lvbb" else 2)) & (scores >= point[name]["threshold"])
 
 

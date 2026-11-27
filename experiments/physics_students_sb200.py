@@ -1,8 +1,11 @@
 """Evaluate the six fixed compact students on the larger matched readout sample."""
 import argparse
+import hashlib
 import json
 import time
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+from types import SimpleNamespace
 
 import numpy as np
 import torch
@@ -11,6 +14,7 @@ from sklearn.metrics import roc_auc_score
 from physics_samples import operating_points, sample_events, yield_summary
 from physics_students import PAD, ROOT, save_json
 from physics_students_formula import TOPOLOGIES, selection_model
+from experiments.physics_readouts import cache_id
 from utils.utils import check_category, check_valid
 
 MASS_BY_DSID = dict(zip(range(510115, 510125), (800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 3000)))
@@ -38,20 +42,45 @@ def student_predictions(model, sample, batch_size):
     return {"score": scores, "channel": channel, "perfect": perfect}
 
 
-def teacher_predictions(cache_dir, residue, sample):
-    matches = list(cache_dir.glob(f"readouts_*_{residue}_16000_355000_2701_cpu.npz"))
-    if len(matches) != 1:
-        raise FileNotFoundError(f"Expected one matching frozen readout cache in {cache_dir}; found {matches}")
-    with np.load(matches[0]) as saved:
+def teacher_predictions(cache_dir, cache_key, residue, sample):
+    path = cache_dir / f"readouts_{cache_key}_{residue}_16000_355000_2701.npz"
+    if not path.is_file():
+        raise FileNotFoundError(f"Missing frozen readout cache for this checkpoint and dataset: {path}. "
+                                "Run experiments.physics_readouts on CPU with inference batch 1024 first.")
+    with np.load(path) as saved:
         for key in ("dsid", "row", "label", "weight"):
             np.testing.assert_array_equal(saved[f"ev_{key}"], sample[key])
         return {"score": saved["fr_native"], "channel": saved["fr_channel"], "perfect": saved["fr_perfect"]}
 
 
+def cached_student_predictions(path, checkpoint, cache_key, residue, batch_size, sample):
+    with checkpoint.open("rb") as handle:
+        digest = hashlib.file_digest(handle, "sha256").hexdigest()
+    fingerprint = f"{cache_key}:{residue}:{batch_size}:{digest}"
+    if path.exists():
+        with np.load(path) as saved:
+            if "fingerprint" in saved and saved["fingerprint"].item() == fingerprint:
+                return {key: saved[key] for key in ("score", "channel", "perfect")}
+    model = selection_model(checkpoint.parent, checkpoint.stem, "cpu")
+    output = student_predictions(model, sample, batch_size)
+    save_predictions(path, output, fingerprint=fingerprint)
+    return output
+
+
+def save_predictions(path, output, **metadata):
+    with NamedTemporaryFile(prefix=f".{path.stem}.", suffix=".npz", dir=path.parent, delete=False) as handle:
+        temporary = Path(handle.name)
+    try:
+        np.savez_compressed(temporary, **output, **metadata)
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def summarize(cal, test, prediction):
     cal_pred, test_pred = prediction[2], prediction[6]
     signal = test["label"] != 0
-    score = test_pred["score"]
+    score = np.asarray(test_pred["score"], dtype=float)
     selected = test_pred["channel"] != 0
     correct = test_pred["perfect"]
     truth_category = test["category"]
@@ -94,10 +123,13 @@ def main():
     torch.set_num_interop_threads(1)
     args.out.mkdir(parents=True, exist_ok=True)
     training = json.loads((args.students / "training.json").read_text())
+    teacher_cache_key = cache_id(SimpleNamespace(ckpt=Path(training["teacher_checkpoint"]),
+                                                data_dir=args.data, device="cpu", inference_batch=1024))
     keys = ["teacher", *training["models"]]
     report = {
         "data_dir": str(args.data), "teacher_checkpoint": training["teacher_checkpoint"],
-        "teacher_cache_dir": str(args.teacher_cache), "sample_seed": 2701,
+        "teacher_cache_dir": str(args.teacher_cache), "teacher_cache_key": teacher_cache_key,
+        "sample_seed": 2701,
         "requested_signal_background": [16000, 355000], "calibration": 2, "evaluation": 6,
         "scores": "logsumexp of signal event logits minus background logit",
         "validity_and_channel": "utils.utils.check_valid on model object logits",
@@ -121,17 +153,12 @@ def main():
         for key in keys:
             before = time.monotonic()
             path = args.out / f"{key}_r{residue}.npz"
-            if path.exists():
-                with np.load(path) as saved:
-                    output = dict(saved)
+            if key == "teacher":
+                output = teacher_predictions(args.teacher_cache, teacher_cache_key, residue, sample)
+                save_predictions(path, output)
             else:
-                if key == "teacher":
-                    output = teacher_predictions(args.teacher_cache, residue, sample)
-                else:
-                    output = student_predictions(selection_model(args.students, key, "cpu"), sample, args.batch_size)
-                temporary = path.with_suffix(".tmp.npz")
-                np.savez_compressed(temporary, **output)
-                temporary.replace(path)
+                output = cached_student_predictions(path, args.students / f"{key}.pt",
+                                                    teacher_cache_key, residue, args.batch_size, sample)
             if len(output["score"]) != len(sample["label"]):
                 raise ValueError(f"Mismatched score count for {key}, residue {residue}")
             predictions[key][residue] = output

@@ -434,6 +434,7 @@ def main():
     result = {
         "config": {
             "pilot": args.pilot, "ckpt": str(args.ckpt), "data": str(args.data_dir),
+            "cache_id": cache_key,
             "device": args.device, "threads": args.threads, "inference_batch": args.inference_batch,
             "fit_batch": args.fit_batch, "epochs": args.epochs, "seeds": list(args.seeds),
             "sample_seed": args.sample_seed, "requested_signal_background_counts": sizes,
