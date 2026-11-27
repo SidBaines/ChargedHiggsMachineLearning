@@ -56,7 +56,7 @@ class LorentzInvariantFeatures(nn.Module):
         super().__init__()
         self.feature_set = feature_set
     
-    def forward(self, four_momenta):
+    def forward(self, four_momenta, reference_xy=None):
         # four_momenta shape: [..., 4] where last dim is (px, py, pz, E)
         # Calculate Lorentz invariant quantities
         mass_squared = four_momenta[..., 3]**2 - (four_momenta[..., 0]**2 + 
@@ -76,6 +76,16 @@ class LorentzInvariantFeatures(nn.Module):
             features.append(eta)
         if 'phi' in self.feature_set:
             features.append(phi)
+        if 'sin_dphi_lep' in self.feature_set or 'cos_dphi_lep' in self.feature_set:
+            if reference_xy is None:
+                raise ValueError("Lepton-relative azimuth requires a reference transverse vector")
+            px, py = four_momenta[..., 0], four_momenta[..., 1]
+            rx, ry = reference_xy[:, :1], reference_xy[:, 1:2]
+            norm = (pt * torch.linalg.vector_norm(reference_xy, dim=-1, keepdim=True)).clamp_min(1e-12)
+            if 'sin_dphi_lep' in self.feature_set:
+                features.append((py * rx - px * ry) / norm)
+            if 'cos_dphi_lep' in self.feature_set:
+                features.append((px * rx + py * ry) / norm)
         return torch.stack(features, dim=-1)
 
 
@@ -161,16 +171,30 @@ class TestNetwork(nn.Module):
                 nn.Linear(hidden_dim, num_event_classes)
             )
 
-    def _backbone_features(self, object_features, object_types):
+    def embed_objects(self, object_features, object_types):
         # Get type embeddings and combine with features
         type_emb = self.type_embedding(object_types)
         if self.use_lorentz_invariant_features:
-            invariant_features = self.invariant_features(object_features[...,:4])
+            feature_set = self.invariant_features.feature_set
+            if 'sin_dphi_lep' in feature_set or 'cos_dphi_lep' in feature_set:
+                # In the one-lepton sample this is the selected lepton. Outside it,
+                # use the highest-pT lepton or, for a missing lepton, a zero vector.
+                lep = (object_types == 0) | (object_types == 1)
+                xy = object_features[..., :2]
+                ref_idx = xy.square().sum(-1).masked_fill(~lep, -1).argmax(1)
+                reference_xy = xy[torch.arange(len(xy), device=xy.device), ref_idx]
+                reference_xy = reference_xy * lep.any(1, keepdim=True)
+                invariant_features = self.invariant_features(object_features[...,:4], reference_xy)
+            else:
+                invariant_features = self.invariant_features(object_features[...,:4])
         else:
             invariant_features = object_features[...,:4]
         combined = torch.cat([invariant_features, object_features[...,4:], type_emb], dim=-1)
         # Process each object
-        object_features = self.object_net(combined)
+        return self.object_net(combined)
+
+    def _backbone_features(self, object_features, object_types):
+        object_features = self.embed_objects(object_features, object_types)
         # Apply attention blocks
         for block in self.attention_blocks:
             # Store original features for residual connection

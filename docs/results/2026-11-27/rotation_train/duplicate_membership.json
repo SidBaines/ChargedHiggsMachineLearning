@@ -1,0 +1,1885 @@
+{
+  "method": "Rescored only the exact duplicate events on CPU. Membership used each fitted arm's existing fixed cuts. The excluded rows are the union of teacher-seen even rows and exact duplicates of earlier even residues. This diagnostic keeps thresholds fixed.",
+  "results": {
+    "2701_augmented": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.109167098999023,
+                "closest_eligible_score_below_cut": 2.8120241165161133,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 8.879314422607422,
+                "closest_eligible_score_below_cut": 5.112273693084717,
+                "n_reco_valid": 19,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.109167098999023,
+                "closest_eligible_score_below_cut": 4.11582612991333,
+                "n_reco_valid": 25,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 8.879314422607422,
+                "closest_eligible_score_below_cut": 7.6814422607421875,
+                "n_reco_valid": 21,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.109167098999023,
+                "closest_eligible_score_below_cut": 4.7195048332214355,
+                "n_reco_valid": 27,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 8.879314422607422,
+                "closest_eligible_score_below_cut": 7.162737846374512,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 21,
+            "total_abs_logodds_change": 72.99385833740234
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.109167098999023,
+                "closest_eligible_score_below_cut": 4.641911029815674,
+                "n_reco_valid": 27,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 8.879314422607422,
+                "closest_eligible_score_below_cut": 6.829002380371094,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 30,
+            "total_abs_logodds_change": 99.44224548339844
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.109167098999023,
+                "closest_eligible_score_below_cut": 5.1764960289001465,
+                "n_reco_valid": 30,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 8.879314422607422,
+                "closest_eligible_score_below_cut": 6.204378128051758,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 34,
+            "total_abs_logodds_change": 105.94827270507812
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.109167098999023,
+                "closest_eligible_score_below_cut": 5.127850532531738,
+                "n_reco_valid": 31,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 8.879314422607422,
+                "closest_eligible_score_below_cut": 7.5771331787109375,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 29,
+            "total_abs_logodds_change": 91.20419311523438
+          }
+        }
+      }
+    },
+    "2701_ordinary": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.317557334899902,
+                "closest_eligible_score_below_cut": 4.680859565734863,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.22077465057373,
+                "closest_eligible_score_below_cut": 5.675442695617676,
+                "n_reco_valid": 15,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.317557334899902,
+                "closest_eligible_score_below_cut": 7.965549945831299,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.22077465057373,
+                "closest_eligible_score_below_cut": 8.119634628295898,
+                "n_reco_valid": 19,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.317557334899902,
+                "closest_eligible_score_below_cut": 9.013620376586914,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.22077465057373,
+                "closest_eligible_score_below_cut": 8.377941131591797,
+                "n_reco_valid": 18,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 36,
+            "total_abs_logodds_change": 170.85650634765625
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.317557334899902,
+                "closest_eligible_score_below_cut": 8.644482612609863,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.22077465057373,
+                "closest_eligible_score_below_cut": 9.044981956481934,
+                "n_reco_valid": 18,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 47,
+            "total_abs_logodds_change": 236.2392578125
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.317557334899902,
+                "closest_eligible_score_below_cut": 8.173014640808105,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.22077465057373,
+                "closest_eligible_score_below_cut": 8.71523666381836,
+                "n_reco_valid": 18,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 51,
+            "total_abs_logodds_change": 219.83238220214844
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.317557334899902,
+                "closest_eligible_score_below_cut": 8.759721755981445,
+                "n_reco_valid": 30,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.22077465057373,
+                "closest_eligible_score_below_cut": 9.309381484985352,
+                "n_reco_valid": 21,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 39,
+            "total_abs_logodds_change": 198.19900512695312
+          }
+        }
+      }
+    },
+    "2701_relative": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.069262504577637,
+                "closest_eligible_score_below_cut": 7.721024513244629,
+                "n_reco_valid": 24,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.02463150024414,
+                "closest_eligible_score_below_cut": 5.930013179779053,
+                "n_reco_valid": 15,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.069262504577637,
+                "closest_eligible_score_below_cut": 3.5902371406555176,
+                "n_reco_valid": 29,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.02463150024414,
+                "closest_eligible_score_below_cut": 5.644868850708008,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.069262504577637,
+                "closest_eligible_score_below_cut": 3.5902726650238037,
+                "n_reco_valid": 29,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.02463150024414,
+                "closest_eligible_score_below_cut": 5.644855976104736,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.003847479820251465
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.069262504577637,
+                "closest_eligible_score_below_cut": 3.5902276039123535,
+                "n_reco_valid": 29,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.02463150024414,
+                "closest_eligible_score_below_cut": 5.644730091094971,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.002350449562072754
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.069262504577637,
+                "closest_eligible_score_below_cut": 3.590250015258789,
+                "n_reco_valid": 29,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.02463150024414,
+                "closest_eligible_score_below_cut": 5.644731044769287,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0012351274490356445
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.069262504577637,
+                "closest_eligible_score_below_cut": 3.590243339538574,
+                "n_reco_valid": 29,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.02463150024414,
+                "closest_eligible_score_below_cut": 5.644869327545166,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0013298392295837402
+          }
+        }
+      }
+    },
+    "2702_augmented": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.207806587219238,
+                "closest_eligible_score_below_cut": 5.8547868728637695,
+                "n_reco_valid": 25,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.001733779907227,
+                "closest_eligible_score_below_cut": 4.625568866729736,
+                "n_reco_valid": 18,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.207806587219238,
+                "closest_eligible_score_below_cut": 7.973596572875977,
+                "n_reco_valid": 28,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.001733779907227,
+                "closest_eligible_score_below_cut": 7.28180456161499,
+                "n_reco_valid": 21,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.207806587219238,
+                "closest_eligible_score_below_cut": 4.744698524475098,
+                "n_reco_valid": 28,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.001733779907227,
+                "closest_eligible_score_below_cut": 7.14319372177124,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 23,
+            "total_abs_logodds_change": 81.15470123291016
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.207806587219238,
+                "closest_eligible_score_below_cut": 5.368494987487793,
+                "n_reco_valid": 34,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.001733779907227,
+                "closest_eligible_score_below_cut": 6.583118438720703,
+                "n_reco_valid": 26,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 31,
+            "total_abs_logodds_change": 96.33587646484375
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.207806587219238,
+                "closest_eligible_score_below_cut": 5.417662620544434,
+                "n_reco_valid": 32,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.001733779907227,
+                "closest_eligible_score_below_cut": 6.7938737869262695,
+                "n_reco_valid": 24,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 31,
+            "total_abs_logodds_change": 114.87939453125
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.207806587219238,
+                "closest_eligible_score_below_cut": 5.540946006774902,
+                "n_reco_valid": 33,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.001733779907227,
+                "closest_eligible_score_below_cut": 7.715169906616211,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 28,
+            "total_abs_logodds_change": 93.19048309326172
+          }
+        }
+      }
+    },
+    "2702_ordinary": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.269807815551758,
+                "closest_eligible_score_below_cut": 6.291565895080566,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 10.787291526794434,
+                "closest_eligible_score_below_cut": 5.6085052490234375,
+                "n_reco_valid": 17,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.269807815551758,
+                "closest_eligible_score_below_cut": 7.884037494659424,
+                "n_reco_valid": 25,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 10.787291526794434,
+                "closest_eligible_score_below_cut": 7.961423873901367,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.269807815551758,
+                "closest_eligible_score_below_cut": 8.203198432922363,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 10.787291526794434,
+                "closest_eligible_score_below_cut": 7.7538957595825195,
+                "n_reco_valid": 18,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 31,
+            "total_abs_logodds_change": 155.88839721679688
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.269807815551758,
+                "closest_eligible_score_below_cut": 7.650270462036133,
+                "n_reco_valid": 27,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 10.787291526794434,
+                "closest_eligible_score_below_cut": 7.704245567321777,
+                "n_reco_valid": 21,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 45,
+            "total_abs_logodds_change": 204.94686889648438
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.269807815551758,
+                "closest_eligible_score_below_cut": 7.596750736236572,
+                "n_reco_valid": 26,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 10.787291526794434,
+                "closest_eligible_score_below_cut": 7.753396511077881,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 48,
+            "total_abs_logodds_change": 222.03536987304688
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.269807815551758,
+                "closest_eligible_score_below_cut": 8.549406051635742,
+                "n_reco_valid": 25,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 10.787291526794434,
+                "closest_eligible_score_below_cut": 8.156853675842285,
+                "n_reco_valid": 21,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 45,
+            "total_abs_logodds_change": 213.0802764892578
+          }
+        }
+      }
+    },
+    "2702_relative": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.440889358520508,
+                "closest_eligible_score_below_cut": 5.171976089477539,
+                "n_reco_valid": 24,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.21997356414795,
+                "closest_eligible_score_below_cut": 5.9903459548950195,
+                "n_reco_valid": 18,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.440889358520508,
+                "closest_eligible_score_below_cut": 2.6730308532714844,
+                "n_reco_valid": 35,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.21997356414795,
+                "closest_eligible_score_below_cut": 5.4425764083862305,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.440889358520508,
+                "closest_eligible_score_below_cut": 2.6729440689086914,
+                "n_reco_valid": 35,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.21997356414795,
+                "closest_eligible_score_below_cut": 5.442563056945801,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.004331916570663452
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.440889358520508,
+                "closest_eligible_score_below_cut": 2.6729378700256348,
+                "n_reco_valid": 35,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.21997356414795,
+                "closest_eligible_score_below_cut": 5.442246437072754,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0018725693225860596
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.440889358520508,
+                "closest_eligible_score_below_cut": 2.6729376316070557,
+                "n_reco_valid": 35,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.21997356414795,
+                "closest_eligible_score_below_cut": 5.442245006561279,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0015771687030792236
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.440889358520508,
+                "closest_eligible_score_below_cut": 2.6730294227600098,
+                "n_reco_valid": 35,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.21997356414795,
+                "closest_eligible_score_below_cut": 5.442574501037598,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0013200044631958008
+          }
+        }
+      }
+    },
+    "2703_augmented": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.659097671508789,
+                "closest_eligible_score_below_cut": 4.646627426147461,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.087003707885742,
+                "closest_eligible_score_below_cut": 4.554962635040283,
+                "n_reco_valid": 15,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.659097671508789,
+                "closest_eligible_score_below_cut": 8.154617309570312,
+                "n_reco_valid": 31,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.087003707885742,
+                "closest_eligible_score_below_cut": 7.699569225311279,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.659097671508789,
+                "closest_eligible_score_below_cut": 4.865396976470947,
+                "n_reco_valid": 30,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.087003707885742,
+                "closest_eligible_score_below_cut": 7.6187567710876465,
+                "n_reco_valid": 18,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 24,
+            "total_abs_logodds_change": 83.4558334350586
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.659097671508789,
+                "closest_eligible_score_below_cut": 5.15527868270874,
+                "n_reco_valid": 32,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.087003707885742,
+                "closest_eligible_score_below_cut": 7.726461887359619,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 26,
+            "total_abs_logodds_change": 114.54088592529297
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.659097671508789,
+                "closest_eligible_score_below_cut": 6.221511363983154,
+                "n_reco_valid": 31,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.087003707885742,
+                "closest_eligible_score_below_cut": 7.567640781402588,
+                "n_reco_valid": 24,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 38,
+            "total_abs_logodds_change": 122.61981201171875
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 8.659097671508789,
+                "closest_eligible_score_below_cut": 5.626855373382568,
+                "n_reco_valid": 30,
+                "passed": {
+                  "yield": 0.018022397982152445,
+                  "sumw2": 0.00032480682902709255,
+                  "n": 1
+                },
+                "n_selection_flip": 1
+              },
+              "qqbb": {
+                "threshold": 9.087003707885742,
+                "closest_eligible_score_below_cut": 8.580245971679688,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 33,
+            "total_abs_logodds_change": 103.60604095458984
+          }
+        }
+      }
+    },
+    "2703_ordinary": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.402149200439453,
+                "closest_eligible_score_below_cut": 4.656647682189941,
+                "n_reco_valid": 19,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.375112533569336,
+                "closest_eligible_score_below_cut": 5.282469749450684,
+                "n_reco_valid": 15,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.402149200439453,
+                "closest_eligible_score_below_cut": 7.9766926765441895,
+                "n_reco_valid": 25,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.375112533569336,
+                "closest_eligible_score_below_cut": 8.863831520080566,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.402149200439453,
+                "closest_eligible_score_below_cut": 7.998904228210449,
+                "n_reco_valid": 23,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.375112533569336,
+                "closest_eligible_score_below_cut": 7.8773512840271,
+                "n_reco_valid": 15,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 33,
+            "total_abs_logodds_change": 159.0697479248047
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.402149200439453,
+                "closest_eligible_score_below_cut": 8.433850288391113,
+                "n_reco_valid": 25,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.375112533569336,
+                "closest_eligible_score_below_cut": 7.832326412200928,
+                "n_reco_valid": 17,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 44,
+            "total_abs_logodds_change": 209.9904327392578
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.402149200439453,
+                "closest_eligible_score_below_cut": 8.043810844421387,
+                "n_reco_valid": 28,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.375112533569336,
+                "closest_eligible_score_below_cut": 7.285189151763916,
+                "n_reco_valid": 16,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 48,
+            "total_abs_logodds_change": 219.6700897216797
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 10.402149200439453,
+                "closest_eligible_score_below_cut": 8.091612815856934,
+                "n_reco_valid": 26,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 11.375112533569336,
+                "closest_eligible_score_below_cut": 8.32884693145752,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 42,
+            "total_abs_logodds_change": 200.93936157226562
+          }
+        }
+      }
+    },
+    "2703_relative": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 9.079833984375,
+                "closest_eligible_score_below_cut": 3.408036470413208,
+                "n_reco_valid": 21,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.358504295349121,
+                "closest_eligible_score_below_cut": 6.6773600578308105,
+                "n_reco_valid": 14,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 9.079833984375,
+                "closest_eligible_score_below_cut": 4.115231513977051,
+                "n_reco_valid": 32,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.358504295349121,
+                "closest_eligible_score_below_cut": 6.332098960876465,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 9.079833984375,
+                "closest_eligible_score_below_cut": 4.115500450134277,
+                "n_reco_valid": 32,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.358504295349121,
+                "closest_eligible_score_below_cut": 6.332090377807617,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.004468977451324463
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 9.079833984375,
+                "closest_eligible_score_below_cut": 4.1154890060424805,
+                "n_reco_valid": 32,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.358504295349121,
+                "closest_eligible_score_below_cut": 6.331968307495117,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0020955801010131836
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 9.079833984375,
+                "closest_eligible_score_below_cut": 4.1154913902282715,
+                "n_reco_valid": 32,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.358504295349121,
+                "closest_eligible_score_below_cut": 6.331969261169434,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0014483332633972168
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 9.079833984375,
+                "closest_eligible_score_below_cut": 4.115231037139893,
+                "n_reco_valid": 32,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 9.358504295349121,
+                "closest_eligible_score_below_cut": 6.332098960876465,
+                "n_reco_valid": 20,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0015537738800048828
+          }
+        }
+      }
+    },
+    "teacher_reference": {
+      "calibration": {
+        "all_duplicate_weights": {
+          "yield": 11.05536608765366,
+          "sumw2": 16.432369522976472,
+          "n": 70
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 6.976043701171875,
+                "closest_eligible_score_below_cut": 3.438765287399292,
+                "n_reco_valid": 24,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 6.415972709655762,
+                "closest_eligible_score_below_cut": 3.173098564147949,
+                "n_reco_valid": 16,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          }
+        }
+      },
+      "confirmation": {
+        "all_duplicate_weights": {
+          "yield": 6.755623688296591,
+          "sumw2": 8.447047639863651,
+          "n": 86
+        },
+        "results": {
+          "0.0": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 6.976043701171875,
+                "closest_eligible_score_below_cut": 4.212312698364258,
+                "n_reco_valid": 27,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 6.415972709655762,
+                "closest_eligible_score_below_cut": 4.624942302703857,
+                "n_reco_valid": 27,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 0,
+            "total_abs_logodds_change": 0.0
+          },
+          "0.7853981633974483": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 6.976043701171875,
+                "closest_eligible_score_below_cut": 5.531610012054443,
+                "n_reco_valid": 26,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 6.415972709655762,
+                "closest_eligible_score_below_cut": 4.752143383026123,
+                "n_reco_valid": 25,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 16,
+            "total_abs_logodds_change": 71.33125305175781
+          },
+          "1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 6.976043701171875,
+                "closest_eligible_score_below_cut": 5.32590389251709,
+                "n_reco_valid": 28,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 6.415972709655762,
+                "closest_eligible_score_below_cut": 5.076663017272949,
+                "n_reco_valid": 21,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 31,
+            "total_abs_logodds_change": 82.25325775146484
+          },
+          "3.141592653589793": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 6.976043701171875,
+                "closest_eligible_score_below_cut": 5.59465217590332,
+                "n_reco_valid": 33,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 6.415972709655762,
+                "closest_eligible_score_below_cut": 4.951799392700195,
+                "n_reco_valid": 24,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 33,
+            "total_abs_logodds_change": 90.59391784667969
+          },
+          "-1.5707963267948966": {
+            "per_channel": {
+              "lvbb": {
+                "threshold": 6.976043701171875,
+                "closest_eligible_score_below_cut": 5.472634315490723,
+                "n_reco_valid": 33,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              },
+              "qqbb": {
+                "threshold": 6.415972709655762,
+                "closest_eligible_score_below_cut": 4.919158935546875,
+                "n_reco_valid": 22,
+                "passed": {
+                  "yield": 0.0,
+                  "sumw2": 0.0,
+                  "n": 0
+                },
+                "n_selection_flip": 0
+              }
+            },
+            "n_assignment_flip": 33,
+            "total_abs_logodds_change": 84.18228912353516
+          }
+        }
+      }
+    }
+  }
+}

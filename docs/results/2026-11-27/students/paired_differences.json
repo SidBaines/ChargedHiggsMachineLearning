@@ -1,0 +1,56 @@
+{
+  "2701": {
+    "4": {
+      "soft_minus_hard_perfect_signed": -0.0074610871630516485,
+      "approx_mc_se_of_paired_difference": 0.012364024004098178,
+      "gain_count": 135,
+      "loss_count": 89,
+      "soft_minus_hard_auc_abs_yield_weighted": 0.010302870414160448,
+      "soft_minus_hard_event_accuracy_count_fraction": -0.01926409812025065
+    },
+    "6": {
+      "soft_minus_hard_perfect_signed": 0.013555111790834145,
+      "approx_mc_se_of_paired_difference": 0.011781959419101243,
+      "gain_count": 127,
+      "loss_count": 85,
+      "soft_minus_hard_auc_abs_yield_weighted": 0.008587279338625242,
+      "soft_minus_hard_event_accuracy_count_fraction": -0.024863351553126245
+    }
+  },
+  "2702": {
+    "4": {
+      "soft_minus_hard_perfect_signed": 0.01835429712707658,
+      "approx_mc_se_of_paired_difference": 0.010037825130199355,
+      "gain_count": 93,
+      "loss_count": 65,
+      "soft_minus_hard_auc_abs_yield_weighted": 0.006169971316495104,
+      "soft_minus_hard_event_accuracy_count_fraction": -0.0172643647513665
+    },
+    "6": {
+      "soft_minus_hard_perfect_signed": 0.018874375146194246,
+      "approx_mc_se_of_paired_difference": 0.009926406324802647,
+      "gain_count": 88,
+      "loss_count": 60,
+      "soft_minus_hard_auc_abs_yield_weighted": 0.00538403800687437,
+      "soft_minus_hard_event_accuracy_count_fraction": -0.017864284762031724
+    }
+  },
+  "2703": {
+    "4": {
+      "soft_minus_hard_perfect_signed": 0.022861635402675978,
+      "approx_mc_se_of_paired_difference": 0.012148691209271563,
+      "gain_count": 166,
+      "loss_count": 73,
+      "soft_minus_hard_auc_abs_yield_weighted": 0.010222543738757195,
+      "soft_minus_hard_event_accuracy_count_fraction": -0.025396613784828714
+    },
+    "6": {
+      "soft_minus_hard_perfect_signed": 0.012894884128401039,
+      "approx_mc_se_of_paired_difference": 0.011869051436538606,
+      "gain_count": 161,
+      "loss_count": 62,
+      "soft_minus_hard_auc_abs_yield_weighted": 0.008428691657203613,
+      "soft_minus_hard_event_accuracy_count_fraction": -0.024996667111051862
+    }
+  }
+}

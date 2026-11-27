@@ -1,0 +1,3987 @@
+{
+  "run_parameters": {
+    "data_dir": "tmp_data_20250321v1_all",
+    "joint": "output/20260624-163646_TrainingOutput",
+    "reco": "output/20260627-231345_TrainingOutput",
+    "out": "output/physics_interp/interventions_pilot",
+    "n_signal": 2400,
+    "n_background": 3600,
+    "seed": 2701,
+    "batch_size": 256,
+    "threads": 2
+  },
+  "split": {
+    "evaluation_row_mod_8": 4,
+    "donors_and_calibration_row_mod_8": 2,
+    "confirmation_row_mod_8_untouched": 6
+  },
+  "rules": {
+    "jet": "At least two large-R jets with pT >= 200 GeV, |eta| <= 2 and mass in [50,125] GeV. Closest to 80.4 GeV is the alternative and second closest is the edited target. Tie by token index.",
+    "mass": "Halfway or fully toward 80.4 GeV, with fixed px,py,pz and tag.",
+    "pt": "Scales all three momentum components by 0.8 or 1.25, recomputes energy at fixed mass, and preserves direction and tag.",
+    "matched_tag": "Nearest real large-R jet within unit ellipsoid in (log pT, eta, m) using scales (0.15, 0.30, 12 GeV), across distinct split. Increase or decrease the tag by 0.5 to 2.0, neutral difference <=0.05. Restrict all three tag arms to events with matches for all three.",
+    "geometry": "Highest-tag pT>=200 GeV |eta|<=2 large-R jet with tag>=1 and 80–165 GeV mass is the H proxy. Remaining W proxy is the closest to 80.4 GeV with tag<=0.5, same pT and eta ranges and 50–120 GeV mass. Require nominal absolute interproxy delta phi in [1.1,2.45]. Rotate W proxy only in azimuth by 0.65 rad toward and away from H in distinct edits.",
+    "patch": "Restore each head's clean pre-output-projection context at all query tokens, or all four heads at block 1. Identity patch restores the corrupted b1h0 context. Track clean-referenced absolute errors and paired error reductions.",
+    "scores": "W margin = W logit minus maximum of H and none logits. Rank the two candidate jets by this margin. Leptonic verdict = joint W assignment to both the one lepton and one neutrino. Native signal score = 1 - P(background).",
+    "statistics": "Paired event differences, including zeros. Approximate normal 95% intervals; signed-MC weighted intervals use within-DSID linearized ratio variances and omit singleton strata. Unadjusted intervals for descriptive comparisons. Errors and gains use the identical event for each head."
+  },
+  "assessment_counts": {
+    "0": 3612,
+    "1": 1614,
+    "2": 784
+  },
+  "jet_counts": {
+    "all": {
+      "n": 1084,
+      "sum_weight": 167619.68413678271,
+      "n_negative_weights": 283,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "background": {
+      "n": 499,
+      "sum_weight": 88772.77472145308,
+      "n_negative_weights": 62,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "lvbb": {
+      "n": 257,
+      "sum_weight": 33102.04521252251,
+      "n_negative_weights": 100,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "qqbb": {
+      "n": 328,
+      "sum_weight": 45744.86420280712,
+      "n_negative_weights": 121,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "tag_common_counts": {
+    "all": {
+      "n": 269,
+      "sum_weight": 46670.762584042895,
+      "n_negative_weights": 74,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "background": {
+      "n": 138,
+      "sum_weight": 33589.71070293711,
+      "n_negative_weights": 19,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "lvbb": {
+      "n": 62,
+      "sum_weight": 7061.734434069715,
+      "n_negative_weights": 26,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0000000000000002,
+      "signed_ci95": [
+        0.9999999999999999,
+        1.0000000000000004
+      ]
+    },
+    "qqbb": {
+      "n": 69,
+      "sum_weight": 6019.317447036073,
+      "n_negative_weights": 29,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "geometry_counts": {
+    "all": {
+      "n": 159,
+      "sum_weight": 15751.581929112868,
+      "n_negative_weights": 53,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 0.9999999999999998,
+      "signed_ci95": [
+        0.9999999999999996,
+        1.0
+      ]
+    },
+    "background": {
+      "n": 37,
+      "sum_weight": 4062.6147686100503,
+      "n_negative_weights": 3,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 0.9999999999999999,
+      "signed_ci95": [
+        0.9999999999999999,
+        0.9999999999999999
+      ]
+    },
+    "lvbb": {
+      "n": 82,
+      "sum_weight": 11313.98787619485,
+      "n_negative_weights": 31,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0,
+      "signed_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "qqbb": {
+      "n": 40,
+      "sum_weight": 374.9792843079663,
+      "n_negative_weights": 19,
+      "mean": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "signed_mean": 1.0000000000000007,
+      "signed_ci95": [
+        0.9999999999999869,
+        1.0000000000000144
+      ]
+    }
+  },
+  "geometry_diagnostics": {
+    "h_proxy_truth_H": {
+      "all": {
+        "n": 159,
+        "sum_weight": 15751.581929112868,
+        "n_negative_weights": 53,
+        "mean": 0.7358490566037735,
+        "ci95": [
+          0.667102970190304,
+          0.8045951430172431
+        ],
+        "signed_mean": 0.6454166579580468,
+        "signed_ci95": [
+          0.3361876379997515,
+          0.9546456779163421
+        ]
+      },
+      "background": {
+        "n": 37,
+        "sum_weight": 4062.6147686100503,
+        "n_negative_weights": 3,
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "signed_mean": 0.0,
+        "signed_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "lvbb": {
+        "n": 82,
+        "sum_weight": 11313.98787619485,
+        "n_negative_weights": 31,
+        "mean": 0.9634146341463414,
+        "ci95": [
+          0.9225287039783907,
+          1.0043005643142922
+        ],
+        "signed_mean": 0.8539335498407287,
+        "signed_ci95": [
+          0.6685085649577637,
+          1.0393585347236938
+        ]
+      },
+      "qqbb": {
+        "n": 40,
+        "sum_weight": 374.9792843079663,
+        "n_negative_weights": 19,
+        "mean": 0.95,
+        "ci95": [
+          0.8815977208356929,
+          1.018402279164307
+        ],
+        "signed_mean": 1.3465798175977512,
+        "signed_ci95": [
+          -7.50192654463817,
+          10.195086179833673
+        ]
+      }
+    },
+    "w_proxy_truth_hadronic_W": {
+      "all": {
+        "n": 159,
+        "sum_weight": 15751.581929112868,
+        "n_negative_weights": 53,
+        "mean": 0.16352201257861634,
+        "ci95": [
+          0.10585294919033728,
+          0.2211910759668954
+        ],
+        "signed_mean": 0.02362509671109042,
+        "signed_ci95": [
+          -0.3649796578775193,
+          0.41222985129970013
+        ]
+      },
+      "background": {
+        "n": 37,
+        "sum_weight": 4062.6147686100503,
+        "n_negative_weights": 3,
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "signed_mean": 0.0,
+        "signed_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "lvbb": {
+        "n": 82,
+        "sum_weight": 11313.98787619485,
+        "n_negative_weights": 31,
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "signed_mean": 0.0,
+        "signed_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "qqbb": {
+        "n": 40,
+        "sum_weight": 374.9792843079663,
+        "n_negative_weights": 19,
+        "mean": 0.65,
+        "ci95": [
+          0.5003025272981092,
+          0.7996974727018908
+        ],
+        "signed_mean": 0.9924085462873926,
+        "signed_ci95": [
+          -10.447477486799587,
+          12.432294579374373
+        ]
+      }
+    },
+    "both_proxies_match_truth": {
+      "all": {
+        "n": 159,
+        "sum_weight": 15751.581929112868,
+        "n_negative_weights": 53,
+        "mean": 0.15723270440251572,
+        "ci95": [
+          0.10047134250895542,
+          0.213994066296076
+        ],
+        "signed_mean": -0.010169803217708911,
+        "signed_ci95": [
+          -0.4089025228355999,
+          0.38856291640018215
+        ]
+      },
+      "background": {
+        "n": 37,
+        "sum_weight": 4062.6147686100503,
+        "n_negative_weights": 3,
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "signed_mean": 0.0,
+        "signed_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "lvbb": {
+        "n": 82,
+        "sum_weight": 11313.98787619485,
+        "n_negative_weights": 31,
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "signed_mean": 0.0,
+        "signed_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "qqbb": {
+        "n": 40,
+        "sum_weight": 374.9792843079663,
+        "n_negative_weights": 19,
+        "mean": 0.625,
+        "ci95": [
+          0.47305745012821965,
+          0.7769425498717804
+        ],
+        "signed_mean": -0.42719823545008234,
+        "signed_ci95": [
+          -24.643529250818688,
+          23.789132779918525
+        ]
+      }
+    },
+    "deltaR_change_toward": {
+      "all": {
+        "n": 159,
+        "sum_weight": 15751.581929112868,
+        "n_negative_weights": 53,
+        "mean": -0.5138542300430755,
+        "ci95": [
+          -0.5330192671133532,
+          -0.49468919297279773
+        ],
+        "signed_mean": -0.4766546619852665,
+        "signed_ci95": [
+          -0.5868376252086875,
+          -0.3664716987618455
+        ]
+      },
+      "background": {
+        "n": 37,
+        "sum_weight": 4062.6147686100503,
+        "n_negative_weights": 3,
+        "mean": -0.5560746752058092,
+        "ci95": [
+          -0.5943334715589879,
+          -0.5178158788526306
+        ],
+        "signed_mean": -0.5286326811504932,
+        "signed_ci95": [
+          -0.7128861869072851,
+          -0.34437917539370133
+        ]
+      },
+      "lvbb": {
+        "n": 82,
+        "sum_weight": 11313.98787619485,
+        "n_negative_weights": 31,
+        "mean": -0.49454533586076893,
+        "ci95": [
+          -0.5221659492912925,
+          -0.46692472243024535
+        ],
+        "signed_mean": -0.510708377373114,
+        "signed_ci95": [
+          -0.6290119561040236,
+          -0.39240479864220446
+        ]
+      },
+      "qqbb": {
+        "n": 40,
+        "sum_weight": 374.9792843079663,
+        "n_negative_weights": 19,
+        "mean": -0.5143835513412753,
+        "ci95": [
+          -0.5487229977906724,
+          -0.4800441048918783
+        ],
+        "signed_mean": 1.1139665171073483,
+        "signed_ci95": [
+          -32.67373706239355,
+          34.90167009660825
+        ]
+      }
+    },
+    "deltaR_change_away": {
+      "all": {
+        "n": 159,
+        "sum_weight": 15751.581929112868,
+        "n_negative_weights": 53,
+        "mean": 0.5643746455240358,
+        "ci95": [
+          0.5511158160286173,
+          0.5776334750194544
+        ],
+        "signed_mean": 0.528949200744715,
+        "signed_ci95": [
+          0.44995126944659036,
+          0.6079471320428396
+        ]
+      },
+      "background": {
+        "n": 37,
+        "sum_weight": 4062.6147686100503,
+        "n_negative_weights": 3,
+        "mean": 0.5926525399113883,
+        "ci95": [
+          0.5668848828690416,
+          0.6184201969537351
+        ],
+        "signed_mean": 0.566864135364637,
+        "signed_ci95": [
+          0.436750539538062,
+          0.696977731191212
+        ]
+      },
+      "lvbb": {
+        "n": 82,
+        "sum_weight": 11313.98787619485,
+        "n_negative_weights": 31,
+        "mean": 0.5529227985924371,
+        "ci95": [
+          0.5337633529101878,
+          0.5720822442746863
+        ],
+        "signed_mean": 0.5537973005557099,
+        "signed_ci95": [
+          0.47237984322553817,
+          0.6352147578858816
+        ]
+      },
+      "qqbb": {
+        "n": 40,
+        "sum_weight": 374.9792843079663,
+        "n_negative_weights": 19,
+        "mean": 0.5616938794255122,
+        "ci95": [
+          0.5371767546431806,
+          0.5862110042078438
+        ],
+        "signed_mean": -0.6315545698808073,
+        "signed_ci95": [
+          -25.406424473951414,
+          24.143315334189797
+        ]
+      }
+    }
+  },
+  "tag_donors": {
+    "tag_neutral": {
+      "n_matched_before_common_restriction": 325,
+      "tag_shift": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.00025966865284070647,
+          "ci95": [
+            -0.003159545844964201,
+            0.0036788831506456145
+          ],
+          "signed_mean": -0.0025551251112514496,
+          "signed_ci95": [
+            -0.013143415016813766,
+            0.008033164794310868
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.0004551863918701808,
+          "ci95": [
+            -0.005229385777097802,
+            0.00431901299335744
+          ],
+          "signed_mean": 0.0022976099141124515,
+          "signed_ci95": [
+            -0.006834678202522275,
+            0.011429898030747178
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -0.0010004878164299072,
+          "ci95": [
+            -0.007625892164874977,
+            0.0056249165320151635
+          ],
+          "signed_mean": 0.010305670480163665,
+          "signed_ci95": [
+            -0.032230569023925765,
+            0.05284190998425309
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.002821693250882453,
+          "ci95": [
+            -0.004382280499221983,
+            0.01002566700098689
+          ],
+          "signed_mean": -0.04472294412574687,
+          "signed_ci95": [
+            -0.13443703796978695,
+            0.0449911497182932
+          ]
+        }
+      },
+      "mean_abs_delta_logpt_eta_massgev": [
+        0.049194005855673205,
+        0.11716944202094265,
+        4.201250700736101
+      ]
+    },
+    "tag_down": {
+      "n_matched_before_common_restriction": 940,
+      "tag_shift": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -1.1384231452605096,
+          "ci95": [
+            -1.1895277775920148,
+            -1.0873185129290044
+          ],
+          "signed_mean": -1.1773122958720008,
+          "signed_ci95": [
+            -1.3296426221388593,
+            -1.0249819696051423
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -1.093100110689799,
+          "ci95": [
+            -1.162753512133663,
+            -1.0234467092459352
+          ],
+          "signed_mean": -1.1031675759137842,
+          "signed_ci95": [
+            -1.2200446232625377,
+            -0.9862905285650309
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -1.2597346526961173,
+          "ci95": [
+            -1.37036122643281,
+            -1.1491080789594246
+          ],
+          "signed_mean": -1.7116963804897292,
+          "signed_ci95": [
+            -2.562002594931041,
+            -0.8613901660484172
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -1.1200646714887756,
+          "ci95": [
+            -1.2186357526448124,
+            -1.021493590332739
+          ],
+          "signed_mean": -0.9641355014750035,
+          "signed_ci95": [
+            -1.701981023646009,
+            -0.22628997930399808
+          ]
+        }
+      },
+      "mean_abs_delta_logpt_eta_massgev": [
+        0.03561322852742458,
+        0.0795656902654504,
+        3.180788866484487
+      ]
+    },
+    "tag_up": {
+      "n_matched_before_common_restriction": 919,
+      "tag_shift": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 1.1973049286129749,
+          "ci95": [
+            1.147687465265301,
+            1.2469223919606487
+          ],
+          "signed_mean": 1.2639116809160873,
+          "signed_ci95": [
+            1.1216486909460308,
+            1.4061746708861438
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 1.2537837805955305,
+          "ci95": [
+            1.1828690977240064,
+            1.3246984634670547
+          ],
+          "signed_mean": 1.3103370002059758,
+          "signed_ci95": [
+            1.2004080266248645,
+            1.420265973787087
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 1.1193893417235343,
+          "ci95": [
+            1.0212346568540422,
+            1.2175440265930264
+          ],
+          "signed_mean": 1.199353875237842,
+          "signed_ci95": [
+            0.6621142350438869,
+            1.7365935154317973
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 1.1543583317079407,
+          "ci95": [
+            1.0593603216066276,
+            1.2493563418092537
+          ],
+          "signed_mean": 1.0805814321623561,
+          "signed_ci95": [
+            0.4624719848302794,
+            1.6986908794944329
+          ]
+        }
+      },
+      "mean_abs_delta_logpt_eta_massgev": [
+        0.03789660225333112,
+        0.07112292307941961,
+        2.9697233082958956
+      ]
+    }
+  },
+  "jet_diagnostics": {
+    "target_mass_gev": {
+      "all": {
+        "n": 1084,
+        "sum_weight": 167619.68413678271,
+        "n_negative_weights": 283,
+        "mean": 95.56537036675066,
+        "ci95": [
+          94.19299715509739,
+          96.93774357840392
+        ],
+        "signed_mean": 95.45968817799067,
+        "signed_ci95": [
+          91.21357918736932,
+          99.70579716861202
+        ]
+      },
+      "background": {
+        "n": 499,
+        "sum_weight": 88772.77472145308,
+        "n_negative_weights": 62,
+        "mean": 89.21809810222088,
+        "ci95": [
+          87.08290926955543,
+          91.35328693488633
+        ],
+        "signed_mean": 92.74975340639456,
+        "signed_ci95": [
+          88.5567617716299,
+          96.94274504115923
+        ]
+      },
+      "lvbb": {
+        "n": 257,
+        "sum_weight": 33102.04521252251,
+        "n_negative_weights": 100,
+        "mean": 104.29457723614443,
+        "ci95": [
+          101.89800972120021,
+          106.69114475108866
+        ],
+        "signed_mean": 106.36942584514269,
+        "signed_ci95": [
+          94.84107690961117,
+          117.8977747806742
+        ]
+      },
+      "qqbb": {
+        "n": 328,
+        "sum_weight": 45744.86420280712,
+        "n_negative_weights": 121,
+        "mean": 98.38208589896456,
+        "ci95": [
+          96.14284390241275,
+          100.62132789551637
+        ],
+        "signed_mean": 92.8240655211702,
+        "signed_ci95": [
+          82.80978534002323,
+          102.83834570231717
+        ]
+      }
+    },
+    "alternative_mass_gev": {
+      "all": {
+        "n": 1084,
+        "sum_weight": 167619.68413678271,
+        "n_negative_weights": 283,
+        "mean": 81.75684256403746,
+        "ci95": [
+          80.92417522223617,
+          82.58950990583874
+        ],
+        "signed_mean": 84.84775167873704,
+        "signed_ci95": [
+          82.17010186180397,
+          87.52540149567011
+        ]
+      },
+      "background": {
+        "n": 499,
+        "sum_weight": 88772.77472145308,
+        "n_negative_weights": 62,
+        "mean": 80.48112962749023,
+        "ci95": [
+          79.21972409257965,
+          81.74253516240081
+        ],
+        "signed_mean": 81.27426568126398,
+        "signed_ci95": [
+          78.83650545883941,
+          83.71202590368856
+        ]
+      },
+      "lvbb": {
+        "n": 257,
+        "sum_weight": 33102.04521252251,
+        "n_negative_weights": 100,
+        "mean": 84.31011762852148,
+        "ci95": [
+          82.30876547308438,
+          86.31146978395859
+        ],
+        "signed_mean": 93.4040480696317,
+        "signed_ci95": [
+          82.4212519451478,
+          104.3868441941156
+        ]
+      },
+      "qqbb": {
+        "n": 328,
+        "sum_weight": 45744.86420280712,
+        "n_negative_weights": 121,
+        "mean": 81.69705312429558,
+        "ci95": [
+          80.53246047808001,
+          82.86164577051115
+        ],
+        "signed_mean": 85.59094674627687,
+        "signed_ci95": [
+          80.26743120290236,
+          90.91446228965138
+        ]
+      }
+    },
+    "target_pt_gev": {
+      "all": {
+        "n": 1084,
+        "sum_weight": 167619.68413678271,
+        "n_negative_weights": 283,
+        "mean": 473.91511753964244,
+        "ci95": [
+          456.5875452180787,
+          491.2426898612062
+        ],
+        "signed_mean": 402.2331069701909,
+        "signed_ci95": [
+          339.0379571823356,
+          465.42825675804613
+        ]
+      },
+      "background": {
+        "n": 499,
+        "sum_weight": 88772.77472145308,
+        "n_negative_weights": 62,
+        "mean": 360.5894599660816,
+        "ci95": [
+          344.15088249178183,
+          377.0280374403814
+        ],
+        "signed_mean": 297.9721322275932,
+        "signed_ci95": [
+          280.23525978673507,
+          315.7090046684513
+        ]
+      },
+      "lvbb": {
+        "n": 257,
+        "sum_weight": 33102.04521252251,
+        "n_negative_weights": 100,
+        "mean": 550.6508405327585,
+        "ci95": [
+          512.3958640309197,
+          588.9058170345972
+        ],
+        "signed_mean": 663.2581825828714,
+        "signed_ci95": [
+          475.2672489263731,
+          851.2491162393698
+        ]
+      },
+      "qqbb": {
+        "n": 328,
+        "sum_weight": 45744.86420280712,
+        "n_negative_weights": 121,
+        "mean": 586.1968929054233,
+        "ci95": [
+          549.7180654992928,
+          622.6757203115537
+        ],
+        "signed_mean": 415.67881676186914,
+        "signed_ci95": [
+          235.83203954574662,
+          595.5255939779917
+        ]
+      }
+    },
+    "alternative_pt_gev": {
+      "all": {
+        "n": 1084,
+        "sum_weight": 167619.68413678271,
+        "n_negative_weights": 283,
+        "mean": 453.03965887924136,
+        "ci95": [
+          436.5021082508527,
+          469.57720950763
+        ],
+        "signed_mean": 428.93850241241745,
+        "signed_ci95": [
+          372.5337673613462,
+          485.3432374634887
+        ]
+      },
+      "background": {
+        "n": 499,
+        "sum_weight": 88772.77472145308,
+        "n_negative_weights": 62,
+        "mean": 356.93914844203783,
+        "ci95": [
+          340.5092493369203,
+          373.3690475471554
+        ],
+        "signed_mean": 291.55828244804627,
+        "signed_ci95": [
+          275.1346442893577,
+          307.98192060673483
+        ]
+      },
+      "lvbb": {
+        "n": 257,
+        "sum_weight": 33102.04521252251,
+        "n_negative_weights": 100,
+        "mean": 383.8536583980317,
+        "ci95": [
+          358.8894642604746,
+          408.8178525355888
+        ],
+        "signed_mean": 392.065139707264,
+        "signed_ci95": [
+          279.4696003620696,
+          504.66067905245836
+        ]
+      },
+      "qqbb": {
+        "n": 328,
+        "sum_weight": 45744.86420280712,
+        "n_negative_weights": 121,
+        "mean": 653.451112634837,
+        "ci95": [
+          617.3290484023819,
+          689.5731768672922
+        ],
+        "signed_mean": 722.221852823178,
+        "signed_ci95": [
+          566.5008974266304,
+          877.9428082197255
+        ]
+      }
+    }
+  },
+  "paired_joint_minus_reconstruction": {
+    "identity": {
+      "target_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    "mass_half": {
+      "target_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.15834920859218635,
+          "ci95": [
+            -0.2387578331401415,
+            -0.07794058404423118
+          ],
+          "signed_mean": -0.27218655182056223,
+          "signed_ci95": [
+            -0.5417429499532034,
+            -0.002630153687921133
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.10104285476949507,
+          "ci95": [
+            -0.21620041793721828,
+            0.014114708398228148
+          ],
+          "signed_mean": -0.2783032281032031,
+          "signed_ci95": [
+            -0.5239721633156167,
+            -0.03263429289078951
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.283099750484474,
+          "ci95": [
+            -0.4715240526235359,
+            -0.09467544834541211
+          ],
+          "signed_mean": -0.15645594787881598,
+          "signed_ci95": [
+            -1.0315474587262672,
+            0.7186355629686352
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.14778512716293335,
+          "ci95": [
+            -0.2821801018263271,
+            -0.01339015249953962
+          ],
+          "signed_mean": -0.34406184133705237,
+          "signed_ci95": [
+            -0.9336708433076082,
+            0.24554716063350351
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.20491883436362243,
+          "ci95": [
+            -0.3054913886545437,
+            -0.10434628007270116
+          ],
+          "signed_mean": -0.29451388473623547,
+          "signed_ci95": [
+            -0.6093945674544188,
+            0.020366797981947904
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.19433400823262506,
+          "ci95": [
+            -0.3591012962355542,
+            -0.029566720229695947
+          ],
+          "signed_mean": -0.2573045929541675,
+          "signed_ci95": [
+            -0.5924948300634802,
+            0.0778856441551452
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.30667613754012707,
+          "ci95": [
+            -0.48857173416078026,
+            -0.12478054091947385
+          ],
+          "signed_mean": -0.17694971723047878,
+          "signed_ci95": [
+            -1.0317247930051423,
+            0.6778253585441847
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.141291399372787,
+          "ci95": [
+            -0.3067361373597933,
+            0.024153338614219283
+          ],
+          "signed_mean": -0.451794632869289,
+          "signed_ci95": [
+            -1.1828266065261381,
+            0.27923734078756013
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.00922509225092251,
+          "ci95": [
+            -0.007735490957576169,
+            0.026185675459421187
+          ],
+          "signed_mean": 0.05053389856918418,
+          "signed_ci95": [
+            -0.009453829720119468,
+            0.11052162685848782
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.01002004008016032,
+          "ci95": [
+            -0.016340572061069317,
+            0.03638065222138996
+          ],
+          "signed_mean": -0.00401619653727569,
+          "signed_ci95": [
+            -0.07230807629106252,
+            0.06427568321651113
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.019455252918287938,
+          "ci95": [
+            -0.02568865868755074,
+            0.06459916452412662
+          ],
+          "signed_mean": 0.2555155789759144,
+          "signed_ci95": [
+            0.006365390570177459,
+            0.5046657673816514
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            -0.016927400382736296,
+            0.016927400382736296
+          ],
+          "signed_mean": 0.00806466005467561,
+          "signed_ci95": [
+            -0.07063958834647714,
+            0.08676890845582837
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.011992619926199263,
+          "ci95": [
+            -0.02297284276968087,
+            -0.0010123970827176539
+          ],
+          "signed_mean": 0.004712163928164256,
+          "signed_ci95": [
+            -0.0221276505202722,
+            0.03155197837660071
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.014028056112224449,
+          "ci95": [
+            -0.03588467810198584,
+            0.007828565877536942
+          ],
+          "signed_mean": -0.005299005239285751,
+          "signed_ci95": [
+            -0.0435782041213622,
+            0.032980193642790694
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.0038910505836575876,
+          "ci95": [
+            -0.011517509727626458,
+            0.0037354085603112826
+          ],
+          "signed_mean": -0.019278131524176387,
+          "signed_ci95": [
+            -0.05797204235102075,
+            0.019415779302667975
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.01524390243902439,
+          "ci95": [
+            -0.028523796626688545,
+            -0.001964008251360236
+          ],
+          "signed_mean": 0.04149983702004946,
+          "signed_ci95": [
+            -0.021702158922351653,
+            0.10470183296245057
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.006457564575645757,
+          "ci95": [
+            -0.017152559785530153,
+            0.0042374306342386385
+          ],
+          "signed_mean": -0.0017943633272475632,
+          "signed_ci95": [
+            -0.028552990150772666,
+            0.02496426349627754
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.01603206412825651,
+          "ci95": [
+            -0.03678947564691419,
+            0.004725347390401164
+          ],
+          "signed_mean": -0.007384936034656175,
+          "signed_ci95": [
+            -0.04622672256389231,
+            0.03145685049457996
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.011673151750972763,
+          "ci95": [
+            -0.001484562516542231,
+            0.024830866018487757
+          ],
+          "signed_mean": 0.010700770698636945,
+          "signed_ci95": [
+            -0.0450487543538851,
+            0.06645029575115899
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.006097560975609756,
+          "ci95": [
+            -0.018048780487804877,
+            0.005853658536585364
+          ],
+          "signed_mean": 1.296874156766818e-05,
+          "signed_ci95": [
+            -0.04761624438150916,
+            0.0476421818646445
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0018450184501845018,
+          "ci95": [
+            -0.015124105906134156,
+            0.01881414280650316
+          ],
+          "signed_mean": 0.03400962305832994,
+          "signed_ci95": [
+            -0.025913689914217983,
+            0.09393293603087786
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.002004008016032064,
+          "ci95": [
+            -0.028378719255510568,
+            0.024370703223446442
+          ],
+          "signed_mean": -0.0014448001302190777,
+          "signed_ci95": [
+            -0.06974943625763991,
+            0.06685983599720174
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.011673151750972763,
+          "ci95": [
+            -0.03351100404525675,
+            0.05685730754720227
+          ],
+          "signed_mean": 0.16494522852072308,
+          "signed_ci95": [
+            -0.06654429448197732,
+            0.39643475152342345
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            -0.016927400382736296,
+            0.016927400382736296
+          ],
+          "signed_mean": 0.00806466005467561,
+          "signed_ci95": [
+            -0.07063958834647714,
+            0.08676890845582837
+          ]
+        }
+      }
+    },
+    "mass_full": {
+      "target_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.40099006834202805,
+          "ci95": [
+            -0.5327019630703018,
+            -0.26927817361375433
+          ],
+          "signed_mean": -0.7718328163559974,
+          "signed_ci95": [
+            -1.2106042511145745,
+            -0.3330613815974204
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.16518897793156828,
+          "ci95": [
+            -0.3400844759928053,
+            0.009706520129668716
+          ],
+          "signed_mean": -0.5434234088171321,
+          "signed_ci95": [
+            -0.9083129052207644,
+            -0.17853391241349986
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.7460916567637299,
+          "ci95": [
+            -1.0702907523807137,
+            -0.4218925611467462
+          ],
+          "signed_mean": -0.8668948418775626,
+          "signed_ci95": [
+            -2.2996703824842104,
+            0.565880698729085
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.489324324105571,
+          "ci95": [
+            -0.7181435229975264,
+            -0.2605051252136156
+          ],
+          "signed_mean": -1.1462964793577175,
+          "signed_ci95": [
+            -2.185114783327138,
+            -0.1074781753882974
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.521452738501379,
+          "ci95": [
+            -0.6886545349148682,
+            -0.35425094208788976
+          ],
+          "signed_mean": -1.0026687408707862,
+          "signed_ci95": [
+            -1.5648512699104502,
+            -0.44048621183112213
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.34144687984056604,
+          "ci95": [
+            -0.5944463982371578,
+            -0.08844736144397425
+          ],
+          "signed_mean": -0.6951456674594102,
+          "signed_ci95": [
+            -1.3057165843609053,
+            -0.08457475055791497
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -1.0106189666091236,
+          "ci95": [
+            -1.3555684061323356,
+            -0.6656695270859116
+          ],
+          "signed_mean": -1.482903831206367,
+          "signed_ci95": [
+            -3.039186216921915,
+            0.07337855450918096
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.41202347889179136,
+          "ci95": [
+            -0.6980009902835838,
+            -0.12604596749999902
+          ],
+          "signed_mean": -1.2519407202150594,
+          "signed_ci95": [
+            -2.549030640817323,
+            0.045149200387203825
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.012915129151291513,
+          "ci95": [
+            -0.0073757395811727185,
+            0.03320599788375574
+          ],
+          "signed_mean": -0.005819709766875157,
+          "signed_ci95": [
+            -0.07800689378426881,
+            0.0663674742505185
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.006012024048096192,
+          "ci95": [
+            -0.02568274149787024,
+            0.03770678959406262
+          ],
+          "signed_mean": -0.05942566549629902,
+          "signed_ci95": [
+            -0.14391061779325115,
+            0.025059286800653127
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.042801556420233464,
+          "ci95": [
+            -0.011516055093519412,
+            0.09711916793398634
+          ],
+          "signed_mean": 0.17843606474687193,
+          "signed_ci95": [
+            -0.09025812265576008,
+            0.44713025214950397
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            -0.01892540896907716,
+            0.01892540896907716
+          ],
+          "signed_mean": -0.035123404734316285,
+          "signed_ci95": [
+            -0.12041799812744115,
+            0.05017118865880858
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.012915129151291513,
+          "ci95": [
+            -0.028245315987142083,
+            0.0024150576845590587
+          ],
+          "signed_mean": -0.06304565727285344,
+          "signed_ci95": [
+            -0.10974267640666632,
+            -0.016348638139040562
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.02404809619238477,
+          "ci95": [
+            -0.0539171880197977,
+            0.005820995635028164
+          ],
+          "signed_mean": -0.08169925403205931,
+          "signed_ci95": [
+            -0.15362439415401075,
+            -0.009774113910107893
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.007782101167315175,
+          "ci95": [
+            -0.026475192723837578,
+            0.010910990389207228
+          ],
+          "signed_mean": -0.046044979081227067,
+          "signed_ci95": [
+            -0.1335225157422972,
+            0.04143255757984307
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.0,
+          "ci95": [
+            -0.016927400382736296,
+            0.016927400382736296
+          ],
+          "signed_mean": -0.03914845386526374,
+          "signed_ci95": [
+            -0.10978434169717477,
+            0.03148743396664728
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0036900369003690036,
+          "ci95": [
+            -0.010084783049343782,
+            0.01746485685008179
+          ],
+          "signed_mean": -0.002441141675368051,
+          "signed_ci95": [
+            -0.0365669766523037,
+            0.03168469330156759
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.006012024048096192,
+          "ci95": [
+            -0.022061659996971517,
+            0.0340857080931639
+          ],
+          "signed_mean": 0.01784241970924075,
+          "signed_ci95": [
+            -0.03593409506187095,
+            0.07161893448035246
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.007782101167315175,
+          "ci95": [
+            -0.0029822548587777158,
+            0.018546457193408066
+          ],
+          "signed_mean": -0.03844892328389783,
+          "signed_ci95": [
+            -0.09792859337990725,
+            0.021030746812111596
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.003048780487804878,
+          "ci95": [
+            -0.016426984919487738,
+            0.01032942394387798
+          ],
+          "signed_mean": -0.015747483734617197,
+          "signed_ci95": [
+            -0.07309104968043702,
+            0.04159608221120263
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.00922509225092251,
+          "ci95": [
+            -0.010747887337518077,
+            0.029198071839363095
+          ],
+          "signed_mean": 0.030572752353090146,
+          "signed_ci95": [
+            -0.03828056755782444,
+            0.09942607226400474
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.01002004008016032,
+          "ci95": [
+            -0.04071574597908821,
+            0.02067566581876757
+          ],
+          "signed_mean": -0.04226660973528262,
+          "signed_ci95": [
+            -0.11742372625274287,
+            0.03289050678217763
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.05058365758754864,
+          "ci95": [
+            -0.0036334742135019082,
+            0.10480078938859919
+          ],
+          "signed_mean": 0.27570726615183205,
+          "signed_ci95": [
+            -0.011897131357303192,
+            0.5633116636609673
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.006097560975609756,
+          "ci95": [
+            -0.012816304589545592,
+            0.025011426540765103
+          ],
+          "signed_mean": -0.0054597401707167995,
+          "signed_ci95": [
+            -0.08928022403310168,
+            0.07836074369166807
+          ]
+        }
+      }
+    },
+    "pt_down": {
+      "target_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0966668959115924,
+          "ci95": [
+            0.004136148999898406,
+            0.18919764282328638
+          ],
+          "signed_mean": 0.18692945890825133,
+          "signed_ci95": [
+            -0.10730269278598595,
+            0.48116161060248863
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.054677841091203785,
+          "ci95": [
+            -0.20696734240331738,
+            0.0976116602209098
+          ],
+          "signed_mean": 0.01351882379069251,
+          "signed_ci95": [
+            -0.30081149706868643,
+            0.3278491446500715
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.14791779446230788,
+          "ci95": [
+            -0.030365331346992208,
+            0.32620092027160796
+          ],
+          "signed_mean": 0.5642755368908156,
+          "signed_ci95": [
+            -0.3621488576768349,
+            1.4906999314584661
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.2867569655361699,
+          "ci95": [
+            0.14666525449773968,
+            0.4268486765746001
+          ],
+          "signed_mean": 0.2503948634305387,
+          "signed_ci95": [
+            -0.3681404511170204,
+            0.8689301779780978
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.15882267196734892,
+          "ci95": [
+            0.040736956094924656,
+            0.2769083878397732
+          ],
+          "signed_mean": 0.1925244657205999,
+          "signed_ci95": [
+            -0.17993227600483713,
+            0.564981207446037
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.03427786736904022,
+          "ci95": [
+            -0.16532281939187332,
+            0.2338785541299538
+          ],
+          "signed_mean": 0.10726541859773542,
+          "signed_ci95": [
+            -0.3030655408888209,
+            0.5175963780842917
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.22447280034944705,
+          "ci95": [
+            0.018006421391390554,
+            0.4309391793075036
+          ],
+          "signed_mean": 0.9156042402973265,
+          "signed_ci95": [
+            -0.20886569527010723,
+            2.0400741758647603
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.2968585698342905,
+          "ci95": [
+            0.11347138940115034,
+            0.48024575026743066
+          ],
+          "signed_mean": -0.16525858801270324,
+          "signed_ci95": [
+            -1.0048626111440375,
+            0.6743454351186311
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.004612546125461255,
+          "ci95": [
+            -0.02027612686096687,
+            0.01105103461004436
+          ],
+          "signed_mean": -0.0016415840010492923,
+          "signed_ci95": [
+            -0.04929894336873749,
+            0.0460157753666389
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.026052104208416832,
+          "ci95": [
+            -0.05403736698174247,
+            0.0019331585649088046
+          ],
+          "signed_mean": -0.03428816344683037,
+          "signed_ci95": [
+            -0.09569987159962305,
+            0.027123544705962316
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.027237354085603113,
+          "ci95": [
+            -0.00409152371722156,
+            0.058566231888427786
+          ],
+          "signed_mean": 0.1393913612745198,
+          "signed_ci95": [
+            -0.011032070349549922,
+            0.28981479289858947
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.003048780487804878,
+          "ci95": [
+            -0.012781904107160184,
+            0.018879465082769938
+          ],
+          "signed_mean": -0.04034213583900009,
+          "signed_ci95": [
+            -0.12254029773621204,
+            0.041856026058211857
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.016605166051660517,
+          "ci95": [
+            -0.030105953973944857,
+            -0.003104378129376178
+          ],
+          "signed_mean": 0.0010974937796635498,
+          "signed_ci95": [
+            -0.0333721131868777,
+            0.0355671007462048
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.03006012024048096,
+          "ci95": [
+            -0.0563029453217787,
+            -0.0038172951591832205
+          ],
+          "signed_mean": -0.010248729747638706,
+          "signed_ci95": [
+            -0.05432827208908914,
+            0.03383081259381173
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.0038910505836575876,
+          "ci95": [
+            -0.01711765387840601,
+            0.009335552711090834
+          ],
+          "signed_mean": -0.02149670319029767,
+          "signed_ci95": [
+            -0.08339769291950515,
+            0.0404042865389098
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.006097560975609756,
+          "ci95": [
+            -0.023012054455681927,
+            0.010816932504462412
+          ],
+          "signed_mean": 0.03946573260506255,
+          "signed_ci95": [
+            -0.044548689433499676,
+            0.12348015464362477
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0027675276752767526,
+          "ci95": [
+            -0.011126323681701807,
+            0.016661379032255313
+          ],
+          "signed_mean": -0.009671406320828456,
+          "signed_ci95": [
+            -0.04923581623849822,
+            0.029893003596841314
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.002004008016032064,
+          "ci95": [
+            -0.030082105815398722,
+            0.026074089783334597
+          ],
+          "signed_mean": -0.020691293245046736,
+          "signed_ci95": [
+            -0.08507551953409899,
+            0.043692933044005525
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.011673151750972763,
+          "ci95": [
+            -0.0014845625165422292,
+            0.024830866018487753
+          ],
+          "signed_mean": -0.015274138875293003,
+          "signed_ci95": [
+            -0.0887827483934654,
+            0.05823447064287939
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.003048780487804878,
+          "ci95": [
+            -0.01032942394387798,
+            0.016426984919487738
+          ],
+          "signed_mean": 0.015768123689617213,
+          "signed_ci95": [
+            -0.03576189772379502,
+            0.06729814510302945
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.0009225092250922509,
+          "ci95": [
+            -0.016588402468685245,
+            0.014743384018500743
+          ],
+          "signed_mean": -0.03352641969519716,
+          "signed_ci95": [
+            -0.08148051120372438,
+            0.014427671813330059
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.01002004008016032,
+          "ci95": [
+            -0.03808489453417929,
+            0.01804481437385865
+          ],
+          "signed_mean": -0.04350183140310614,
+          "signed_ci95": [
+            -0.1046925412505417,
+            0.01768887844432942
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.019455252918287938,
+          "ci95": [
+            -0.011960529012098042,
+            0.05087103484867392
+          ],
+          "signed_mean": -0.013540716044589859,
+          "signed_ci95": [
+            -0.1525644167079793,
+            0.12548298461879956
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.003048780487804878,
+          "ci95": [
+            -0.01887946508276994,
+            0.012781904107160187
+          ],
+          "signed_mean": -0.028630191138031044,
+          "signed_ci95": [
+            -0.10826261184236805,
+            0.05100222956630596
+          ]
+        }
+      }
+    },
+    "pt_up": {
+      "target_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.1352485463751748,
+          "ci95": [
+            -0.2278161077072769,
+            -0.0426809850430727
+          ],
+          "signed_mean": -0.16437260131376327,
+          "signed_ci95": [
+            -0.4781078041082768,
+            0.14936260148075028
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.014121693471271193,
+          "ci95": [
+            -0.1610892820869435,
+            0.13284589514440115
+          ],
+          "signed_mean": -0.01862231516254155,
+          "signed_ci95": [
+            -0.37332548950506383,
+            0.33608085917998076
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.21565402075938214,
+          "ci95": [
+            -0.3965941874608664,
+            -0.03471385405789787
+          ],
+          "signed_mean": -0.30821290284653496,
+          "signed_ci95": [
+            -1.1773418428523137,
+            0.5609160371592439
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.2565232191870852,
+          "ci95": [
+            -0.4087345348942901,
+            -0.10431190347988029
+          ],
+          "signed_mean": -0.34313035468943587,
+          "signed_ci95": [
+            -1.0238996887114253,
+            0.3376389793325537
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.2011680548728832,
+          "ci95": [
+            -0.3192783495541025,
+            -0.08305776019166387
+          ],
+          "signed_mean": -0.2371254188919493,
+          "signed_ci95": [
+            -0.6237472794463836,
+            0.14949644166248502
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.09965299117660714,
+          "ci95": [
+            -0.29115208281691635,
+            0.09184610046370206
+          ],
+          "signed_mean": -0.07740213884996311,
+          "signed_ci95": [
+            -0.5004691099232929,
+            0.34566483222336664
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.34272114891950256,
+          "ci95": [
+            -0.541115442263185,
+            -0.14432685557582012
+          ],
+          "signed_mean": -1.0030389702476392,
+          "signed_ci95": [
+            -2.035010270890421,
+            0.028932330395142536
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.24469510247794593,
+          "ci95": [
+            -0.45251744184107645,
+            -0.03687276311481544
+          ],
+          "signed_mean": 0.007147385140885591,
+          "signed_ci95": [
+            -0.9241250601380844,
+            0.9384198304198557
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0036900369003690036,
+          "ci95": [
+            -0.014216332187285472,
+            0.021596405988023478
+          ],
+          "signed_mean": -0.014022073105938662,
+          "signed_ci95": [
+            -0.0693453611729357,
+            0.04130121496105838
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.012024048096192385,
+          "ci95": [
+            -0.020381179784159285,
+            0.04442927597654405
+          ],
+          "signed_mean": -0.015796326616138754,
+          "signed_ci95": [
+            -0.08903337570717877,
+            0.05744072247490127
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": -0.011673151750972763,
+          "ci95": [
+            -0.04829182186835689,
+            0.024945518366411366
+          ],
+          "signed_mean": -0.04205142709827548,
+          "signed_ci95": [
+            -0.21384334353866763,
+            0.12974048934211668
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.003048780487804878,
+          "ci95": [
+            -0.012781904107160184,
+            0.018879465082769938
+          ],
+          "signed_mean": 0.009703745501372261,
+          "signed_ci95": [
+            -0.06699238532765185,
+            0.08639987633039638
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.0009225092250922509,
+          "ci95": [
+            -0.013661629892647163,
+            0.015506648342831664
+          ],
+          "signed_mean": -0.019732251034753512,
+          "signed_ci95": [
+            -0.062148903061080944,
+            0.02268440099157392
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": -0.002004008016032064,
+          "ci95": [
+            -0.031687905319043405,
+            0.027679889286979276
+          ],
+          "signed_mean": -0.01849234873144845,
+          "signed_ci95": [
+            -0.0891528126094945,
+            0.052168115146597596
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0,
+          "ci95": [
+            -0.018717384083414806,
+            0.018717384083414806
+          ],
+          "signed_mean": -0.052723240635865136,
+          "signed_ci95": [
+            -0.1454315278745765,
+            0.03998504660284622
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": 0.006097560975609756,
+          "ci95": [
+            -0.0023402957960656275,
+            0.01453541774728514
+          ],
+          "signed_mean": 0.0017346322678246486,
+          "signed_ci95": [
+            -0.03169886516706039,
+            0.035168129702709695
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": -0.0009225092250922509,
+          "ci95": [
+            -0.016164916259219845,
+            0.014319897809035344
+          ],
+          "signed_mean": 0.02476009205547218,
+          "signed_ci95": [
+            -0.02130280373804759,
+            0.07082298784899195
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.0,
+          "ci95": [
+            -0.02942287729991693,
+            0.02942287729991693
+          ],
+          "signed_mean": 0.03852424502862826,
+          "signed_ci95": [
+            -0.03431838531891281,
+            0.11136687537616932
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.0038910505836575876,
+          "ci95": [
+            -0.016320415122735316,
+            0.02410251629005049
+          ],
+          "signed_mean": -0.04293843645452197,
+          "signed_ci95": [
+            -0.13139791573315285,
+            0.04552104282410889
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.006097560975609756,
+          "ci95": [
+            -0.023012054455681927,
+            0.010816932504462412
+          ],
+          "signed_mean": 0.04703751528539911,
+          "signed_ci95": [
+            -0.024706464181718665,
+            0.11878149475251688
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 1084,
+          "sum_weight": 167619.68413678271,
+          "n_negative_weights": 283,
+          "mean": 0.005535055350553505,
+          "ci95": [
+            -0.011237242119027857,
+            0.022307352820134865
+          ],
+          "signed_mean": -0.014815016754886725,
+          "signed_ci95": [
+            -0.06638780339713309,
+            0.03675776988735964
+          ]
+        },
+        "background": {
+          "n": 499,
+          "sum_weight": 88772.77472145308,
+          "n_negative_weights": 62,
+          "mean": 0.004008016032064128,
+          "ci95": [
+            -0.025412755346703488,
+            0.033428787410831745
+          ],
+          "signed_mean": 0.00999287593908962,
+          "signed_ci95": [
+            -0.053033013421163816,
+            0.07301876529934306
+          ]
+        },
+        "lvbb": {
+          "n": 257,
+          "sum_weight": 33102.04521252251,
+          "n_negative_weights": 100,
+          "mean": 0.019455252918287938,
+          "ci95": [
+            -0.017113747905136756,
+            0.05602425374171263
+          ],
+          "signed_mean": -0.09140319887959711,
+          "signed_ci95": [
+            -0.2713061124164643,
+            0.0884997146572701
+          ]
+        },
+        "qqbb": {
+          "n": 328,
+          "sum_weight": 45744.86420280712,
+          "n_negative_weights": 121,
+          "mean": -0.003048780487804878,
+          "ci95": [
+            -0.018879465082769938,
+            0.012781904107160184
+          ],
+          "signed_mean": -0.007536385507353222,
+          "signed_ci95": [
+            -0.08415785290348028,
+            0.06908508188877384
+          ]
+        }
+      }
+    },
+    "tag_neutral": {
+      "target_w_margin": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.0022272870332335007,
+          "ci95": [
+            -0.006482640348599068,
+            0.0020280662821320662
+          ],
+          "signed_mean": -0.02298865770774895,
+          "signed_ci95": [
+            -0.03802095736822162,
+            -0.007956358047276277
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.0026247246541838713,
+          "ci95": [
+            -0.00852567924490843,
+            0.0032762299365406873
+          ],
+          "signed_mean": -0.007654171509197323,
+          "signed_ci95": [
+            -0.02132571674872116,
+            0.006017373730326514
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.002253638400185493,
+          "ci95": [
+            -0.005571972955192876,
+            0.010079249755563862
+          ],
+          "signed_mean": -0.04393549018157029,
+          "signed_ci95": [
+            -0.12007408297540129,
+            0.03220310261226072
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -0.005458750586578812,
+          "ci95": [
+            -0.014782301027254068,
+            0.003864799854096445
+          ],
+          "signed_mean": -0.08398560466279742,
+          "signed_ci95": [
+            -0.22235160153258154,
+            0.054380392206986705
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.002218371208715616,
+          "ci95": [
+            -0.007174993169637682,
+            0.0027382507522064493
+          ],
+          "signed_mean": -0.01922868707999275,
+          "signed_ci95": [
+            -0.03589016430189498,
+            -0.002567209858090516
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.0004539597725522691,
+          "ci95": [
+            -0.006511917025547306,
+            0.007419836570651844
+          ],
+          "signed_mean": -0.0027433127884007942,
+          "signed_ci95": [
+            -0.01878676575598863,
+            0.013300140179187042
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 1.6908491811444683e-05,
+          "ci95": [
+            -0.009420700793580719,
+            0.00945451777720361
+          ],
+          "signed_mean": -0.04247706017502436,
+          "signed_ci95": [
+            -0.11793467389018131,
+            0.032980553540132594
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -0.009571545365927876,
+          "ci95": [
+            -0.019869890509870758,
+            0.000726799778015005
+          ],
+          "signed_mean": -0.08394783836096545,
+          "signed_ci95": [
+            -0.22072954023329536,
+            0.05283386351136446
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.0037174721189591076,
+          "ci95": [
+            -0.011003717472118956,
+            0.003568773234200741
+          ],
+          "signed_mean": -0.017624216656018758,
+          "signed_ci95": [
+            -0.05252187629765035,
+            0.017273442985612834
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.007246376811594203,
+          "ci95": [
+            -0.021449275362318842,
+            0.006956521739130437
+          ],
+          "signed_mean": -0.02448772597528989,
+          "signed_ci95": [
+            -0.07245754024965073,
+            0.02348208829907095
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.0037174721189591076,
+          "ci95": [
+            -0.011003717472118956,
+            0.003568773234200741
+          ],
+          "signed_mean": -0.017624216656018758,
+          "signed_ci95": [
+            -0.05252187629765035,
+            0.017273442985612834
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.007246376811594203,
+          "ci95": [
+            -0.021449275362318842,
+            0.006956521739130437
+          ],
+          "signed_mean": -0.02448772597528989,
+          "signed_ci95": [
+            -0.07245754024965073,
+            0.02348208829907095
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    "tag_down": {
+      "target_w_margin": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.4346202052714213,
+          "ci95": [
+            -0.6030349165718301,
+            -0.26620549397101256
+          ],
+          "signed_mean": -0.3059907384429855,
+          "signed_ci95": [
+            -0.8637271981821848,
+            0.25174572129621375
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.3042092971719693,
+          "ci95": [
+            -0.5358443950115344,
+            -0.07257419933240428
+          ],
+          "signed_mean": 0.24885448529853763,
+          "signed_ci95": [
+            -0.29060100341792294,
+            0.7883099740149981
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -0.6385689324909641,
+          "ci95": [
+            -0.9914071511197118,
+            -0.28573071386221655
+          ],
+          "signed_mean": -2.60705899148051,
+          "signed_ci95": [
+            -6.225985456485674,
+            1.0118674735246542
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -0.5121837448382723,
+          "ci95": [
+            -0.8511265105787286,
+            -0.1732409790978161
+          ],
+          "signed_mean": -0.7026399688204407,
+          "signed_ci95": [
+            -2.991879138346879,
+            1.5865992007059972
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.613984957725142,
+          "ci95": [
+            -0.8082890624211241,
+            -0.41968085302916003
+          ],
+          "signed_mean": -0.39137804201704435,
+          "signed_ci95": [
+            -0.9977463348827773,
+            0.21499025084868856
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.5071580682111823,
+          "ci95": [
+            -0.7729228293540685,
+            -0.24139330706829598
+          ],
+          "signed_mean": -0.19600355344719733,
+          "signed_ci95": [
+            -0.7040960038798978,
+            0.31208889698550313
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -1.0600646157418527,
+          "ci95": [
+            -1.4517327248116303,
+            -0.6683965066720752
+          ],
+          "signed_mean": -1.4571991251363412,
+          "signed_ci95": [
+            -3.6099602447446957,
+            0.6955619944720131
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -0.42681353679601697,
+          "ci95": [
+            -0.824889468307743,
+            -0.028737605284290924
+          ],
+          "signed_mean": -0.2312314968468393,
+          "signed_ci95": [
+            -2.8719404716851415,
+            2.4094774779914627
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.01858736059479554,
+          "ci95": [
+            -0.0564530339110378,
+            0.019278312721446724
+          ],
+          "signed_mean": -0.06910471691863164,
+          "signed_ci95": [
+            -0.18954322817914582,
+            0.05133379434188255
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.014492753623188406,
+          "ci95": [
+            -0.08130888088870082,
+            0.05232337364232401
+          ],
+          "signed_mean": -0.07837688810470164,
+          "signed_ci95": [
+            -0.217846289185688,
+            0.06109251297628471
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -0.03225806451612903,
+          "ci95": [
+            -0.09548387096774193,
+            0.030967741935483864
+          ],
+          "signed_mean": -0.17204786404216071,
+          "signed_ci95": [
+            -0.6338341198807835,
+            0.2897383917964621
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -0.014492753623188406,
+          "ci95": [
+            -0.04289855072463768,
+            0.013913043478260867
+          ],
+          "signed_mean": 0.10340765240876514,
+          "signed_ci95": [
+            -0.175643790401659,
+            0.3824590952191893
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.011152416356877323,
+          "ci95": [
+            -0.008114898196186321,
+            0.03041973090994097
+          ],
+          "signed_mean": 0.026691836947497518,
+          "signed_ci95": [
+            -0.011857805643691485,
+            0.06524147953868652
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.021739130434782608,
+          "ci95": [
+            -0.015799002699440325,
+            0.05927726356900554
+          ],
+          "signed_mean": 0.037086606554182486,
+          "signed_ci95": [
+            -0.015538218888801303,
+            0.08971143199716627
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.011152416356877323,
+          "ci95": [
+            -0.03041973090994097,
+            0.008114898196186321
+          ],
+          "signed_mean": -0.02272123608994136,
+          "signed_ci95": [
+            -0.08707058933776529,
+            0.04162811715788258
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.021739130434782608,
+          "ci95": [
+            -0.059277263569005534,
+            0.015799002699440318
+          ],
+          "signed_mean": -0.03156970968127202,
+          "signed_ci95": [
+            -0.1206395720911882,
+            0.05750015272864415
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.011152416356877323,
+          "ci95": [
+            -0.04905991865391123,
+            0.026755085940156582
+          ],
+          "signed_mean": -0.056374515718297935,
+          "signed_ci95": [
+            -0.17593235939386365,
+            0.06318332795726779
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.014492753623188406,
+          "ci95": [
+            -0.08130888088870082,
+            0.05232337364232401
+          ],
+          "signed_mean": -0.07864916241833736,
+          "signed_ci95": [
+            -0.2181173681217037,
+            0.06081904328502899
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.0,
+          "ci95": [
+            -0.06374194404776885,
+            0.06374194404776885
+          ],
+          "signed_mean": -0.08661930269833414,
+          "signed_ci95": [
+            -0.4844519553225426,
+            0.31121334992587435
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -0.014492753623188406,
+          "ci95": [
+            -0.04289855072463768,
+            0.013913043478260867
+          ],
+          "signed_mean": 0.10340765240876514,
+          "signed_ci95": [
+            -0.175643790401659,
+            0.3824590952191893
+          ]
+        }
+      }
+    },
+    "tag_up": {
+      "target_w_margin": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.3512332191808516,
+          "ci95": [
+            0.1744095228872943,
+            0.5280569154744089
+          ],
+          "signed_mean": 0.6331586731772799,
+          "signed_ci95": [
+            0.05799673044071152,
+            1.2083206159138484
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.3856954612377761,
+          "ci95": [
+            0.11480822425042131,
+            0.6565826982251308
+          ],
+          "signed_mean": 0.6357655072796844,
+          "signed_ci95": [
+            0.06370474513225255,
+            1.2078262694271162
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.37215874031666785,
+          "ci95": [
+            0.07016381822219753,
+            0.6741536624111382
+          ],
+          "signed_mean": 1.2144842813511036,
+          "signed_ci95": [
+            -0.8671547688134702,
+            3.2961233315156777
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.26350609288699384,
+          "ci95": [
+            -0.06909871755782598,
+            0.5961109033318137
+          ],
+          "signed_mean": -0.06338705727965814,
+          "signed_ci95": [
+            -2.403364815490577,
+            2.276590700931261
+          ]
+        }
+      },
+      "pair_w_margin": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.4945530510303256,
+          "ci95": [
+            0.2862535724492612,
+            0.70285252961139
+          ],
+          "signed_mean": 0.6022382782982612,
+          "signed_ci95": [
+            -0.0778413275596882,
+            1.2823178841562104
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.4651128183240476,
+          "ci95": [
+            0.1478350392700919,
+            0.7823905973780033
+          ],
+          "signed_mean": 0.8028882407890211,
+          "signed_ci95": [
+            0.11714531544142204,
+            1.4886311661366203
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.7396945261186169,
+          "ci95": [
+            0.36024058712757223,
+            1.1191484651096615
+          ],
+          "signed_mean": 0.8622237928255432,
+          "signed_ci95": [
+            -1.2013827945488829,
+            2.925830380199969
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.3331614663635475,
+          "ci95": [
+            -0.04148548200606955,
+            0.7078084147331645
+          ],
+          "signed_mean": -0.8224619353678511,
+          "signed_ci95": [
+            -3.7996239599120534,
+            2.154700089176351
+          ]
+        }
+      },
+      "pair_winner_target": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.011152416356877323,
+          "ci95": [
+            -0.04457776503577299,
+            0.022272932322018338
+          ],
+          "signed_mean": -0.05757258856298332,
+          "signed_ci95": [
+            -0.154007964665062,
+            0.03886278753909536
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": -0.028985507246376812,
+          "ci95": [
+            -0.08579710144927537,
+            0.02782608695652174
+          ],
+          "signed_mean": -0.0689773786587994,
+          "signed_ci95": [
+            -0.1537141640822244,
+            0.015759406764625616
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": 0.016129032258064516,
+          "ci95": [
+            -0.05502159023642317,
+            0.0872796547525522
+          ],
+          "signed_mean": -0.05239880109205832,
+          "signed_ci95": [
+            -0.5442146001042948,
+            0.43941699792017813
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "target_w_claim": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": -0.007434944237918215,
+          "ci95": [
+            -0.03473388461190051,
+            0.01986399613606408
+          ],
+          "signed_mean": 0.05226870151154214,
+          "signed_ci95": [
+            -0.020094904251940562,
+            0.12463230727502485
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.0,
+          "ci95": [
+            -0.04937952040939272,
+            0.04937952040939272
+          ],
+          "signed_mean": 0.03818297100044731,
+          "signed_ci95": [
+            -0.04600373999334,
+            0.12236968199423462
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -0.016129032258064516,
+          "ci95": [
+            -0.04774193548387097,
+            0.015483870967741939
+          ],
+          "signed_mean": 0.07802164475479191,
+          "signed_ci95": [
+            -0.12090249252914113,
+            0.27694578203872494
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": -0.014492753623188406,
+          "ci95": [
+            -0.04289855072463768,
+            0.013913043478260867
+          ],
+          "signed_mean": 0.10065876722757017,
+          "signed_ci95": [
+            -0.16780343611834914,
+            0.36912097057348947
+          ]
+        }
+      },
+      "lep_verdict_change": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.011152416356877323,
+          "ci95": [
+            -0.015133591445384663,
+            0.03743842415913931
+          ],
+          "signed_mean": 0.006816912035697701,
+          "signed_ci95": [
+            -0.07716476257903201,
+            0.09079858665042742
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.021739130434782608,
+          "ci95": [
+            -0.020869565217391313,
+            0.06434782608695652
+          ],
+          "signed_mean": 0.04668004691750341,
+          "signed_ci95": [
+            -0.049160346045549044,
+            0.14252043988055585
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -0.03225806451612903,
+          "ci95": [
+            -0.07659749263560717,
+            0.012081363603349111
+          ],
+          "signed_mean": -0.16453526135908006,
+          "signed_ci95": [
+            -0.4636380634843834,
+            0.13456754076622326
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.028985507246376812,
+          "ci95": [
+            -0.010889880895161432,
+            0.06886089538791505
+          ],
+          "signed_mean": -0.014605388135715046,
+          "signed_ci95": [
+            -0.27891910791103475,
+            0.24970833163960465
+          ]
+        }
+      },
+      "winner_swap": {
+        "all": {
+          "n": 269,
+          "sum_weight": 46670.762584042895,
+          "n_negative_weights": 74,
+          "mean": 0.01858736059479554,
+          "ci95": [
+            -0.014790542568802096,
+            0.05196526375839318
+          ],
+          "signed_mean": 0.05875910396922425,
+          "signed_ci95": [
+            -0.037767939459654995,
+            0.15528614739810348
+          ]
+        },
+        "background": {
+          "n": 138,
+          "sum_weight": 33589.71070293711,
+          "n_negative_weights": 19,
+          "mean": 0.043478260869565216,
+          "ci95": [
+            -0.013073562451605888,
+            0.10003008419073632
+          ],
+          "signed_mean": 0.07062596620743039,
+          "signed_ci95": [
+            -0.014104859314522294,
+            0.15535679172938308
+          ]
+        },
+        "lvbb": {
+          "n": 62,
+          "sum_weight": 7061.734434069715,
+          "n_negative_weights": 26,
+          "mean": -0.016129032258064516,
+          "ci95": [
+            -0.0872796547525522,
+            0.05502159023642317
+          ],
+          "signed_mean": 0.05239880109205832,
+          "signed_ci95": [
+            -0.43941699792017813,
+            0.5442146001042948
+          ]
+        },
+        "qqbb": {
+          "n": 69,
+          "sum_weight": 6019.317447036073,
+          "n_negative_weights": 29,
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "signed_mean": 0.0,
+          "signed_ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    }
+  }
+}

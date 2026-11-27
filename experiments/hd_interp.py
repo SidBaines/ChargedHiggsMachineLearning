@@ -135,13 +135,7 @@ def make_loader(cfg, data_dir, device, signal_only, position_split, batch_size=2
 # --------------------------------------------------------------------------- #
 def backbone_residuals(model, object_features, object_types):
     """Return [emb, after_block0, after_block1, ...] each [B, n_obj, d_model]."""
-    type_emb = model.type_embedding(object_types)
-    if model.use_lorentz_invariant_features:
-        inv = model.invariant_features(object_features[..., :4])
-    else:
-        inv = object_features[..., :4]
-    combined = torch.cat([inv, object_features[..., 4:], type_emb], dim=-1)
-    of = model.object_net(combined)
+    of = model.embed_objects(object_features, object_types)
     res = [of]
     kpm = (object_types == (model.num_particle_types - 1))
     for block in model.attention_blocks:

@@ -1,0 +1,1108 @@
+{
+  "pool_sizes": {
+    "fine_tune": 144000,
+    "calibration": 120002,
+    "confirmation": 150002
+  },
+  "total_original_train_odd_rows": 11647664,
+  "n_source_datasets": 49,
+  "normalization_totals": {
+    "background": {
+      "sidecar_expected": 815050.5825122669,
+      "fine_tune_actual_scaled": 811630.8649842206,
+      "fine_tune_all_rows_in_residue_scaled": 814791.1945162655,
+      "fine_tune_train_weights": 814030.9649888938,
+      "fine_tune_sampling_variance": 2820683.1804374573,
+      "calibration_actual_scaled": 814966.0764737681,
+      "calibration_all_rows_in_residue_scaled": 815440.5031684937,
+      "calibration_train_weights": 815323.851088321,
+      "calibration_sampling_variance": 2262161.7891525594,
+      "confirmation_actual_scaled": 816741.8327956714,
+      "confirmation_all_rows_in_residue_scaled": 815067.4473731432,
+      "confirmation_train_weights": 816444.1049701719,
+      "confirmation_sampling_variance": 2255192.9519556165,
+      "fine_tune_sampling_se": 1679.4889640713502,
+      "calibration_sampling_se": 1504.0484663575703,
+      "confirmation_sampling_se": 1501.7299863675948
+    },
+    "signal": {
+      "sidecar_expected": 360580.7734375,
+      "fine_tune_actual_scaled": 359897.11322641163,
+      "fine_tune_all_rows_in_residue_scaled": 357933.36447707575,
+      "fine_tune_train_weights": 813203.8596292904,
+      "fine_tune_sampling_variance": 33924524.45216004,
+      "confirmation_actual_scaled": 374473.06725756545,
+      "confirmation_all_rows_in_residue_scaled": 362342.30029313726,
+      "confirmation_train_weights": 815985.9875931344,
+      "confirmation_sampling_variance": 57407834.99272638,
+      "fine_tune_sampling_se": 5824.476324285303,
+      "confirmation_sampling_se": 7576.795826253099
+    }
+  },
+  "normalization_by_dsid": {
+    "363355": {
+      "population": 1,
+      "sidecar_signed": 0.06452963501214981,
+      "sidecar_absolute": 0.06452963501214981
+    },
+    "363356": {
+      "population": 6584,
+      "sidecar_signed": 100.64186096191406,
+      "sidecar_absolute": 133.05624389648438,
+      "fine_tune": {
+        "n": 31,
+        "actual": 98.75407316115113,
+        "residue_expected": 100.72476040420224,
+        "sampling_se": 20.672537824855453
+      },
+      "calibration": {
+        "n": 39,
+        "actual": 106.74379344017078,
+        "residue_expected": 94.63208943590143,
+        "sampling_se": 19.203346132730484
+      },
+      "confirmation": {
+        "n": 39,
+        "actual": 102.35369747828165,
+        "residue_expected": 99.23843678538833,
+        "sampling_se": 18.454146027878174
+      }
+    },
+    "363358": {
+      "population": 2579,
+      "sidecar_signed": 50.501251220703125,
+      "sidecar_absolute": 52.507049560546875,
+      "fine_tune": {
+        "n": 12,
+        "actual": 50.1317026821586,
+        "residue_expected": 49.21928032978859,
+        "sampling_se": 13.024202390236006
+      },
+      "calibration": {
+        "n": 15,
+        "actual": 60.827803709978866,
+        "residue_expected": 48.990651951366736,
+        "sampling_se": 12.238685743262383
+      },
+      "confirmation": {
+        "n": 15,
+        "actual": 43.21315756936092,
+        "residue_expected": 51.742817355558294,
+        "sampling_se": 13.33651620439735
+      }
+    },
+    "363359": {
+      "population": 2771,
+      "sidecar_signed": 284.6510009765625,
+      "sidecar_absolute": 304.16748046875,
+      "fine_tune": {
+        "n": 13,
+        "actual": 217.24038717537547,
+        "residue_expected": 275.21586978022987,
+        "sampling_se": 74.41465109204044
+      },
+      "calibration": {
+        "n": 16,
+        "actual": 240.14510536091984,
+        "residue_expected": 267.8569710699047,
+        "sampling_se": 68.50207600690784
+      },
+      "confirmation": {
+        "n": 16,
+        "actual": 290.33305635955185,
+        "residue_expected": 292.35283746530604,
+        "sampling_se": 69.45118926366406
+      }
+    },
+    "363360": {
+      "population": 1586,
+      "sidecar_signed": 279.2276306152344,
+      "sidecar_absolute": 300.8453369140625,
+      "fine_tune": {
+        "n": 7,
+        "actual": 293.14189900351425,
+        "residue_expected": 271.386878171821,
+        "sampling_se": 77.24731845371117
+      },
+      "calibration": {
+        "n": 9,
+        "actual": 354.33612394498454,
+        "residue_expected": 279.2898056196999,
+        "sampling_se": 81.09578732156889
+      },
+      "confirmation": {
+        "n": 9,
+        "actual": 359.51784101149275,
+        "residue_expected": 270.28323134058746,
+        "sampling_se": 62.52261893103709
+      }
+    },
+    "363489": {
+      "population": 48110,
+      "sidecar_signed": 1767.179443359375,
+      "sidecar_absolute": 2154.390625,
+      "fine_tune": {
+        "n": 225,
+        "actual": 1531.1011938269348,
+        "residue_expected": 1764.5540648637623,
+        "sampling_se": 150.43104663658218
+      },
+      "calibration": {
+        "n": 282,
+        "actual": 2004.7102184352698,
+        "residue_expected": 1762.0242548326598,
+        "sampling_se": 130.95725149710046
+      },
+      "confirmation": {
+        "n": 282,
+        "actual": 1694.9298506027812,
+        "residue_expected": 1735.7320474877988,
+        "sampling_se": 136.70009450824963
+      }
+    },
+    "410470": {
+      "population": 6109358,
+      "sidecar_signed": 747085.25,
+      "sidecar_absolute": 759675.4375,
+      "fine_tune": {
+        "n": 28628,
+        "actual": 744483.9480202162,
+        "residue_expected": 747114.6173597863,
+        "sampling_se": 1514.5138515826382
+      },
+      "calibration": {
+        "n": 35785,
+        "actual": 746942.9381912174,
+        "residue_expected": 747289.5099766774,
+        "sampling_se": 1348.5299489271092
+      },
+      "confirmation": {
+        "n": 35785,
+        "actual": 747618.471783933,
+        "residue_expected": 747199.6409246413,
+        "sampling_se": 1348.8154135362765
+      }
+    },
+    "410646": {
+      "population": 136349,
+      "sidecar_signed": 15772.1005859375,
+      "sidecar_absolute": 16009.59765625,
+      "fine_tune": {
+        "n": 639,
+        "actual": 15673.113865319505,
+        "residue_expected": 15699.511306099323,
+        "sampling_se": 216.95771837835088
+      },
+      "calibration": {
+        "n": 799,
+        "actual": 15608.072220039234,
+        "residue_expected": 15744.44040604085,
+        "sampling_se": 188.982548667149
+      },
+      "confirmation": {
+        "n": 799,
+        "actual": 16059.63175922113,
+        "residue_expected": 15730.223213825187,
+        "sampling_se": 190.73788813215248
+      }
+    },
+    "410647": {
+      "population": 135723,
+      "sidecar_signed": 15711.5576171875,
+      "sidecar_absolute": 15949.0361328125,
+      "fine_tune": {
+        "n": 636,
+        "actual": 15798.939505381695,
+        "residue_expected": 15681.928198218666,
+        "sampling_se": 211.63654110663848
+      },
+      "calibration": {
+        "n": 795,
+        "actual": 15488.716026080961,
+        "residue_expected": 15680.932449882319,
+        "sampling_se": 192.65840408338315
+      },
+      "confirmation": {
+        "n": 795,
+        "actual": 15913.608056198687,
+        "residue_expected": 15728.281478246734,
+        "sampling_se": 187.63519859680468
+      }
+    },
+    "412043": {
+      "population": 1969537,
+      "sidecar_signed": 195.37939453125,
+      "sidecar_absolute": 577.769287109375,
+      "fine_tune": {
+        "n": 9229,
+        "actual": 198.05246525039288,
+        "residue_expected": 194.7926672515014,
+        "sampling_se": 5.8201731768959295
+      },
+      "calibration": {
+        "n": 11536,
+        "actual": 206.1706560523129,
+        "residue_expected": 196.36881028056206,
+        "sampling_se": 5.180464611930386
+      },
+      "confirmation": {
+        "n": 11536,
+        "actual": 193.37440430376796,
+        "residue_expected": 195.72411665385357,
+        "sampling_se": 5.180268984146543
+      }
+    },
+    "413008": {
+      "population": 756896,
+      "sidecar_signed": 2323.005126953125,
+      "sidecar_absolute": 3196.17578125,
+      "fine_tune": {
+        "n": 3547,
+        "actual": 2235.4248319446706,
+        "residue_expected": 2325.4647248294295,
+        "sampling_se": 51.408718152209396
+      },
+      "calibration": {
+        "n": 4433,
+        "actual": 2387.215458612247,
+        "residue_expected": 2317.7194351970497,
+        "sampling_se": 66.1322687789992
+      },
+      "confirmation": {
+        "n": 4433,
+        "actual": 2364.779360842243,
+        "residue_expected": 2328.4178976501553,
+        "sampling_se": 46.87494906590012
+      }
+    },
+    "413023": {
+      "population": 433073,
+      "sidecar_signed": 320.4407958984375,
+      "sidecar_absolute": 579.2366333007812,
+      "fine_tune": {
+        "n": 2029,
+        "actual": 301.088862197293,
+        "residue_expected": 322.2957331148056,
+        "sampling_se": 14.40039739245075
+      },
+      "calibration": {
+        "n": 2537,
+        "actual": 308.7782702582288,
+        "residue_expected": 315.9881262764266,
+        "sampling_se": 12.012083762905869
+      },
+      "confirmation": {
+        "n": 2537,
+        "actual": 322.64225190996825,
+        "residue_expected": 319.2877338288865,
+        "sampling_se": 11.752984586751728
+      }
+    },
+    "510115": {
+      "population": 250129,
+      "sidecar_signed": 31773.8203125,
+      "sidecar_absolute": 120679.6875,
+      "fine_tune": {
+        "n": 4275,
+        "actual": 33928.81631997541,
+        "residue_expected": 31541.597947339324,
+        "sampling_se": 1731.0515738404827
+      },
+      "confirmation": {
+        "n": 2672,
+        "actual": 35076.997214392046,
+        "residue_expected": 33164.24101792161,
+        "sampling_se": 2239.983146435825
+      }
+    },
+    "510116": {
+      "population": 266019,
+      "sidecar_signed": 33590.6796875,
+      "sidecar_absolute": 129061.6875,
+      "fine_tune": {
+        "n": 4547,
+        "actual": 34104.013365511884,
+        "residue_expected": 33542.374892319756,
+        "sampling_se": 1796.0293077700194
+      },
+      "confirmation": {
+        "n": 2842,
+        "actual": 35356.80730847683,
+        "residue_expected": 32504.635251542713,
+        "sampling_se": 2342.5734915141707
+      }
+    },
+    "510117": {
+      "population": 276448,
+      "sidecar_signed": 35282.734375,
+      "sidecar_absolute": 133903.921875,
+      "fine_tune": {
+        "n": 4725,
+        "actual": 33665.42162486274,
+        "residue_expected": 35291.93386790553,
+        "sampling_se": 1821.945746606616
+      },
+      "confirmation": {
+        "n": 2953,
+        "actual": 36309.59714926193,
+        "residue_expected": 35118.08468103113,
+        "sampling_se": 2372.78988474515
+      }
+    },
+    "510118": {
+      "population": 286516,
+      "sidecar_signed": 37017.40234375,
+      "sidecar_absolute": 139024.25,
+      "fine_tune": {
+        "n": 4897,
+        "actual": 40254.62250680472,
+        "residue_expected": 37659.62784969564,
+        "sampling_se": 1856.704707441908
+      },
+      "confirmation": {
+        "n": 3061,
+        "actual": 39314.862813294894,
+        "residue_expected": 37355.77855467872,
+        "sampling_se": 2419.5636766445896
+      }
+    },
+    "510119": {
+      "population": 289500,
+      "sidecar_signed": 37180.26171875,
+      "sidecar_absolute": 140214.625,
+      "fine_tune": {
+        "n": 4948,
+        "actual": 37910.214270076205,
+        "residue_expected": 37793.11378837487,
+        "sampling_se": 1858.722752486524
+      },
+      "confirmation": {
+        "n": 3093,
+        "actual": 36358.260158466874,
+        "residue_expected": 36650.627951892675,
+        "sampling_se": 2433.890762359378
+      }
+    },
+    "510120": {
+      "population": 292651,
+      "sidecar_signed": 37462.23828125,
+      "sidecar_absolute": 141971.96875,
+      "fine_tune": {
+        "n": 5002,
+        "actual": 35572.689706652905,
+        "residue_expected": 36423.024598032745,
+        "sampling_se": 1882.697565623145
+      },
+      "confirmation": {
+        "n": 3126,
+        "actual": 42252.294172282105,
+        "residue_expected": 38331.33852741894,
+        "sampling_se": 2446.964246255677
+      }
+    },
+    "510121": {
+      "population": 289557,
+      "sidecar_signed": 37611.24609375,
+      "sidecar_absolute": 141949.359375,
+      "fine_tune": {
+        "n": 4949,
+        "actual": 37670.64223195507,
+        "residue_expected": 36515.35606438894,
+        "sampling_se": 1890.7231181347029
+      },
+      "confirmation": {
+        "n": 3093,
+        "actual": 40395.04297975457,
+        "residue_expected": 37944.89512233399,
+        "sampling_se": 2460.0778495685086
+      }
+    },
+    "510122": {
+      "population": 289483,
+      "sidecar_signed": 37300.703125,
+      "sidecar_absolute": 140708.90625,
+      "fine_tune": {
+        "n": 4948,
+        "actual": 35574.45600853156,
+        "residue_expected": 37483.33253772053,
+        "sampling_se": 1873.7036682475539
+      },
+      "confirmation": {
+        "n": 3093,
+        "actual": 31868.203131614588,
+        "residue_expected": 37045.113943085176,
+        "sampling_se": 2440.5066799463293
+      }
+    },
+    "510123": {
+      "population": 287128,
+      "sidecar_signed": 36784.8671875,
+      "sidecar_absolute": 139589.125,
+      "fine_tune": {
+        "n": 4908,
+        "actual": 37602.98020225567,
+        "residue_expected": 35493.86667876651,
+        "sampling_se": 1875.7540636764768
+      },
+      "confirmation": {
+        "n": 3067,
+        "actual": 39820.02651615286,
+        "residue_expected": 37375.37553593746,
+        "sampling_se": 2427.6798267626405
+      }
+    },
+    "510124": {
+      "population": 280810,
+      "sidecar_signed": 36576.8203125,
+      "sidecar_absolute": 135160.1875,
+      "fine_tune": {
+        "n": 4800,
+        "actual": 33613.25698978552,
+        "residue_expected": 36189.13625253198,
+        "sampling_se": 1825.3689777176887
+      },
+      "confirmation": {
+        "n": 3000,
+        "actual": 37720.975813868725,
+        "residue_expected": 36852.20970729486,
+        "sampling_se": 2367.508442045282
+      }
+    },
+    "700320": {
+      "population": 1427556,
+      "sidecar_signed": 1177.9635009765625,
+      "sidecar_absolute": 2149.28173828125,
+      "fine_tune": {
+        "n": 6689,
+        "actual": 1167.6396342186765,
+        "residue_expected": 1169.6223621735408,
+        "sampling_se": 55.13247651237097
+      },
+      "calibration": {
+        "n": 8362,
+        "actual": 1121.4979520919708,
+        "residue_expected": 1186.0180824713605,
+        "sampling_se": 47.0388661167394
+      },
+      "confirmation": {
+        "n": 8362,
+        "actual": 1185.6745414659536,
+        "residue_expected": 1180.1318552737707,
+        "sampling_se": 49.79889504145902
+      }
+    },
+    "700321": {
+      "population": 134926,
+      "sidecar_signed": 188.39999389648438,
+      "sidecar_absolute": 343.7106628417969,
+      "fine_tune": {
+        "n": 632,
+        "actual": 156.94834638961373,
+        "residue_expected": 194.181569534102,
+        "sampling_se": 27.978114286023704
+      },
+      "calibration": {
+        "n": 790,
+        "actual": 222.02406827930253,
+        "residue_expected": 193.23721694997346,
+        "sampling_se": 25.214787993248247
+      },
+      "confirmation": {
+        "n": 790,
+        "actual": 169.8833329006996,
+        "residue_expected": 190.9402945038428,
+        "sampling_se": 26.079106587387507
+      }
+    },
+    "700322": {
+      "population": 4607,
+      "sidecar_signed": 22.975017547607422,
+      "sidecar_absolute": 40.51329803466797,
+      "fine_tune": {
+        "n": 22,
+        "actual": 24.478427292200998,
+        "residue_expected": 17.58484561965207,
+        "sampling_se": 15.200081126049659
+      },
+      "calibration": {
+        "n": 27,
+        "actual": 28.006959963057408,
+        "residue_expected": 27.73521996389848,
+        "sampling_se": 17.60870099374722
+      },
+      "confirmation": {
+        "n": 27,
+        "actual": 19.05540330590453,
+        "residue_expected": 21.795538395435827,
+        "sampling_se": 16.474574500849165
+      }
+    },
+    "700323": {
+      "population": 901469,
+      "sidecar_signed": 592.4055786132812,
+      "sidecar_absolute": 1059.5816650390625,
+      "fine_tune": {
+        "n": 4224,
+        "actual": 579.1622995153359,
+        "residue_expected": 580.7729050228659,
+        "sampling_se": 31.374132446152377
+      },
+      "calibration": {
+        "n": 5280,
+        "actual": 604.9566646454364,
+        "residue_expected": 597.0443662646242,
+        "sampling_se": 28.723600903091196
+      },
+      "confirmation": {
+        "n": 5280,
+        "actual": 605.9327473096428,
+        "residue_expected": 589.1495760294481,
+        "sampling_se": 27.958445098863315
+      }
+    },
+    "700324": {
+      "population": 89117,
+      "sidecar_signed": 102.2138900756836,
+      "sidecar_absolute": 183.67706298828125,
+      "fine_tune": {
+        "n": 418,
+        "actual": 162.79031875764792,
+        "residue_expected": 104.591764892376,
+        "sampling_se": 20.012734157844704
+      },
+      "calibration": {
+        "n": 522,
+        "actual": 99.51805294000812,
+        "residue_expected": 99.66422644521919,
+        "sampling_se": 17.526958272053005
+      },
+      "confirmation": {
+        "n": 522,
+        "actual": 68.03478751336678,
+        "residue_expected": 99.88964213949187,
+        "sampling_se": 15.893611312175192
+      }
+    },
+    "700325": {
+      "population": 2121,
+      "sidecar_signed": 7.4377007484436035,
+      "sidecar_absolute": 14.02993392944336,
+      "fine_tune": {
+        "n": 10,
+        "actual": 29.033038950059566,
+        "residue_expected": 13.80575026290786,
+        "sampling_se": 40.369712751139716
+      },
+      "calibration": {
+        "n": 12,
+        "actual": -5.162814990399056,
+        "residue_expected": 7.711979767307094,
+        "sampling_se": 7.702932693623862
+      },
+      "confirmation": {
+        "n": 12,
+        "actual": 5.717693669517757,
+        "residue_expected": 4.900684730047977,
+        "sampling_se": 15.349179027475692
+      }
+    },
+    "700326": {
+      "population": 279003,
+      "sidecar_signed": 108.40840911865234,
+      "sidecar_absolute": 200.55874633789062,
+      "fine_tune": {
+        "n": 1307,
+        "actual": 92.08619011282182,
+        "residue_expected": 106.33660698969618,
+        "sampling_se": 10.536757356260438
+      },
+      "calibration": {
+        "n": 1634,
+        "actual": 109.39730815495005,
+        "residue_expected": 110.0066734321589,
+        "sampling_se": 9.471212863311335
+      },
+      "confirmation": {
+        "n": 1634,
+        "actual": 103.8405085759727,
+        "residue_expected": 109.3743310111344,
+        "sampling_se": 8.98519600503184
+      }
+    },
+    "700327": {
+      "population": 32115,
+      "sidecar_signed": 26.11582374572754,
+      "sidecar_absolute": 49.304962158203125,
+      "fine_tune": {
+        "n": 150,
+        "actual": 28.64238653932062,
+        "residue_expected": 27.199807762084443,
+        "sampling_se": 8.060195103208173
+      },
+      "calibration": {
+        "n": 188,
+        "actual": 23.998082031897237,
+        "residue_expected": 26.54214401277815,
+        "sampling_se": 8.866705379949444
+      },
+      "confirmation": {
+        "n": 188,
+        "actual": 28.827684581869633,
+        "residue_expected": 26.387237641956663,
+        "sampling_se": 6.037659577022572
+      }
+    },
+    "700328": {
+      "population": 675,
+      "sidecar_signed": 1.981549859046936,
+      "sidecar_absolute": 4.062267303466797,
+      "fine_tune": {
+        "n": 3,
+        "actual": 1.5139880059905408,
+        "residue_expected": 2.0743937236789756,
+        "sampling_se": 3.7220189298254525
+      },
+      "calibration": {
+        "n": 4,
+        "actual": -1.9880244402884273,
+        "residue_expected": 2.607921372576076,
+        "sampling_se": 4.165133330026251
+      },
+      "confirmation": {
+        "n": 4,
+        "actual": 3.187959713250166,
+        "residue_expected": 2.1628990141510127,
+        "sampling_se": 3.4727356653619768
+      }
+    },
+    "700329": {
+      "population": 492008,
+      "sidecar_signed": 372.6220397949219,
+      "sidecar_absolute": 689.2312622070312,
+      "fine_tune": {
+        "n": 2305,
+        "actual": 361.7704542123357,
+        "residue_expected": 366.8417422204708,
+        "sampling_se": 26.995727958415763
+      },
+      "calibration": {
+        "n": 2882,
+        "actual": 373.2857795081675,
+        "residue_expected": 387.0367782838041,
+        "sampling_se": 24.94694473441232
+      },
+      "confirmation": {
+        "n": 2882,
+        "actual": 352.5621142384839,
+        "residue_expected": 371.002098167746,
+        "sampling_se": 23.378147487023902
+      }
+    },
+    "700330": {
+      "population": 52895,
+      "sidecar_signed": 90.27049255371094,
+      "sidecar_absolute": 167.8948211669922,
+      "fine_tune": {
+        "n": 248,
+        "actual": 120.43356289150528,
+        "residue_expected": 92.07613390133112,
+        "sampling_se": 19.11685823072049
+      },
+      "calibration": {
+        "n": 310,
+        "actual": 94.29182537275925,
+        "residue_expected": 88.49303263602356,
+        "sampling_se": 17.453420349279003
+      },
+      "confirmation": {
+        "n": 310,
+        "actual": 66.69156854063824,
+        "residue_expected": 89.28341728764971,
+        "sampling_se": 17.962508166278784
+      }
+    },
+    "700331": {
+      "population": 1171,
+      "sidecar_signed": 22.867786407470703,
+      "sidecar_absolute": 33.65113830566406,
+      "fine_tune": {
+        "n": 5,
+        "actual": 20.61565208227839,
+        "residue_expected": 9.241416988471348,
+        "sampling_se": 30.60103502261741
+      },
+      "calibration": {
+        "n": 7,
+        "actual": 36.23513943482456,
+        "residue_expected": 28.413244672394274,
+        "sampling_se": 31.102153332324878
+      },
+      "confirmation": {
+        "n": 7,
+        "actual": 59.826062239473686,
+        "residue_expected": 25.394359081410933,
+        "sampling_se": 37.89056750870011
+      }
+    },
+    "700332": {
+      "population": 26168,
+      "sidecar_signed": 17.645273208618164,
+      "sidecar_absolute": 32.44508361816406,
+      "fine_tune": {
+        "n": 123,
+        "actual": 21.734888988057826,
+        "residue_expected": 18.4729952746589,
+        "sampling_se": 5.320136306900836
+      },
+      "calibration": {
+        "n": 153,
+        "actual": 20.941206112490597,
+        "residue_expected": 17.13887569651645,
+        "sampling_se": 4.528369470753606
+      },
+      "confirmation": {
+        "n": 153,
+        "actual": 16.3028199427626,
+        "residue_expected": 17.76193871312561,
+        "sampling_se": 4.288272967978022
+      }
+    },
+    "700333": {
+      "population": 2491,
+      "sidecar_signed": 4.63810920715332,
+      "sidecar_absolute": 7.987423419952393,
+      "fine_tune": {
+        "n": 12,
+        "actual": 2.157808717479687,
+        "residue_expected": 4.996843421057302,
+        "sampling_se": 3.801474614533171
+      },
+      "calibration": {
+        "n": 15,
+        "actual": 3.302172504557529,
+        "residue_expected": 4.920242588347369,
+        "sampling_se": 3.356829253616275
+      },
+      "confirmation": {
+        "n": 15,
+        "actual": -1.631820659505077,
+        "residue_expected": 6.398180020208774,
+        "sampling_se": 8.232087282154255
+      }
+    },
+    "700334": {
+      "population": 44,
+      "sidecar_signed": 0.46398869156837463,
+      "sidecar_absolute": 2.1799232959747314,
+      "fine_tune": {
+        "n": 1,
+        "actual": 2.3483366668224335,
+        "residue_expected": 0.9570860975266745,
+        "sampling_se": 0.8643275901899047
+      },
+      "calibration": {
+        "n": 1,
+        "actual": 0.6040501222014427,
+        "residue_expected": -2.416443902688722,
+        "sampling_se": 4.603180122016045
+      },
+      "confirmation": {
+        "n": 1,
+        "actual": 0.7058184817433357,
+        "residue_expected": -0.44071538746356964,
+        "sampling_se": 5.162465923669708
+      }
+    },
+    "700338": {
+      "population": 3326711,
+      "sidecar_signed": 10478.5126953125,
+      "sidecar_absolute": 18772.662109375,
+      "fine_tune": {
+        "n": 15589,
+        "actual": 10288.328258980466,
+        "residue_expected": 10479.43992061106,
+        "sampling_se": 283.1975476265788
+      },
+      "calibration": {
+        "n": 19486,
+        "actual": 10541.012167168215,
+        "residue_expected": 10487.452461312925,
+        "sampling_se": 256.7815632811583
+      },
+      "confirmation": {
+        "n": 19486,
+        "actual": 10486.215599197189,
+        "residue_expected": 10447.465568845202,
+        "sampling_se": 257.3429710200917
+      }
+    },
+    "700339": {
+      "population": 230499,
+      "sidecar_signed": 2605.56884765625,
+      "sidecar_absolute": 4700.5634765625,
+      "fine_tune": {
+        "n": 1080,
+        "actual": 2168.1693679266336,
+        "residue_expected": 2554.1400977583453,
+        "sampling_se": 269.8944549204178
+      },
+      "calibration": {
+        "n": 1350,
+        "actual": 2330.467295947473,
+        "residue_expected": 2704.273414863719,
+        "sampling_se": 283.97263922637603
+      },
+      "confirmation": {
+        "n": 1350,
+        "actual": 3224.873846437602,
+        "residue_expected": 2573.6101848232242,
+        "sampling_se": 279.85787789505747
+      }
+    },
+    "700340": {
+      "population": 9792,
+      "sidecar_signed": 166.007080078125,
+      "sidecar_absolute": 289.39111328125,
+      "fine_tune": {
+        "n": 46,
+        "actual": 164.38970211674663,
+        "residue_expected": 171.0305978321012,
+        "sampling_se": 83.89441150613224
+      },
+      "calibration": {
+        "n": 57,
+        "actual": 132.88472662768083,
+        "residue_expected": 177.53182444847607,
+        "sampling_se": 82.29629082116989
+      },
+      "confirmation": {
+        "n": 57,
+        "actual": 192.08756563030124,
+        "residue_expected": 163.18913843924184,
+        "sampling_se": 89.28305617790572
+      }
+    },
+    "700341": {
+      "population": 3341290,
+      "sidecar_signed": 10865.9150390625,
+      "sidecar_absolute": 19217.015625,
+      "fine_tune": {
+        "n": 15657,
+        "actual": 11081.403909888868,
+        "residue_expected": 10896.874529580735,
+        "sampling_se": 297.7522715429156
+      },
+      "calibration": {
+        "n": 19571,
+        "actual": 10904.560712758757,
+        "residue_expected": 10890.188633119786,
+        "sampling_se": 264.9335698293891
+      },
+      "confirmation": {
+        "n": 19571,
+        "actual": 11144.529309299644,
+        "residue_expected": 10891.496005586016,
+        "sampling_se": 275.45113133011995
+      }
+    },
+    "700342": {
+      "population": 224921,
+      "sidecar_signed": 2371.772705078125,
+      "sidecar_absolute": 4236.85546875,
+      "fine_tune": {
+        "n": 1054,
+        "actual": 2507.1181878161333,
+        "residue_expected": 2275.4515076263947,
+        "sampling_se": 282.5497136277445
+      },
+      "calibration": {
+        "n": 1317,
+        "actual": 2609.958632445929,
+        "residue_expected": 2479.4334294725754,
+        "sampling_se": 256.9807124531332
+      },
+      "confirmation": {
+        "n": 1317,
+        "actual": 1952.4204967764695,
+        "residue_expected": 2332.5041166318133,
+        "sampling_se": 235.65637369778187
+      }
+    },
+    "700343": {
+      "population": 8815,
+      "sidecar_signed": 139.37796020507812,
+      "sidecar_absolute": 262.0981750488281,
+      "fine_tune": {
+        "n": 41,
+        "actual": 168.66090334995533,
+        "residue_expected": 132.3193665589637,
+        "sampling_se": 81.72185654049525
+      },
+      "calibration": {
+        "n": 52,
+        "actual": 71.81100381387157,
+        "residue_expected": 131.96381800893755,
+        "sampling_se": 66.29675487627519
+      },
+      "confirmation": {
+        "n": 52,
+        "actual": 36.061569791043176,
+        "residue_expected": 138.77961416223226,
+        "sampling_se": 91.11428548290795
+      }
+    },
+    "700344": {
+      "population": 276785,
+      "sidecar_signed": 1355.9129638671875,
+      "sidecar_absolute": 2450.4931640625,
+      "fine_tune": {
+        "n": 1297,
+        "actual": 1222.4829428660175,
+        "residue_expected": 1346.0277403219236,
+        "sampling_se": 140.25305608633315
+      },
+      "calibration": {
+        "n": 1621,
+        "actual": 1510.2392303817264,
+        "residue_expected": 1401.7639486142775,
+        "sampling_se": 119.23420173585562
+      },
+      "confirmation": {
+        "n": 1621,
+        "actual": 1499.343033430412,
+        "residue_expected": 1382.2219353525606,
+        "sampling_se": 122.27736406251478
+      }
+    },
+    "700345": {
+      "population": 16228,
+      "sidecar_signed": 320.046875,
+      "sidecar_absolute": 602.3785400390625,
+      "fine_tune": {
+        "n": 76,
+        "actual": 212.3901716441063,
+        "residue_expected": 290.95097276539525,
+        "sampling_se": 128.27911039157726
+      },
+      "calibration": {
+        "n": 95,
+        "actual": 222.93417387754948,
+        "residue_expected": 264.9690448956214,
+        "sampling_se": 137.50328951995047
+      },
+      "confirmation": {
+        "n": 95,
+        "actual": 431.9144973082982,
+        "residue_expected": 360.3570415578661,
+        "sampling_se": 116.78416085345148
+      }
+    },
+    "700346": {
+      "population": 820,
+      "sidecar_signed": 18.674448013305664,
+      "sidecar_absolute": 33.13803482055664,
+      "fine_tune": {
+        "n": 4,
+        "actual": 50.097127351909876,
+        "residue_expected": 24.146990729815176,
+        "sampling_se": 32.06924705176552
+      },
+      "calibration": {
+        "n": 5,
+        "actual": -0.09551953943446279,
+        "residue_expected": 21.264900154755136,
+        "sampling_se": 21.9282614311217
+      },
+      "confirmation": {
+        "n": 5,
+        "actual": 8.878767765127122,
+        "residue_expected": 30.621076859054426,
+        "sampling_se": 28.132149759059146
+      }
+    },
+    "700347": {
+      "population": 2144,
+      "sidecar_signed": 69.46835327148438,
+      "sidecar_absolute": 115.00777435302734,
+      "fine_tune": {
+        "n": 10,
+        "actual": 87.28794087693096,
+        "residue_expected": 74.28892284154426,
+        "sampling_se": 59.10546621240835
+      },
+      "calibration": {
+        "n": 13,
+        "actual": 156.9101254517356,
+        "residue_expected": 74.69001029787614,
+        "sampling_se": 45.96338337148575
+      },
+      "confirmation": {
+        "n": 13,
+        "actual": 94.04545953010138,
+        "residue_expected": 55.286159423179924,
+        "sampling_se": 42.70067889222439
+      }
+    },
+    "700348": {
+      "population": 142,
+      "sidecar_signed": 31.42875862121582,
+      "sidecar_absolute": 43.13032531738281,
+      "fine_tune": {
+        "n": 1,
+        "actual": 27.032244950532913,
+        "residue_expected": 37.213737292163486,
+        "sampling_se": 110.55382013237535
+      },
+      "calibration": {
+        "n": 1,
+        "actual": 37.71726459264755,
+        "residue_expected": 31.385988873946996,
+        "sampling_se": 33.626879686351096
+      },
+      "confirmation": {
+        "n": 1,
+        "actual": 24.154898762702942,
+        "residue_expected": 5.469152357867535,
+        "sampling_se": 57.62177379647357
+      }
+    },
+    "700349": {
+      "population": 34,
+      "sidecar_signed": 1.4883943796157837,
+      "sidecar_absolute": 2.395329236984253,
+      "fine_tune": {
+        "n": 1,
+        "actual": 1.2120869532227516,
+        "residue_expected": 0.8430656127631664,
+        "sampling_se": 1.1026263721362346
+      },
+      "calibration": {
+        "n": 1,
+        "actual": 8.114371359348297,
+        "residue_expected": 3.6791565124876797,
+        "sampling_se": 3.1301293496222677
+      },
+      "confirmation": {
+        "n": 1,
+        "actual": -0.15868950728327036,
+        "residue_expected": 1.391307202167809,
+        "sampling_se": 1.3929460858276694
+      }
+    }
+  },
+  "exact_physics_duplicates": {
+    "teacher_odd_confirmation": {
+      "pairs": 60
+    },
+    "teacher_odd_calibration": {
+      "pairs": 63
+    },
+    "fine_tune_calibration": {
+      "pairs": 1
+    },
+    "fine_tune_confirmation": {
+      "pairs": 0
+    }
+  },
+  "diagnostic": "Exact unordered multisets of non-padding (type,px,py,pz,E,tag) float32 input vectors, all nominal DSIDs. Candidate hash matches verified by exact equality. Stored eventNumber metadata is modulo 1000."
+}

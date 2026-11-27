@@ -51,7 +51,7 @@ p.add_argument("--no-mlp", action="store_true",
                help="attention-only (include_mlp=False)")
 p.add_argument("--warmup-steps", type=int, default=None)
 p.add_argument("--features", type=str, default=None,
-               help="comma list from {phi,eta,pt,m,tag}; default keeps all 5")
+               help="comma list from {phi,sin_dphi_lep,cos_dphi_lep,eta,pt,m,tag}; default uses absolute phi")
 p.add_argument("--object-net-layers", type=int, default=None)
 p.add_argument("--layer-norm", action="store_true",
                help="LayerNorm in the object_net (NB: not in the attention blocks)")
